@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { School, Users, LayoutDashboard, Menu, X } from "lucide-react";
+import { Building2, Users, LayoutDashboard, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -10,8 +10,8 @@ interface LayoutProps {
 
 const navItems = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/escolas", label: "Escolas", icon: School },
-  { path: "/professores", label: "Professores", icon: Users },
+  { path: "/escolas", label: "Unidades Orgânicas", icon: Building2 },
+  { path: "/professores", label: "Agentes", icon: Users },
 ];
 
 export function Layout({ children }: LayoutProps) {
@@ -25,7 +25,7 @@ export function Layout({ children }: LayoutProps) {
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
-              <School className="h-5 w-5 text-primary-foreground" />
+              <Building2 className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
               <h1 className="text-lg font-bold text-foreground">EduGestão</h1>
