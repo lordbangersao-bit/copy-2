@@ -16,33 +16,237 @@ export type Database = {
     Tables: {
       escolas: {
         Row: {
+          alunos_fem_1_classe: number | null
+          alunos_fem_10_classe: number | null
+          alunos_fem_11_classe: number | null
+          alunos_fem_12_classe: number | null
+          alunos_fem_13_classe: number | null
+          alunos_fem_2_classe: number | null
+          alunos_fem_3_classe: number | null
+          alunos_fem_4_classe: number | null
+          alunos_fem_5_classe: number | null
+          alunos_fem_6_classe: number | null
+          alunos_fem_7_classe: number | null
+          alunos_fem_8_classe: number | null
+          alunos_fem_9_classe: number | null
+          alunos_fem_iniciacao: number | null
+          alunos_feminino: number | null
+          alunos_masc_1_classe: number | null
+          alunos_masc_10_classe: number | null
+          alunos_masc_11_classe: number | null
+          alunos_masc_12_classe: number | null
+          alunos_masc_13_classe: number | null
+          alunos_masc_2_classe: number | null
+          alunos_masc_3_classe: number | null
+          alunos_masc_4_classe: number | null
+          alunos_masc_5_classe: number | null
+          alunos_masc_6_classe: number | null
+          alunos_masc_7_classe: number | null
+          alunos_masc_8_classe: number | null
+          alunos_masc_9_classe: number | null
+          alunos_masc_iniciacao: number | null
+          alunos_masculino: number | null
+          codigo_organico: string | null
+          construcao: string | null
           created_at: string
+          decreto_criacao: string | null
           diretor: string | null
+          distancia_sede: string | null
           email: string | null
           endereco: string | null
           id: string
           nome: string
+          prof_feminino: number | null
+          prof_masculino: number | null
+          residencia: string | null
           telefone: string | null
+          total_alunos: number | null
+          total_alunos_1_classe: number | null
+          total_alunos_10_classe: number | null
+          total_alunos_11_classe: number | null
+          total_alunos_12_classe: number | null
+          total_alunos_13_classe: number | null
+          total_alunos_2_classe: number | null
+          total_alunos_3_classe: number | null
+          total_alunos_4_classe: number | null
+          total_alunos_5_classe: number | null
+          total_alunos_6_classe: number | null
+          total_alunos_7_classe: number | null
+          total_alunos_8_classe: number | null
+          total_alunos_9_classe: number | null
+          total_alunos_iniciacao: number | null
+          total_docentes: number | null
+          total_turmas: number | null
+          turmas_1_classe: number | null
+          turmas_10_classe: number | null
+          turmas_11_classe: number | null
+          turmas_12_classe: number | null
+          turmas_13_classe: number | null
+          turmas_2_classe: number | null
+          turmas_3_classe: number | null
+          turmas_4_classe: number | null
+          turmas_5_classe: number | null
+          turmas_6_classe: number | null
+          turmas_7_classe: number | null
+          turmas_8_classe: number | null
+          turmas_9_classe: number | null
+          turmas_iniciacao: number | null
           updated_at: string
         }
         Insert: {
+          alunos_fem_1_classe?: number | null
+          alunos_fem_10_classe?: number | null
+          alunos_fem_11_classe?: number | null
+          alunos_fem_12_classe?: number | null
+          alunos_fem_13_classe?: number | null
+          alunos_fem_2_classe?: number | null
+          alunos_fem_3_classe?: number | null
+          alunos_fem_4_classe?: number | null
+          alunos_fem_5_classe?: number | null
+          alunos_fem_6_classe?: number | null
+          alunos_fem_7_classe?: number | null
+          alunos_fem_8_classe?: number | null
+          alunos_fem_9_classe?: number | null
+          alunos_fem_iniciacao?: number | null
+          alunos_feminino?: number | null
+          alunos_masc_1_classe?: number | null
+          alunos_masc_10_classe?: number | null
+          alunos_masc_11_classe?: number | null
+          alunos_masc_12_classe?: number | null
+          alunos_masc_13_classe?: number | null
+          alunos_masc_2_classe?: number | null
+          alunos_masc_3_classe?: number | null
+          alunos_masc_4_classe?: number | null
+          alunos_masc_5_classe?: number | null
+          alunos_masc_6_classe?: number | null
+          alunos_masc_7_classe?: number | null
+          alunos_masc_8_classe?: number | null
+          alunos_masc_9_classe?: number | null
+          alunos_masc_iniciacao?: number | null
+          alunos_masculino?: number | null
+          codigo_organico?: string | null
+          construcao?: string | null
           created_at?: string
+          decreto_criacao?: string | null
           diretor?: string | null
+          distancia_sede?: string | null
           email?: string | null
           endereco?: string | null
           id?: string
           nome: string
+          prof_feminino?: number | null
+          prof_masculino?: number | null
+          residencia?: string | null
           telefone?: string | null
+          total_alunos?: number | null
+          total_alunos_1_classe?: number | null
+          total_alunos_10_classe?: number | null
+          total_alunos_11_classe?: number | null
+          total_alunos_12_classe?: number | null
+          total_alunos_13_classe?: number | null
+          total_alunos_2_classe?: number | null
+          total_alunos_3_classe?: number | null
+          total_alunos_4_classe?: number | null
+          total_alunos_5_classe?: number | null
+          total_alunos_6_classe?: number | null
+          total_alunos_7_classe?: number | null
+          total_alunos_8_classe?: number | null
+          total_alunos_9_classe?: number | null
+          total_alunos_iniciacao?: number | null
+          total_docentes?: number | null
+          total_turmas?: number | null
+          turmas_1_classe?: number | null
+          turmas_10_classe?: number | null
+          turmas_11_classe?: number | null
+          turmas_12_classe?: number | null
+          turmas_13_classe?: number | null
+          turmas_2_classe?: number | null
+          turmas_3_classe?: number | null
+          turmas_4_classe?: number | null
+          turmas_5_classe?: number | null
+          turmas_6_classe?: number | null
+          turmas_7_classe?: number | null
+          turmas_8_classe?: number | null
+          turmas_9_classe?: number | null
+          turmas_iniciacao?: number | null
           updated_at?: string
         }
         Update: {
+          alunos_fem_1_classe?: number | null
+          alunos_fem_10_classe?: number | null
+          alunos_fem_11_classe?: number | null
+          alunos_fem_12_classe?: number | null
+          alunos_fem_13_classe?: number | null
+          alunos_fem_2_classe?: number | null
+          alunos_fem_3_classe?: number | null
+          alunos_fem_4_classe?: number | null
+          alunos_fem_5_classe?: number | null
+          alunos_fem_6_classe?: number | null
+          alunos_fem_7_classe?: number | null
+          alunos_fem_8_classe?: number | null
+          alunos_fem_9_classe?: number | null
+          alunos_fem_iniciacao?: number | null
+          alunos_feminino?: number | null
+          alunos_masc_1_classe?: number | null
+          alunos_masc_10_classe?: number | null
+          alunos_masc_11_classe?: number | null
+          alunos_masc_12_classe?: number | null
+          alunos_masc_13_classe?: number | null
+          alunos_masc_2_classe?: number | null
+          alunos_masc_3_classe?: number | null
+          alunos_masc_4_classe?: number | null
+          alunos_masc_5_classe?: number | null
+          alunos_masc_6_classe?: number | null
+          alunos_masc_7_classe?: number | null
+          alunos_masc_8_classe?: number | null
+          alunos_masc_9_classe?: number | null
+          alunos_masc_iniciacao?: number | null
+          alunos_masculino?: number | null
+          codigo_organico?: string | null
+          construcao?: string | null
           created_at?: string
+          decreto_criacao?: string | null
           diretor?: string | null
+          distancia_sede?: string | null
           email?: string | null
           endereco?: string | null
           id?: string
           nome?: string
+          prof_feminino?: number | null
+          prof_masculino?: number | null
+          residencia?: string | null
           telefone?: string | null
+          total_alunos?: number | null
+          total_alunos_1_classe?: number | null
+          total_alunos_10_classe?: number | null
+          total_alunos_11_classe?: number | null
+          total_alunos_12_classe?: number | null
+          total_alunos_13_classe?: number | null
+          total_alunos_2_classe?: number | null
+          total_alunos_3_classe?: number | null
+          total_alunos_4_classe?: number | null
+          total_alunos_5_classe?: number | null
+          total_alunos_6_classe?: number | null
+          total_alunos_7_classe?: number | null
+          total_alunos_8_classe?: number | null
+          total_alunos_9_classe?: number | null
+          total_alunos_iniciacao?: number | null
+          total_docentes?: number | null
+          total_turmas?: number | null
+          turmas_1_classe?: number | null
+          turmas_10_classe?: number | null
+          turmas_11_classe?: number | null
+          turmas_12_classe?: number | null
+          turmas_13_classe?: number | null
+          turmas_2_classe?: number | null
+          turmas_3_classe?: number | null
+          turmas_4_classe?: number | null
+          turmas_5_classe?: number | null
+          turmas_6_classe?: number | null
+          turmas_7_classe?: number | null
+          turmas_8_classe?: number | null
+          turmas_9_classe?: number | null
+          turmas_iniciacao?: number | null
           updated_at?: string
         }
         Relationships: []
