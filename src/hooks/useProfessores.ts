@@ -14,6 +14,34 @@ export interface Professor {
   status: string;
   created_at: string;
   updated_at: string;
+  // Novos campos
+  numero_cadastro: string | null;
+  numero_agente: string | null;
+  idade: number | null;
+  genero: string | null;
+  arquivo_pessoal: string | null;
+  funcao: string | null;
+  categoria: string | null;
+  nivel_academico: string | null;
+  formado_em: string | null;
+  regime_contrato: string | null;
+  inicio_funcao: string | null;
+  tempo_servico: string | null;
+  qtd_processo_disciplinar: number | null;
+  estado_civil: string | null;
+  data_nascimento: string | null;
+  provincia: string | null;
+  comuna: string | null;
+  bairro_localidade: string | null;
+  condicao_fisica: string | null;
+  estado_saude: string | null;
+  actividade: string | null;
+  agente_transferido: boolean | null;
+  dependentes: string | null;
+  num_dependentes: number | null;
+  nome_parceira: string | null;
+  telefone_parceira: string | null;
+  outro_familiar: string | null;
 }
 
 export interface ProfessorWithEscola extends Professor {
@@ -40,7 +68,7 @@ export function useProfessores(escolaId?: string) {
         `)
         .order("nome");
       
-      if (escolaId) {
+      if (escolaId && escolaId !== "all") {
         query = query.eq("escola_id", escolaId);
       }
       
@@ -68,10 +96,10 @@ export function useCreateProfessor() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["professores"] });
-      toast.success("Professor cadastrado com sucesso!");
+      toast.success("Agente cadastrado com sucesso!");
     },
     onError: (error) => {
-      toast.error("Erro ao cadastrar professor: " + error.message);
+      toast.error("Erro ao cadastrar agente: " + error.message);
     },
   });
 }
@@ -93,10 +121,10 @@ export function useUpdateProfessor() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["professores"] });
-      toast.success("Professor atualizado com sucesso!");
+      toast.success("Agente atualizado com sucesso!");
     },
     onError: (error) => {
-      toast.error("Erro ao atualizar professor: " + error.message);
+      toast.error("Erro ao atualizar agente: " + error.message);
     },
   });
 }
@@ -115,10 +143,10 @@ export function useDeleteProfessor() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["professores"] });
-      toast.success("Professor excluído com sucesso!");
+      toast.success("Agente excluído com sucesso!");
     },
     onError: (error) => {
-      toast.error("Erro ao excluir professor: " + error.message);
+      toast.error("Erro ao excluir agente: " + error.message);
     },
   });
 }

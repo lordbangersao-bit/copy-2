@@ -49,42 +49,123 @@ export type Database = {
       }
       professores: {
         Row: {
+          actividade: string | null
+          agente_transferido: boolean | null
+          arquivo_pessoal: string | null
+          bairro_localidade: string | null
+          categoria: string | null
+          comuna: string | null
+          condicao_fisica: string | null
           cpf: string | null
           created_at: string
           data_admissao: string | null
+          data_nascimento: string | null
+          dependentes: string | null
           disciplina: string | null
           email: string | null
           escola_id: string | null
+          estado_civil: string | null
+          estado_saude: string | null
+          formado_em: string | null
+          funcao: string | null
+          genero: string | null
           id: string
+          idade: number | null
+          inicio_funcao: string | null
+          nivel_academico: string | null
           nome: string
+          nome_parceira: string | null
+          num_dependentes: number | null
+          numero_agente: string | null
+          numero_cadastro: string | null
+          outro_familiar: string | null
+          provincia: string | null
+          qtd_processo_disciplinar: number | null
+          regime_contrato: string | null
           status: string
           telefone: string | null
+          telefone_parceira: string | null
+          tempo_servico: string | null
           updated_at: string
         }
         Insert: {
+          actividade?: string | null
+          agente_transferido?: boolean | null
+          arquivo_pessoal?: string | null
+          bairro_localidade?: string | null
+          categoria?: string | null
+          comuna?: string | null
+          condicao_fisica?: string | null
           cpf?: string | null
           created_at?: string
           data_admissao?: string | null
+          data_nascimento?: string | null
+          dependentes?: string | null
           disciplina?: string | null
           email?: string | null
           escola_id?: string | null
+          estado_civil?: string | null
+          estado_saude?: string | null
+          formado_em?: string | null
+          funcao?: string | null
+          genero?: string | null
           id?: string
+          idade?: number | null
+          inicio_funcao?: string | null
+          nivel_academico?: string | null
           nome: string
+          nome_parceira?: string | null
+          num_dependentes?: number | null
+          numero_agente?: string | null
+          numero_cadastro?: string | null
+          outro_familiar?: string | null
+          provincia?: string | null
+          qtd_processo_disciplinar?: number | null
+          regime_contrato?: string | null
           status?: string
           telefone?: string | null
+          telefone_parceira?: string | null
+          tempo_servico?: string | null
           updated_at?: string
         }
         Update: {
+          actividade?: string | null
+          agente_transferido?: boolean | null
+          arquivo_pessoal?: string | null
+          bairro_localidade?: string | null
+          categoria?: string | null
+          comuna?: string | null
+          condicao_fisica?: string | null
           cpf?: string | null
           created_at?: string
           data_admissao?: string | null
+          data_nascimento?: string | null
+          dependentes?: string | null
           disciplina?: string | null
           email?: string | null
           escola_id?: string | null
+          estado_civil?: string | null
+          estado_saude?: string | null
+          formado_em?: string | null
+          funcao?: string | null
+          genero?: string | null
           id?: string
+          idade?: number | null
+          inicio_funcao?: string | null
+          nivel_academico?: string | null
           nome?: string
+          nome_parceira?: string | null
+          num_dependentes?: number | null
+          numero_agente?: string | null
+          numero_cadastro?: string | null
+          outro_familiar?: string | null
+          provincia?: string | null
+          qtd_processo_disciplinar?: number | null
+          regime_contrato?: string | null
           status?: string
           telefone?: string | null
+          telefone_parceira?: string | null
+          tempo_servico?: string | null
           updated_at?: string
         }
         Relationships: [
