@@ -20,11 +20,14 @@ import {
   UnidadeOrganica,
   UnidadeOrganicaInput,
 } from "@/hooks/useUnidadesOrganicas";
-import { Plus, Search, Pencil, Trash2, Building2, Users, GraduationCap } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Plus, Search, Pencil, Trash2, Building2, Users, GraduationCap, Lock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function UnidadesOrganicas() {
+  const { isAdmin } = useAuth();
   const { data: unidades, isLoading } = useUnidadesOrganicas();
   const createUnidade = useCreateUnidadeOrganica();
   const updateUnidade = useUpdateUnidadeOrganica();
@@ -60,6 +63,7 @@ export default function UnidadesOrganicas() {
   };
 
   const openEdit = (unidade: UnidadeOrganica) => {
+    if (!isAdmin) return;
     setEditingUnidade(unidade);
     setFormOpen(true);
   };
@@ -75,11 +79,27 @@ export default function UnidadesOrganicas() {
               Gestão das unidades orgânicas do município
             </p>
           </div>
-          <Button onClick={() => setFormOpen(true)} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Nova Unidade
-          </Button>
+          {isAdmin ? (
+            <Button onClick={() => setFormOpen(true)} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Nova Unidade
+            </Button>
+          ) : (
+            <Badge variant="secondary" className="gap-1 py-1.5">
+              <Lock className="h-3 w-3" />
+              Modo Visualização
+            </Badge>
+          )}
         </div>
+
+        {!isAdmin && (
+          <Alert>
+            <Lock className="h-4 w-4" />
+            <AlertDescription>
+              Você está em modo de visualização. Apenas administradores podem criar, editar ou excluir registos.
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Search */}
         <div className="relative max-w-md">
@@ -171,20 +191,26 @@ export default function UnidadesOrganicas() {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openEdit(unidade)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeleteId(unidade.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        {isAdmin ? (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => openEdit(unidade)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setDeleteId(unidade.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">-</span>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -199,7 +225,7 @@ export default function UnidadesOrganicas() {
                           ? "Nenhuma unidade orgânica encontrada"
                           : "Nenhuma unidade orgânica cadastrada ainda"}
                       </p>
-                      {!search && (
+                      {!search && isAdmin && (
                         <Button
                           variant="outline"
                           size="sm"
@@ -217,27 +243,31 @@ export default function UnidadesOrganicas() {
         </div>
       </div>
 
-      {/* Forms */}
-      <UnidadeOrganicaForm
-        open={formOpen}
-        onOpenChange={(open) => {
-          setFormOpen(open);
-          if (!open) setEditingUnidade(null);
-        }}
-        unidade={editingUnidade}
-        onSubmit={editingUnidade ? handleUpdate : handleCreate}
-        isLoading={createUnidade.isPending || updateUnidade.isPending}
-      />
+      {/* Forms - Only for Admin */}
+      {isAdmin && (
+        <>
+          <UnidadeOrganicaForm
+            open={formOpen}
+            onOpenChange={(open) => {
+              setFormOpen(open);
+              if (!open) setEditingUnidade(null);
+            }}
+            unidade={editingUnidade}
+            onSubmit={editingUnidade ? handleUpdate : handleCreate}
+            isLoading={createUnidade.isPending || updateUnidade.isPending}
+          />
 
-      <ConfirmDialog
-        open={!!deleteId}
-        onOpenChange={(open) => !open && setDeleteId(null)}
-        title="Excluir unidade orgânica"
-        description="Tem certeza que deseja excluir esta unidade orgânica? Os agentes vinculados ficarão sem unidade."
-        onConfirm={handleDelete}
-        confirmText="Excluir"
-        variant="destructive"
-      />
+          <ConfirmDialog
+            open={!!deleteId}
+            onOpenChange={(open) => !open && setDeleteId(null)}
+            title="Excluir unidade orgânica"
+            description="Tem certeza que deseja excluir esta unidade orgânica? Os agentes vinculados ficarão sem unidade."
+            onConfirm={handleDelete}
+            confirmText="Excluir"
+            variant="destructive"
+          />
+        </>
+      )}
     </Layout>
   );
 }

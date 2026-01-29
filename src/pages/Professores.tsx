@@ -30,7 +30,8 @@ import {
   ProfessorInput,
 } from "@/hooks/useProfessores";
 import { useEscolas } from "@/hooks/useEscolas";
-import { Plus, Search, Pencil, Trash2, Users, Eye, CreditCard } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Plus, Search, Pencil, Trash2, Users, Eye, CreditCard, Lock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -40,8 +41,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function Professores() {
+  const { isAdmin } = useAuth();
   const { data: escolas } = useEscolas();
   const [escolaFilter, setEscolaFilter] = useState<string>("");
   const { data: professores, isLoading } = useProfessores(escolaFilter || undefined);
@@ -81,6 +84,7 @@ export default function Professores() {
   };
 
   const openEdit = (professor: Professor) => {
+    if (!isAdmin) return;
     setEditingProfessor(professor);
     setFormOpen(true);
   };
@@ -124,11 +128,27 @@ export default function Professores() {
               Gerencie os agentes do município
             </p>
           </div>
-          <Button onClick={() => setFormOpen(true)} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Novo Agente
-          </Button>
+          {isAdmin ? (
+            <Button onClick={() => setFormOpen(true)} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Novo Agente
+            </Button>
+          ) : (
+            <Badge variant="secondary" className="gap-1 py-1.5">
+              <Lock className="h-3 w-3" />
+              Modo Visualização
+            </Badge>
+          )}
         </div>
+
+        {!isAdmin && (
+          <Alert>
+            <Lock className="h-4 w-4" />
+            <AlertDescription>
+              Você está em modo de visualização. Apenas administradores podem criar, editar ou excluir registos.
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-4">
@@ -239,22 +259,26 @@ export default function Professores() {
                         >
                           <CreditCard className="h-4 w-4 text-primary" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openEdit(professor)}
-                          title="Editar"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeleteId(professor.id)}
-                          title="Excluir"
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
+                        {isAdmin && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => openEdit(professor)}
+                              title="Editar"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setDeleteId(professor.id)}
+                              title="Excluir"
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -269,7 +293,7 @@ export default function Professores() {
                           ? "Nenhum agente encontrado"
                           : "Nenhum agente cadastrado ainda"}
                       </p>
-                      {!search && !escolaFilter && (
+                      {!search && !escolaFilter && isAdmin && (
                         <Button
                           variant="outline"
                           size="sm"
@@ -363,27 +387,31 @@ export default function Professores() {
         </DialogContent>
       </Dialog>
 
-      {/* Forms */}
-      <ProfessorForm
-        open={formOpen}
-        onOpenChange={(open) => {
-          setFormOpen(open);
-          if (!open) setEditingProfessor(null);
-        }}
-        professor={editingProfessor}
-        onSubmit={editingProfessor ? handleUpdate : handleCreate}
-        isLoading={createProfessor.isPending || updateProfessor.isPending}
-      />
+      {/* Forms - Only for Admin */}
+      {isAdmin && (
+        <>
+          <ProfessorForm
+            open={formOpen}
+            onOpenChange={(open) => {
+              setFormOpen(open);
+              if (!open) setEditingProfessor(null);
+            }}
+            professor={editingProfessor}
+            onSubmit={editingProfessor ? handleUpdate : handleCreate}
+            isLoading={createProfessor.isPending || updateProfessor.isPending}
+          />
 
-      <ConfirmDialog
-        open={!!deleteId}
-        onOpenChange={(open) => !open && setDeleteId(null)}
-        title="Excluir agente"
-        description="Tem certeza que deseja excluir este agente? Esta ação não pode ser desfeita."
-        onConfirm={handleDelete}
-        confirmText="Excluir"
-        variant="destructive"
-      />
+          <ConfirmDialog
+            open={!!deleteId}
+            onOpenChange={(open) => !open && setDeleteId(null)}
+            title="Excluir agente"
+            description="Tem certeza que deseja excluir este agente? Esta ação não pode ser desfeita."
+            onConfirm={handleDelete}
+            confirmText="Excluir"
+            variant="destructive"
+          />
+        </>
+      )}
 
       <EmitirIDDialog
         open={!!emitirIDProfessor}
