@@ -271,6 +271,7 @@ export type Database = {
           estado_civil: string | null
           estado_saude: string | null
           formado_em: string | null
+          foto_url: string | null
           funcao: string | null
           genero: string | null
           id: string
@@ -311,6 +312,7 @@ export type Database = {
           estado_civil?: string | null
           estado_saude?: string | null
           formado_em?: string | null
+          foto_url?: string | null
           funcao?: string | null
           genero?: string | null
           id?: string
@@ -351,6 +353,7 @@ export type Database = {
           estado_civil?: string | null
           estado_saude?: string | null
           formado_em?: string | null
+          foto_url?: string | null
           funcao?: string | null
           genero?: string | null
           id?: string
