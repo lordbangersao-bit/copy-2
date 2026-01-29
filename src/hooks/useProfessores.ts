@@ -14,7 +14,7 @@ export interface Professor {
   status: string;
   created_at: string;
   updated_at: string;
-  // Novos campos
+  // Campos adicionais
   numero_cadastro: string | null;
   numero_agente: string | null;
   idade: number | null;
@@ -42,6 +42,7 @@ export interface Professor {
   nome_parceira: string | null;
   telefone_parceira: string | null;
   outro_familiar: string | null;
+  foto_url: string | null;
 }
 
 export interface ProfessorWithEscola extends Professor {

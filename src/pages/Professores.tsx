@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { ProfessorForm } from "@/components/ProfessorForm";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { EmitirIDDialog } from "@/components/EmitirIDDialog";
 import {
   useProfessores,
   useCreateProfessor,
@@ -29,7 +30,7 @@ import {
   ProfessorInput,
 } from "@/hooks/useProfessores";
 import { useEscolas } from "@/hooks/useEscolas";
-import { Plus, Search, Pencil, Trash2, Users, Eye } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Users, Eye, CreditCard } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -53,6 +54,7 @@ export default function Professores() {
   const [editingProfessor, setEditingProfessor] = useState<Professor | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [viewingProfessor, setViewingProfessor] = useState<ProfessorWithEscola | null>(null);
+  const [emitirIDProfessor, setEmitirIDProfessor] = useState<ProfessorWithEscola | null>(null);
 
   const filteredProfessores = professores?.filter((professor) =>
     professor.nome.toLowerCase().includes(search.toLowerCase()) ||
@@ -232,6 +234,14 @@ export default function Professores() {
                         <Button
                           variant="ghost"
                           size="icon"
+                          onClick={() => setEmitirIDProfessor(professor)}
+                          title="Emitir ID"
+                        >
+                          <CreditCard className="h-4 w-4 text-primary" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => openEdit(professor)}
                           title="Editar"
                         >
@@ -373,6 +383,12 @@ export default function Professores() {
         onConfirm={handleDelete}
         confirmText="Excluir"
         variant="destructive"
+      />
+
+      <EmitirIDDialog
+        open={!!emitirIDProfessor}
+        onOpenChange={(open) => !open && setEmitirIDProfessor(null)}
+        professor={emitirIDProfessor}
       />
     </Layout>
   );
