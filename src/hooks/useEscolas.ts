@@ -5,10 +5,22 @@ import { toast } from "sonner";
 export interface Escola {
   id: string;
   nome: string;
+  codigo_organico: string | null;
   endereco: string | null;
   telefone: string | null;
   email: string | null;
   diretor: string | null;
+  residencia: string | null;
+  distancia_sede: string | null;
+  construcao: string | null;
+  decreto_criacao: string | null;
+  total_docentes: number | null;
+  prof_masculino: number | null;
+  prof_feminino: number | null;
+  total_alunos: number | null;
+  alunos_masculino: number | null;
+  alunos_feminino: number | null;
+  total_turmas: number | null;
   created_at: string;
   updated_at: string;
 }
