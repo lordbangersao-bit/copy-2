@@ -2,99 +2,132 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* Design System Institucional - Direção Provincial da Educação
+   Cores sóbrias, institucionais e acessíveis (WCAG AA)
+   All colors MUST be HSL.
 */
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 215 25% 15%;
+    /* Background tones */
+    --background: 220 15% 97%;
+    --foreground: 220 20% 15%;
 
+    /* Card surfaces */
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 15%;
+    --card-foreground: 220 20% 15%;
 
+    /* Popover */
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 15%;
+    --popover-foreground: 220 20% 15%;
 
-    --primary: 210 70% 45%;
+    /* Primary - Azul institucional escuro */
+    --primary: 215 65% 35%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 145 45% 45%;
+    /* Secondary - Verde educacional */
+    --secondary: 160 50% 38%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 20% 94%;
-    --muted-foreground: 215 15% 45%;
+    /* Muted - Cinza suave */
+    --muted: 220 15% 92%;
+    --muted-foreground: 220 10% 45%;
 
-    --accent: 35 90% 55%;
-    --accent-foreground: 215 25% 15%;
+    /* Accent - Âmbar para alertas e destaques */
+    --accent: 38 92% 50%;
+    --accent-foreground: 220 20% 15%;
 
-    --destructive: 0 70% 55%;
+    /* Destructive */
+    --destructive: 0 72% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 20% 88%;
-    --input: 210 20% 88%;
-    --ring: 210 70% 45%;
+    /* Borders and inputs */
+    --border: 220 15% 88%;
+    --input: 220 15% 88%;
+    --ring: 215 65% 35%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    --sidebar-background: 210 70% 45%;
+    /* Sidebar - Azul institucional profundo */
+    --sidebar-background: 215 65% 28%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 210 70% 45%;
-    --sidebar-accent: 210 70% 38%;
+    --sidebar-primary-foreground: 215 65% 28%;
+    --sidebar-accent: 215 60% 35%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 210 70% 38%;
+    --sidebar-border: 215 55% 38%;
     --sidebar-ring: 0 0% 100%;
+    --sidebar-muted: 215 55% 42%;
+    --sidebar-muted-foreground: 210 30% 80%;
 
-    --success: 145 45% 45%;
+    /* Semantic colors */
+    --success: 160 50% 38%;
     --success-foreground: 0 0% 100%;
-    --warning: 35 90% 55%;
-    --warning-foreground: 215 25% 15%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 220 20% 15%;
+    --info: 200 80% 50%;
+    --info-foreground: 0 0% 100%;
+
+    /* Chart colors for data visualization */
+    --chart-1: 215 65% 35%;
+    --chart-2: 160 50% 38%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 280 50% 50%;
+    --chart-5: 340 75% 55%;
   }
 
   .dark {
-    --background: 215 25% 10%;
-    --foreground: 210 20% 98%;
+    --background: 220 20% 10%;
+    --foreground: 220 15% 95%;
 
-    --card: 215 25% 13%;
-    --card-foreground: 210 20% 98%;
+    --card: 220 20% 13%;
+    --card-foreground: 220 15% 95%;
 
-    --popover: 215 25% 13%;
-    --popover-foreground: 210 20% 98%;
+    --popover: 220 20% 13%;
+    --popover-foreground: 220 15% 95%;
 
-    --primary: 210 70% 55%;
+    --primary: 210 60% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 145 45% 50%;
+    --secondary: 160 45% 48%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 215 20% 20%;
-    --muted-foreground: 210 15% 65%;
+    --muted: 220 15% 20%;
+    --muted-foreground: 220 10% 60%;
 
-    --accent: 35 90% 55%;
-    --accent-foreground: 215 25% 15%;
+    --accent: 38 92% 55%;
+    --accent-foreground: 220 20% 10%;
 
-    --destructive: 0 60% 50%;
+    --destructive: 0 60% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 20% 20%;
-    --input: 215 20% 20%;
-    --ring: 210 70% 55%;
+    --border: 220 15% 22%;
+    --input: 220 15% 22%;
+    --ring: 210 60% 55%;
     
-    --sidebar-background: 215 25% 13%;
-    --sidebar-foreground: 210 20% 98%;
-    --sidebar-primary: 210 70% 55%;
+    --sidebar-background: 220 20% 11%;
+    --sidebar-foreground: 220 15% 95%;
+    --sidebar-primary: 210 60% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 20% 18%;
-    --sidebar-accent-foreground: 210 20% 98%;
-    --sidebar-border: 215 20% 18%;
-    --sidebar-ring: 210 70% 55%;
+    --sidebar-accent: 220 15% 18%;
+    --sidebar-accent-foreground: 220 15% 95%;
+    --sidebar-border: 220 15% 22%;
+    --sidebar-ring: 210 60% 55%;
+    --sidebar-muted: 220 15% 25%;
+    --sidebar-muted-foreground: 220 10% 65%;
 
-    --success: 145 45% 50%;
+    --success: 160 45% 48%;
     --success-foreground: 0 0% 100%;
-    --warning: 35 90% 55%;
-    --warning-foreground: 215 25% 15%;
+    --warning: 38 92% 55%;
+    --warning-foreground: 220 20% 10%;
+    --info: 200 80% 55%;
+    --info-foreground: 0 0% 100%;
+
+    --chart-1: 210 60% 55%;
+    --chart-2: 160 45% 48%;
+    --chart-3: 38 92% 55%;
+    --chart-4: 280 50% 55%;
+    --chart-5: 340 75% 60%;
   }
 }
 
@@ -104,6 +137,80 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Focus visible styles for accessibility */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer utilities {
+  /* Scrollbar styling */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted)) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted));
+    border-radius: 3px;
+  }
+
+  /* Hide scrollbar utility */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Glass effect */
+  .glass {
+    @apply bg-card/80 backdrop-blur-sm border border-border/50;
+  }
+
+  /* Gradient backgrounds */
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(215 65% 28%) 100%);
+  }
+
+  .gradient-secondary {
+    background: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(160 50% 30%) 100%);
+  }
+
+  /* Card hover effects */
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-md hover:border-primary/20;
+  }
+
+  /* Data table row styles */
+  .table-row-hover {
+    @apply transition-colors hover:bg-muted/50;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
   }
 }
