@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Layout } from "@/components/Layout";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,27 +23,61 @@ import {
   UnidadeOrganicaInput,
 } from "@/hooks/useUnidadesOrganicas";
 import { useAuth } from "@/hooks/useAuth";
-import { Plus, Search, Pencil, Trash2, Building2, Users, GraduationCap, Lock } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Pencil,
+  Trash2,
+  Building2,
+  Users,
+  GraduationCap,
+  Lock,
+  Download,
+  MoreHorizontal,
+  Eye,
+  MapPin,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function UnidadesOrganicas() {
   const { isAdmin } = useAuth();
-  const { data: unidades, isLoading } = useUnidadesOrganicas();
+  const { data: unidades, isLoading, error } = useUnidadesOrganicas();
   const createUnidade = useCreateUnidadeOrganica();
   const updateUnidade = useUpdateUnidadeOrganica();
   const deleteUnidade = useDeleteUnidadeOrganica();
 
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
-  const [editingUnidade, setEditingUnidade] = useState<UnidadeOrganica | null>(null);
+  const [editingUnidade, setEditingUnidade] = useState<UnidadeOrganica | null>(
+    null
+  );
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [viewingUnidade, setViewingUnidade] = useState<UnidadeOrganica | null>(
+    null
+  );
 
-  const filteredUnidades = unidades?.filter((unidade) =>
-    unidade.nome.toLowerCase().includes(search.toLowerCase()) ||
-    unidade.codigo_organico?.toLowerCase().includes(search.toLowerCase()) ||
-    unidade.residencia?.toLowerCase().includes(search.toLowerCase())
+  const filteredUnidades = unidades?.filter(
+    (unidade) =>
+      unidade.nome.toLowerCase().includes(search.toLowerCase()) ||
+      unidade.codigo_organico?.toLowerCase().includes(search.toLowerCase()) ||
+      unidade.residencia?.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleCreate = (data: UnidadeOrganicaInput) => {
@@ -68,92 +104,209 @@ export default function UnidadesOrganicas() {
     setFormOpen(true);
   };
 
-  return (
-    <Layout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Unidades Orgânicas</h1>
-            <p className="text-muted-foreground mt-1">
-              Gestão das unidades orgânicas do município
-            </p>
-          </div>
-          {isAdmin ? (
-            <Button onClick={() => setFormOpen(true)} className="gap-2">
-              <Plus className="h-4 w-4" />
-              Nova Unidade
-            </Button>
-          ) : (
-            <Badge variant="secondary" className="gap-1 py-1.5">
-              <Lock className="h-3 w-3" />
-              Modo Visualização
-            </Badge>
-          )}
-        </div>
+  // Calculate totals
+  const totalDocentes = unidades?.reduce(
+    (acc, u) => acc + (u.total_docentes || 0),
+    0
+  ) || 0;
+  const totalAlunos = unidades?.reduce(
+    (acc, u) => acc + (u.total_alunos || 0),
+    0
+  ) || 0;
+  const totalTurmas = unidades?.reduce(
+    (acc, u) => acc + (u.total_turmas || 0),
+    0
+  ) || 0;
 
+  const DetailItem = ({
+    label,
+    value,
+  }: {
+    label: string;
+    value: string | number | null | undefined;
+  }) => (
+    <div className="space-y-1">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="text-sm font-medium">{value || "-"}</p>
+    </div>
+  );
+
+  return (
+    <AppLayout>
+      <div className="space-y-6">
+        {/* Page Header */}
+        <PageHeader
+          title="Unidades Orgânicas"
+          description="Gestão das escolas e unidades educacionais do município"
+          icon={<Building2 className="h-6 w-6" />}
+          badge={
+            !isAdmin ? (
+              <Badge variant="secondary" className="gap-1">
+                <Lock className="h-3 w-3" />
+                Visualização
+              </Badge>
+            ) : null
+          }
+          actions={
+            isAdmin ? (
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" disabled>
+                  <Download className="h-4 w-4 mr-2" />
+                  Exportar
+                </Button>
+                <Button onClick={() => setFormOpen(true)} size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nova Unidade
+                </Button>
+              </div>
+            ) : null
+          }
+        />
+
+        {/* View Mode Alert */}
         {!isAdmin && (
-          <Alert>
-            <Lock className="h-4 w-4" />
+          <Alert className="border-warning/50 bg-warning/5">
+            <Lock className="h-4 w-4 text-warning" />
             <AlertDescription>
-              Você está em modo de visualização. Apenas administradores podem criar, editar ou excluir registos.
+              Você está em modo de visualização. Apenas administradores podem
+              criar, editar ou excluir registos.
             </AlertDescription>
           </Alert>
         )}
 
-        {/* Search */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por nome, código ou residência..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-10"
-          />
+        {/* Stats Summary */}
+        <div className="grid gap-4 sm:grid-cols-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Total de Unidades
+                  </p>
+                  <p className="text-2xl font-bold">{unidades?.length || 0}</p>
+                </div>
+                <Building2 className="h-8 w-8 text-primary/20" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Total de Docentes
+                  </p>
+                  <p className="text-2xl font-bold text-secondary">
+                    {totalDocentes.toLocaleString("pt-AO")}
+                  </p>
+                </div>
+                <Users className="h-8 w-8 text-secondary/20" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Total de Alunos
+                  </p>
+                  <p className="text-2xl font-bold text-primary">
+                    {totalAlunos.toLocaleString("pt-AO")}
+                  </p>
+                </div>
+                <GraduationCap className="h-8 w-8 text-primary/20" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Total de Turmas
+                  </p>
+                  <p className="text-2xl font-bold">{totalTurmas}</p>
+                </div>
+                <div className="h-8 w-8 rounded-full bg-muted" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
+        {/* Search */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Pesquisar por nome, código ou residência..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Table */}
-        <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Unidade Orgânica</TableHead>
-                <TableHead className="hidden md:table-cell">Código</TableHead>
-                <TableHead className="hidden sm:table-cell">Residência</TableHead>
-                <TableHead className="hidden lg:table-cell">
-                  <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
-                    Docentes
+        <Card className="overflow-hidden">
+          {error ? (
+            <EmptyState
+              type="error"
+              title="Erro ao carregar dados"
+              description={error.message}
+              action={{
+                label: "Tentar novamente",
+                onClick: () => window.location.reload(),
+              }}
+            />
+          ) : isLoading ? (
+            <div className="p-6 space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-center gap-4">
+                  <Skeleton className="h-10 w-10 rounded-lg" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-1/3" />
+                    <Skeleton className="h-3 w-1/4" />
                   </div>
-                </TableHead>
-                <TableHead className="hidden lg:table-cell">
-                  <div className="flex items-center gap-1">
-                    <GraduationCap className="h-4 w-4" />
-                    Alunos
-                  </div>
-                </TableHead>
-                <TableHead className="w-24">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                [...Array(5)].map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell><Skeleton className="h-5 w-48" /></TableCell>
-                    <TableCell className="hidden md:table-cell"><Skeleton className="h-5 w-16" /></TableCell>
-                    <TableCell className="hidden sm:table-cell"><Skeleton className="h-5 w-28" /></TableCell>
-                    <TableCell className="hidden lg:table-cell"><Skeleton className="h-5 w-16" /></TableCell>
-                    <TableCell className="hidden lg:table-cell"><Skeleton className="h-5 w-16" /></TableCell>
-                    <TableCell><Skeleton className="h-8 w-20" /></TableCell>
-                  </TableRow>
-                ))
-              ) : filteredUnidades && filteredUnidades.length > 0 ? (
-                filteredUnidades.map((unidade) => (
-                  <TableRow key={unidade.id}>
+                  <Skeleton className="h-6 w-20" />
+                </div>
+              ))}
+            </div>
+          ) : filteredUnidades && filteredUnidades.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="font-semibold">Unidade Orgânica</TableHead>
+                  <TableHead className="hidden md:table-cell font-semibold">
+                    Código
+                  </TableHead>
+                  <TableHead className="hidden sm:table-cell font-semibold">
+                    Residência
+                  </TableHead>
+                  <TableHead className="hidden lg:table-cell font-semibold">
+                    <div className="flex items-center gap-1">
+                      <Users className="h-4 w-4" />
+                      Docentes
+                    </div>
+                  </TableHead>
+                  <TableHead className="hidden lg:table-cell font-semibold">
+                    <div className="flex items-center gap-1">
+                      <GraduationCap className="h-4 w-4" />
+                      Alunos
+                    </div>
+                  </TableHead>
+                  <TableHead className="w-20 font-semibold">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredUnidades.map((unidade) => (
+                  <TableRow key={unidade.id} className="table-row-hover">
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
-                          <Building2 className="h-4 w-4 text-primary" />
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                          <Building2 className="h-5 w-5 text-primary" />
                         </div>
                         <div>
                           <p className="font-medium">{unidade.nome}</p>
@@ -167,81 +320,212 @@ export default function UnidadesOrganicas() {
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       {unidade.codigo_organico ? (
-                        <Badge variant="outline">{unidade.codigo_organico}</Badge>
-                      ) : "-"}
+                        <Badge variant="outline" className="font-mono">
+                          {unidade.codigo_organico}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
-                      {unidade.residencia || "-"}
+                      {unidade.residencia ? (
+                        <div className="flex items-center gap-1 text-sm">
+                          <MapPin className="h-3 w-3 text-muted-foreground" />
+                          {unidade.residencia}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
                       <div className="text-sm">
-                        <span className="font-medium">{unidade.total_docentes || 0}</span>
+                        <span className="font-medium">
+                          {unidade.total_docentes || 0}
+                        </span>
                         <span className="text-muted-foreground text-xs ml-1">
-                          ({unidade.prof_masculino || 0}M / {unidade.prof_feminino || 0}F)
+                          ({unidade.prof_masculino || 0}M /{" "}
+                          {unidade.prof_feminino || 0}F)
                         </span>
                       </div>
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
                       <div className="text-sm">
-                        <span className="font-medium">{unidade.total_alunos || 0}</span>
+                        <span className="font-medium">
+                          {(unidade.total_alunos || 0).toLocaleString("pt-AO")}
+                        </span>
                         <span className="text-muted-foreground text-xs ml-1">
                           ({unidade.total_turmas || 0} turmas)
                         </span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-1">
-                        {isAdmin ? (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => openEdit(unidade)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => setDeleteId(unidade.id)}
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">-</span>
-                        )}
-                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => setViewingUnidade(unidade)}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            Ver detalhes
+                          </DropdownMenuItem>
+                          {isAdmin && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => openEdit(unidade)}>
+                                <Pencil className="h-4 w-4 mr-2" />
+                                Editar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onClick={() => setDeleteId(unidade.id)}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Excluir
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-32 text-center">
-                    <div className="flex flex-col items-center gap-2">
-                      <Building2 className="h-8 w-8 text-muted-foreground" />
-                      <p className="text-muted-foreground">
-                        {search
-                          ? "Nenhuma unidade orgânica encontrada"
-                          : "Nenhuma unidade orgânica cadastrada ainda"}
-                      </p>
-                      {!search && isAdmin && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setFormOpen(true)}
-                        >
-                          Cadastrar primeira unidade
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <EmptyState
+              type={search ? "no-results" : "empty"}
+              title={
+                search
+                  ? "Nenhuma unidade encontrada"
+                  : "Nenhuma unidade cadastrada"
+              }
+              description={
+                search
+                  ? "Tente ajustar os termos de pesquisa"
+                  : "Comece adicionando a primeira unidade orgânica ao sistema"
+              }
+              action={
+                !search && isAdmin
+                  ? {
+                      label: "Cadastrar Unidade",
+                      onClick: () => setFormOpen(true),
+                    }
+                  : undefined
+              }
+            />
+          )}
+        </Card>
       </div>
+
+      {/* View Details Dialog */}
+      <Dialog
+        open={!!viewingUnidade}
+        onOpenChange={(open) => !open && setViewingUnidade(null)}
+      >
+        <DialogContent className="sm:max-w-2xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5 text-primary" />
+              Detalhes da Unidade Orgânica
+            </DialogTitle>
+          </DialogHeader>
+          {viewingUnidade && (
+            <ScrollArea className="h-[60vh] pr-4">
+              <div className="space-y-6">
+                {/* Informações Gerais */}
+                <div>
+                  <h3 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
+                    <div className="h-1 w-4 bg-primary rounded" />
+                    Informações Gerais
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg">
+                    <DetailItem label="Nome" value={viewingUnidade.nome} />
+                    <DetailItem
+                      label="Código Orgânico"
+                      value={viewingUnidade.codigo_organico}
+                    />
+                    <DetailItem label="Director" value={viewingUnidade.diretor} />
+                    <DetailItem
+                      label="Residência"
+                      value={viewingUnidade.residencia}
+                    />
+                    <DetailItem
+                      label="Distância da Sede"
+                      value={viewingUnidade.distancia_sede}
+                    />
+                    <DetailItem
+                      label="Construção"
+                      value={viewingUnidade.construcao}
+                    />
+                    <DetailItem
+                      label="Decreto de Criação"
+                      value={viewingUnidade.decreto_criacao}
+                    />
+                    <DetailItem label="Telefone" value={viewingUnidade.telefone} />
+                    <DetailItem label="Email" value={viewingUnidade.email} />
+                  </div>
+                </div>
+
+                {/* Recursos Humanos */}
+                <div>
+                  <h3 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
+                    <div className="h-1 w-4 bg-primary rounded" />
+                    Recursos Humanos
+                  </h3>
+                  <div className="grid grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg">
+                    <DetailItem
+                      label="Total de Docentes"
+                      value={viewingUnidade.total_docentes}
+                    />
+                    <DetailItem
+                      label="Docentes Masculinos"
+                      value={viewingUnidade.prof_masculino}
+                    />
+                    <DetailItem
+                      label="Docentes Femininos"
+                      value={viewingUnidade.prof_feminino}
+                    />
+                  </div>
+                </div>
+
+                {/* Dados Académicos */}
+                <div>
+                  <h3 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
+                    <div className="h-1 w-4 bg-primary rounded" />
+                    Dados Académicos
+                  </h3>
+                  <div className="grid grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg">
+                    <DetailItem
+                      label="Total de Alunos"
+                      value={viewingUnidade.total_alunos?.toLocaleString("pt-AO")}
+                    />
+                    <DetailItem
+                      label="Alunos Masculinos"
+                      value={viewingUnidade.alunos_masculino?.toLocaleString(
+                        "pt-AO"
+                      )}
+                    />
+                    <DetailItem
+                      label="Alunas Femininas"
+                      value={viewingUnidade.alunos_feminino?.toLocaleString(
+                        "pt-AO"
+                      )}
+                    />
+                    <DetailItem
+                      label="Total de Turmas"
+                      value={viewingUnidade.total_turmas}
+                    />
+                  </div>
+                </div>
+              </div>
+            </ScrollArea>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Forms - Only for Admin */}
       {isAdmin && (
@@ -268,6 +552,6 @@ export default function UnidadesOrganicas() {
           />
         </>
       )}
-    </Layout>
+    </AppLayout>
   );
 }
