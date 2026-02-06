@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { Layout } from "@/components/Layout";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -31,7 +34,19 @@ import {
 } from "@/hooks/useProfessores";
 import { useEscolas } from "@/hooks/useEscolas";
 import { useAuth } from "@/hooks/useAuth";
-import { Plus, Search, Pencil, Trash2, Users, Eye, CreditCard, Lock } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Pencil,
+  Trash2,
+  Users,
+  Eye,
+  CreditCard,
+  Lock,
+  Filter,
+  Download,
+  MoreHorizontal,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -42,27 +57,42 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function Professores() {
   const { isAdmin } = useAuth();
   const { data: escolas } = useEscolas();
   const [escolaFilter, setEscolaFilter] = useState<string>("");
-  const { data: professores, isLoading } = useProfessores(escolaFilter || undefined);
+  const { data: professores, isLoading, error } = useProfessores(
+    escolaFilter || undefined
+  );
   const createProfessor = useCreateProfessor();
   const updateProfessor = useUpdateProfessor();
   const deleteProfessor = useDeleteProfessor();
 
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
-  const [editingProfessor, setEditingProfessor] = useState<Professor | null>(null);
+  const [editingProfessor, setEditingProfessor] = useState<Professor | null>(
+    null
+  );
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [viewingProfessor, setViewingProfessor] = useState<ProfessorWithEscola | null>(null);
-  const [emitirIDProfessor, setEmitirIDProfessor] = useState<ProfessorWithEscola | null>(null);
+  const [viewingProfessor, setViewingProfessor] =
+    useState<ProfessorWithEscola | null>(null);
+  const [emitirIDProfessor, setEmitirIDProfessor] =
+    useState<ProfessorWithEscola | null>(null);
 
-  const filteredProfessores = professores?.filter((professor) =>
-    professor.nome.toLowerCase().includes(search.toLowerCase()) ||
-    professor.funcao?.toLowerCase().includes(search.toLowerCase()) ||
-    professor.numero_agente?.toLowerCase().includes(search.toLowerCase())
+  const filteredProfessores = professores?.filter(
+    (professor) =>
+      professor.nome.toLowerCase().includes(search.toLowerCase()) ||
+      professor.funcao?.toLowerCase().includes(search.toLowerCase()) ||
+      professor.numero_agente?.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleCreate = (data: ProfessorInput) => {
@@ -89,26 +119,13 @@ export default function Professores() {
     setFormOpen(true);
   };
 
-  const getStatusBadge = (status: string) => {
-    const styles: Record<string, string> = {
-      ativo: "bg-success/10 text-success border-success/20",
-      afastado: "bg-warning/10 text-warning border-warning/20",
-      inativo: "bg-muted text-muted-foreground border-muted",
-    };
-    return styles[status] || styles.inativo;
-  };
-
-  const getActivityBadge = (actividade: string | null) => {
-    const styles: Record<string, string> = {
-      activo: "bg-success/10 text-success border-success/20",
-      inactivo: "bg-destructive/10 text-destructive border-destructive/20",
-      reformado: "bg-muted text-muted-foreground border-muted",
-      licença: "bg-warning/10 text-warning border-warning/20",
-    };
-    return styles[actividade?.toLowerCase() || "activo"] || styles.activo;
-  };
-
-  const DetailItem = ({ label, value }: { label: string; value: string | number | boolean | null | undefined }) => (
+  const DetailItem = ({
+    label,
+    value,
+  }: {
+    label: string;
+    value: string | number | boolean | null | undefined;
+  }) => (
     <div className="space-y-1">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="text-sm font-medium">
@@ -118,101 +135,190 @@ export default function Professores() {
   );
 
   return (
-    <Layout>
+    <AppLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Agentes</h1>
-            <p className="text-muted-foreground mt-1">
-              Gerencie os agentes do município
-            </p>
-          </div>
-          {isAdmin ? (
-            <Button onClick={() => setFormOpen(true)} className="gap-2">
-              <Plus className="h-4 w-4" />
-              Novo Agente
-            </Button>
-          ) : (
-            <Badge variant="secondary" className="gap-1 py-1.5">
-              <Lock className="h-3 w-3" />
-              Modo Visualização
-            </Badge>
-          )}
-        </div>
+        {/* Page Header */}
+        <PageHeader
+          title="Agentes"
+          description="Gestão dos agentes da educação do município"
+          icon={<Users className="h-6 w-6" />}
+          badge={
+            !isAdmin ? (
+              <Badge variant="secondary" className="gap-1">
+                <Lock className="h-3 w-3" />
+                Visualização
+              </Badge>
+            ) : null
+          }
+          actions={
+            isAdmin ? (
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" disabled>
+                  <Download className="h-4 w-4 mr-2" />
+                  Exportar
+                </Button>
+                <Button onClick={() => setFormOpen(true)} size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Novo Agente
+                </Button>
+              </div>
+            ) : null
+          }
+        />
 
+        {/* View Mode Alert */}
         {!isAdmin && (
-          <Alert>
-            <Lock className="h-4 w-4" />
+          <Alert className="border-warning/50 bg-warning/5">
+            <Lock className="h-4 w-4 text-warning" />
             <AlertDescription>
-              Você está em modo de visualização. Apenas administradores podem criar, editar ou excluir registos.
+              Você está em modo de visualização. Apenas administradores podem
+              criar, editar ou excluir registos.
             </AlertDescription>
           </Alert>
         )}
 
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por nome, função ou nº agente..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <Select value={escolaFilter} onValueChange={setEscolaFilter}>
-            <SelectTrigger className="w-full sm:w-64 bg-background">
-              <SelectValue placeholder="Filtrar por local" />
-            </SelectTrigger>
-            <SelectContent className="bg-background z-50">
-              <SelectItem value="all">Todos os locais</SelectItem>
-              {escolas?.map((escola) => (
-                <SelectItem key={escola.id} value={escola.id}>
-                  {escola.nome}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* Stats Summary */}
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Total de Agentes
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {professores?.length || 0}
+                  </p>
+                </div>
+                <Users className="h-8 w-8 text-primary/20" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Activos
+                  </p>
+                  <p className="text-2xl font-bold text-success">
+                    {professores?.filter(
+                      (p) =>
+                        p.actividade?.toLowerCase() === "activo" ||
+                        p.status === "ativo"
+                    ).length || 0}
+                  </p>
+                </div>
+                <div className="h-8 w-8 rounded-full bg-success/10" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Afastados / Licença
+                  </p>
+                  <p className="text-2xl font-bold text-warning">
+                    {professores?.filter(
+                      (p) =>
+                        p.actividade?.toLowerCase() !== "activo" &&
+                        p.status !== "ativo"
+                    ).length || 0}
+                  </p>
+                </div>
+                <div className="h-8 w-8 rounded-full bg-warning/10" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
+        {/* Filters */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Pesquisar por nome, função ou nº agente..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Select value={escolaFilter} onValueChange={setEscolaFilter}>
+                <SelectTrigger className="w-full sm:w-64">
+                  <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
+                  <SelectValue placeholder="Filtrar por local" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os locais</SelectItem>
+                  {escolas?.map((escola) => (
+                    <SelectItem key={escola.id} value={escola.id}>
+                      {escola.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Table */}
-        <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nº Agente</TableHead>
-                <TableHead>Nome</TableHead>
-                <TableHead className="hidden md:table-cell">Função</TableHead>
-                <TableHead className="hidden lg:table-cell">Local de Trabalho</TableHead>
-                <TableHead className="hidden sm:table-cell">Categoria</TableHead>
-                <TableHead>Actividade</TableHead>
-                <TableHead className="w-28">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                [...Array(5)].map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell><Skeleton className="h-5 w-16" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-40" /></TableCell>
-                    <TableCell className="hidden md:table-cell"><Skeleton className="h-5 w-24" /></TableCell>
-                    <TableCell className="hidden lg:table-cell"><Skeleton className="h-5 w-32" /></TableCell>
-                    <TableCell className="hidden sm:table-cell"><Skeleton className="h-5 w-20" /></TableCell>
-                    <TableCell><Skeleton className="h-6 w-16" /></TableCell>
-                    <TableCell><Skeleton className="h-8 w-24" /></TableCell>
-                  </TableRow>
-                ))
-              ) : filteredProfessores && filteredProfessores.length > 0 ? (
-                filteredProfessores.map((professor) => (
-                  <TableRow key={professor.id}>
-                    <TableCell className="font-mono text-sm">
+        <Card className="overflow-hidden">
+          {error ? (
+            <EmptyState
+              type="error"
+              title="Erro ao carregar dados"
+              description={error.message}
+              action={{
+                label: "Tentar novamente",
+                onClick: () => window.location.reload(),
+              }}
+            />
+          ) : isLoading ? (
+            <div className="p-6 space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-center gap-4">
+                  <Skeleton className="h-10 w-10 rounded-lg" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-1/3" />
+                    <Skeleton className="h-3 w-1/4" />
+                  </div>
+                  <Skeleton className="h-6 w-20" />
+                </div>
+              ))}
+            </div>
+          ) : filteredProfessores && filteredProfessores.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="font-semibold">Nº Agente</TableHead>
+                  <TableHead className="font-semibold">Agente</TableHead>
+                  <TableHead className="hidden md:table-cell font-semibold">
+                    Função
+                  </TableHead>
+                  <TableHead className="hidden lg:table-cell font-semibold">
+                    Local de Trabalho
+                  </TableHead>
+                  <TableHead className="hidden sm:table-cell font-semibold">
+                    Categoria
+                  </TableHead>
+                  <TableHead className="font-semibold">Situação</TableHead>
+                  <TableHead className="w-20 font-semibold">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredProfessores.map((professor) => (
+                  <TableRow key={professor.id} className="table-row-hover">
+                    <TableCell className="font-mono text-sm text-muted-foreground">
                       {professor.numero_agente || "-"}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary/20">
-                          <Users className="h-4 w-4 text-secondary" />
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary/10">
+                          <Users className="h-5 w-5 text-secondary" />
                         </div>
                         <div>
                           <p className="font-medium">{professor.nome}</p>
@@ -228,157 +334,246 @@ export default function Professores() {
                       {professor.funcao || "-"}
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
-                      {professor.escolas?.nome || "-"}
+                      <span className="max-w-[200px] truncate block">
+                        {professor.escolas?.nome || "-"}
+                      </span>
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
                       {professor.categoria || "-"}
                     </TableCell>
                     <TableCell>
-                      <Badge 
-                        variant="outline" 
-                        className={`capitalize ${getActivityBadge(professor.actividade)}`}
-                      >
-                        {professor.actividade || "Activo"}
-                      </Badge>
+                      <StatusBadge
+                        status={professor.actividade || professor.status || "activo"}
+                      />
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setViewingProfessor(professor)}
-                          title="Ver detalhes"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setEmitirIDProfessor(professor)}
-                          title="Emitir ID"
-                        >
-                          <CreditCard className="h-4 w-4 text-primary" />
-                        </Button>
-                        {isAdmin && (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => openEdit(professor)}
-                              title="Editar"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => setDeleteId(professor.id)}
-                              title="Excluir"
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </>
-                        )}
-                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => setViewingProfessor(professor)}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            Ver detalhes
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => setEmitirIDProfessor(professor)}
+                          >
+                            <CreditCard className="h-4 w-4 mr-2" />
+                            Emitir ID
+                          </DropdownMenuItem>
+                          {isAdmin && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => openEdit(professor)}>
+                                <Pencil className="h-4 w-4 mr-2" />
+                                Editar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onClick={() => setDeleteId(professor.id)}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Excluir
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={7} className="h-32 text-center">
-                    <div className="flex flex-col items-center gap-2">
-                      <Users className="h-8 w-8 text-muted-foreground" />
-                      <p className="text-muted-foreground">
-                        {search || escolaFilter
-                          ? "Nenhum agente encontrado"
-                          : "Nenhum agente cadastrado ainda"}
-                      </p>
-                      {!search && !escolaFilter && isAdmin && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setFormOpen(true)}
-                        >
-                          Cadastrar primeiro agente
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <EmptyState
+              type={search || escolaFilter ? "no-results" : "empty"}
+              title={
+                search || escolaFilter
+                  ? "Nenhum agente encontrado"
+                  : "Nenhum agente cadastrado"
+              }
+              description={
+                search || escolaFilter
+                  ? "Tente ajustar os filtros de pesquisa"
+                  : "Comece adicionando o primeiro agente ao sistema"
+              }
+              action={
+                !search && !escolaFilter && isAdmin
+                  ? {
+                      label: "Cadastrar Agente",
+                      onClick: () => setFormOpen(true),
+                    }
+                  : undefined
+              }
+            />
+          )}
+        </Card>
       </div>
 
       {/* View Details Dialog */}
-      <Dialog open={!!viewingProfessor} onOpenChange={(open) => !open && setViewingProfessor(null)}>
+      <Dialog
+        open={!!viewingProfessor}
+        onOpenChange={(open) => !open && setViewingProfessor(null)}
+      >
         <DialogContent className="sm:max-w-2xl max-h-[90vh]">
           <DialogHeader>
-            <DialogTitle>Detalhes do Agente</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" />
+              Detalhes do Agente
+            </DialogTitle>
           </DialogHeader>
           {viewingProfessor && (
             <ScrollArea className="h-[60vh] pr-4">
               <div className="space-y-6">
                 {/* Identificação */}
                 <div>
-                  <h3 className="text-sm font-semibold text-primary mb-3 border-b pb-2">Identificação</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    <DetailItem label="Nº de Cadastro" value={viewingProfessor.numero_cadastro} />
-                    <DetailItem label="Nº Agente" value={viewingProfessor.numero_agente} />
+                  <h3 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
+                    <div className="h-1 w-4 bg-primary rounded" />
+                    Identificação
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg">
+                    <DetailItem
+                      label="Nº de Cadastro"
+                      value={viewingProfessor.numero_cadastro}
+                    />
+                    <DetailItem
+                      label="Nº Agente"
+                      value={viewingProfessor.numero_agente}
+                    />
                     <DetailItem label="Nome" value={viewingProfessor.nome} />
-                    <DetailItem label="Data de Nascimento" value={viewingProfessor.data_nascimento} />
+                    <DetailItem
+                      label="Data de Nascimento"
+                      value={viewingProfessor.data_nascimento}
+                    />
                     <DetailItem label="Idade" value={viewingProfessor.idade} />
                     <DetailItem label="Género" value={viewingProfessor.genero} />
                     <DetailItem label="Documento" value={viewingProfessor.cpf} />
-                    <DetailItem label="Estado Civil" value={viewingProfessor.estado_civil} />
-                    <DetailItem label="Telefone" value={viewingProfessor.telefone} />
+                    <DetailItem
+                      label="Estado Civil"
+                      value={viewingProfessor.estado_civil}
+                    />
+                    <DetailItem
+                      label="Telefone"
+                      value={viewingProfessor.telefone}
+                    />
                     <DetailItem label="Email" value={viewingProfessor.email} />
-                    <DetailItem label="Condição Física" value={viewingProfessor.condicao_fisica} />
-                    <DetailItem label="Estado de Saúde" value={viewingProfessor.estado_saude} />
-                    <DetailItem label="Arquivo Pessoal" value={viewingProfessor.arquivo_pessoal} />
+                    <DetailItem
+                      label="Condição Física"
+                      value={viewingProfessor.condicao_fisica}
+                    />
+                    <DetailItem
+                      label="Estado de Saúde"
+                      value={viewingProfessor.estado_saude}
+                    />
                   </div>
                 </div>
 
                 {/* Profissional */}
                 <div>
-                  <h3 className="text-sm font-semibold text-primary mb-3 border-b pb-2">Dados Profissionais</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  <h3 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
+                    <div className="h-1 w-4 bg-primary rounded" />
+                    Dados Profissionais
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg">
                     <DetailItem label="Função" value={viewingProfessor.funcao} />
-                    <DetailItem label="Categoria" value={viewingProfessor.categoria} />
-                    <DetailItem label="Local de Trabalho" value={viewingProfessor.escolas?.nome} />
-                    <DetailItem label="Nível Académico" value={viewingProfessor.nivel_academico} />
-                    <DetailItem label="Formado em" value={viewingProfessor.formado_em} />
-                    <DetailItem label="Disciplina" value={viewingProfessor.disciplina} />
-                    <DetailItem label="Regime de Contrato" value={viewingProfessor.regime_contrato} />
-                    <DetailItem label="Início de Função" value={viewingProfessor.inicio_funcao} />
-                    <DetailItem label="Tempo de Serviço" value={viewingProfessor.tempo_servico} />
-                    <DetailItem label="Processos Disciplinares" value={viewingProfessor.qtd_processo_disciplinar} />
-                    <DetailItem label="Actividade" value={viewingProfessor.actividade} />
-                    <DetailItem label="Agente Transferido" value={viewingProfessor.agente_transferido} />
-                    <DetailItem label="Status" value={viewingProfessor.status} />
+                    <DetailItem
+                      label="Categoria"
+                      value={viewingProfessor.categoria}
+                    />
+                    <DetailItem
+                      label="Local de Trabalho"
+                      value={viewingProfessor.escolas?.nome}
+                    />
+                    <DetailItem
+                      label="Nível Académico"
+                      value={viewingProfessor.nivel_academico}
+                    />
+                    <DetailItem
+                      label="Formado em"
+                      value={viewingProfessor.formado_em}
+                    />
+                    <DetailItem
+                      label="Disciplina"
+                      value={viewingProfessor.disciplina}
+                    />
+                    <DetailItem
+                      label="Regime de Contrato"
+                      value={viewingProfessor.regime_contrato}
+                    />
+                    <DetailItem
+                      label="Início de Função"
+                      value={viewingProfessor.inicio_funcao}
+                    />
+                    <DetailItem
+                      label="Tempo de Serviço"
+                      value={viewingProfessor.tempo_servico}
+                    />
+                    <DetailItem
+                      label="Processos Disciplinares"
+                      value={viewingProfessor.qtd_processo_disciplinar}
+                    />
+                    <DetailItem
+                      label="Actividade"
+                      value={viewingProfessor.actividade}
+                    />
+                    <DetailItem
+                      label="Agente Transferido"
+                      value={viewingProfessor.agente_transferido}
+                    />
                   </div>
                 </div>
 
                 {/* Localização */}
                 <div>
-                  <h3 className="text-sm font-semibold text-primary mb-3 border-b pb-2">Localização</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    <DetailItem label="Província" value={viewingProfessor.provincia} />
+                  <h3 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
+                    <div className="h-1 w-4 bg-primary rounded" />
+                    Localização
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg">
+                    <DetailItem
+                      label="Província"
+                      value={viewingProfessor.provincia}
+                    />
                     <DetailItem label="Comuna" value={viewingProfessor.comuna} />
-                    <DetailItem label="Bairro / Localidade" value={viewingProfessor.bairro_localidade} />
+                    <DetailItem
+                      label="Bairro / Localidade"
+                      value={viewingProfessor.bairro_localidade}
+                    />
                   </div>
                 </div>
 
                 {/* Família */}
                 <div>
-                  <h3 className="text-sm font-semibold text-primary mb-3 border-b pb-2">Dados Familiares</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    <DetailItem label="Dependentes" value={viewingProfessor.dependentes} />
-                    <DetailItem label="Nº de Dependentes" value={viewingProfessor.num_dependentes} />
-                    <DetailItem label="Nome do(a) Parceiro(a)" value={viewingProfessor.nome_parceira} />
-                    <DetailItem label="Telefone Parceiro(a)" value={viewingProfessor.telefone_parceira} />
-                    <DetailItem label="Outro Familiar" value={viewingProfessor.outro_familiar} />
+                  <h3 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
+                    <div className="h-1 w-4 bg-primary rounded" />
+                    Dados Familiares
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg">
+                    <DetailItem
+                      label="Dependentes"
+                      value={viewingProfessor.dependentes}
+                    />
+                    <DetailItem
+                      label="Nº de Dependentes"
+                      value={viewingProfessor.num_dependentes}
+                    />
+                    <DetailItem
+                      label="Nome do(a) Parceiro(a)"
+                      value={viewingProfessor.nome_parceira}
+                    />
+                    <DetailItem
+                      label="Telefone Parceiro(a)"
+                      value={viewingProfessor.telefone_parceira}
+                    />
+                    <DetailItem
+                      label="Outro Familiar"
+                      value={viewingProfessor.outro_familiar}
+                    />
                   </div>
                 </div>
               </div>
@@ -413,11 +608,12 @@ export default function Professores() {
         </>
       )}
 
+      {/* Emitir ID Dialog */}
       <EmitirIDDialog
+        professor={emitirIDProfessor}
         open={!!emitirIDProfessor}
         onOpenChange={(open) => !open && setEmitirIDProfessor(null)}
-        professor={emitirIDProfessor}
       />
-    </Layout>
+    </AppLayout>
   );
 }
