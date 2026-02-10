@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import UnidadesOrganicas from "./pages/UnidadesOrganicas";
 import Professores from "./pages/Professores";
+import Expedientes from "./pages/Expedientes";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
