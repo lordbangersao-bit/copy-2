@@ -46,6 +46,7 @@ const mainNavItems: NavItem[] = [
 ];
 
 const managementNavItems: NavItem[] = [
+  { path: "/expedientes", label: "Expedientes", icon: FileText, module: "gestao" },
   { path: "/assiduidade", label: "Assiduidade", icon: CheckSquare, module: "gestao", disabled: true },
   { path: "/horarios", label: "Colocação e Horários", icon: Calendar, module: "gestao", disabled: true },
   { path: "/avaliacoes", label: "Avaliação Desempenho", icon: ClipboardList, module: "gestao", disabled: true },
