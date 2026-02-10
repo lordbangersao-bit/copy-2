@@ -251,6 +251,68 @@ export type Database = {
         }
         Relationships: []
       }
+      expedientes: {
+        Row: {
+          analisado_por: string | null
+          created_at: string
+          dados: Json | null
+          data_analise: string | null
+          data_submissao: string
+          descricao: string | null
+          escola_id: string
+          estado: Database["public"]["Enums"]["estado_expediente"]
+          id: string
+          observacoes_revisao: string | null
+          periodo_referencia: string | null
+          submetido_por: string | null
+          tipo: Database["public"]["Enums"]["tipo_expediente"]
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          analisado_por?: string | null
+          created_at?: string
+          dados?: Json | null
+          data_analise?: string | null
+          data_submissao?: string
+          descricao?: string | null
+          escola_id: string
+          estado?: Database["public"]["Enums"]["estado_expediente"]
+          id?: string
+          observacoes_revisao?: string | null
+          periodo_referencia?: string | null
+          submetido_por?: string | null
+          tipo: Database["public"]["Enums"]["tipo_expediente"]
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          analisado_por?: string | null
+          created_at?: string
+          dados?: Json | null
+          data_analise?: string | null
+          data_submissao?: string
+          descricao?: string | null
+          escola_id?: string
+          estado?: Database["public"]["Enums"]["estado_expediente"]
+          id?: string
+          observacoes_revisao?: string | null
+          periodo_referencia?: string | null
+          submetido_por?: string | null
+          tipo?: Database["public"]["Enums"]["tipo_expediente"]
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expedientes_escola_id_fkey"
+            columns: ["escola_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       professores: {
         Row: {
           actividade: string | null
@@ -432,6 +494,12 @@ export type Database = {
     }
     Enums: {
       app_role: "ADMIN" | "VIEWER"
+      estado_expediente: "SUBMETIDO" | "EM_ANALISE" | "APROVADO" | "REJEITADO"
+      tipo_expediente:
+        | "MAPA_FALTAS"
+        | "MAPA_SUBSIDIO_FERIAS"
+        | "MAPA_ESTATISTICO"
+        | "OUTRO"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -560,6 +628,13 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["ADMIN", "VIEWER"],
+      estado_expediente: ["SUBMETIDO", "EM_ANALISE", "APROVADO", "REJEITADO"],
+      tipo_expediente: [
+        "MAPA_FALTAS",
+        "MAPA_SUBSIDIO_FERIAS",
+        "MAPA_ESTATISTICO",
+        "OUTRO",
+      ],
     },
   },
 } as const
