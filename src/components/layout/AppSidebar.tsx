@@ -47,16 +47,16 @@ const mainNavItems: NavItem[] = [
 
 const managementNavItems: NavItem[] = [
   { path: "/expedientes", label: "Expedientes", icon: FileText, module: "gestao" },
-  { path: "/assiduidade", label: "Assiduidade", icon: CheckSquare, module: "gestao", disabled: true },
-  { path: "/horarios", label: "Colocação e Horários", icon: Calendar, module: "gestao", disabled: true },
-  { path: "/avaliacoes", label: "Avaliação Desempenho", icon: ClipboardList, module: "gestao", disabled: true },
-  { path: "/processos", label: "Processos", icon: FileText, module: "gestao", disabled: true },
+  { path: "/assiduidade", label: "Assiduidade", icon: CheckSquare, module: "gestao" },
+  { path: "/horarios", label: "Colocação e Horários", icon: Calendar, module: "gestao" },
+  { path: "/avaliacoes", label: "Avaliação Desempenho", icon: ClipboardList, module: "gestao" },
+  { path: "/processos", label: "Processos", icon: FileText, module: "gestao" },
 ];
 
 const systemNavItems: NavItem[] = [
-  { path: "/comunicados", label: "Comunicação", icon: Bell, module: "sistema", disabled: true },
-  { path: "/documentos", label: "Documentos", icon: FolderOpen, module: "sistema", disabled: true },
-  { path: "/relatorios", label: "Relatórios & BI", icon: BarChart3, module: "sistema", disabled: true },
+  { path: "/comunicados", label: "Comunicação", icon: Bell, module: "sistema" },
+  { path: "/documentos", label: "Documentos", icon: FolderOpen, module: "sistema" },
+  { path: "/relatorios", label: "Relatórios & BI", icon: BarChart3, module: "sistema" },
 ];
 
 interface AppSidebarProps {
