@@ -50,10 +50,7 @@ export function Header({ onMobileMenuToggle, sidebarCollapsed }: HeaderProps) {
 
   return (
     <header
-      className={cn(
-        "sticky top-0 z-30 h-16 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 transition-all duration-300",
-        sidebarCollapsed ? "lg:ml-16" : "lg:ml-64"
-      )}
+      className="sticky top-0 z-30 h-14 sm:h-16 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 transition-all duration-300"
     >
       <div className="flex h-full items-center justify-between px-4 lg:px-6">
         {/* Left section */}
