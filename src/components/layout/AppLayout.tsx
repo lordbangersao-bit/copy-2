@@ -49,7 +49,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <AppSidebar collapsed={false} onToggle={() => setMobileMenuOpen(false)} />
+        <AppSidebar collapsed={false} onToggle={() => setMobileMenuOpen(false)} mobile />
       </div>
 
       {/* Main Content */}
