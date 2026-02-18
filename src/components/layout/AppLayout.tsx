@@ -8,15 +8,16 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => window.innerWidth < 1024);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Close mobile menu on route change or screen resize
+  // Close mobile menu on route change or screen resize, auto-collapse on small screens
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
         setMobileMenuOpen(false);
       }
+      setSidebarCollapsed(window.innerWidth < 1024);
     };
 
     window.addEventListener("resize", handleResize);
@@ -63,7 +64,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           sidebarCollapsed={sidebarCollapsed}
         />
 
-        <main className="p-4 lg:p-6">
+        <main className="p-3 sm:p-4 lg:p-6">
           <div className="mx-auto max-w-7xl">{children}</div>
         </main>
 
