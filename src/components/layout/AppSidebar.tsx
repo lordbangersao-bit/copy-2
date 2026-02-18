@@ -62,9 +62,10 @@ const systemNavItems: NavItem[] = [
 interface AppSidebarProps {
   collapsed: boolean;
   onToggle: () => void;
+  mobile?: boolean;
 }
 
-export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
+export function AppSidebar({ collapsed, onToggle, mobile = false }: AppSidebarProps) {
   const location = useLocation();
   const { user, role, isAdmin, signOut } = useAuth();
 
@@ -140,7 +141,8 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-40 h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 flex flex-col",
+        "left-0 top-0 h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300 flex flex-col",
+        mobile ? "relative z-auto" : "fixed z-40",
         collapsed ? "w-16" : "w-64"
       )}
     >
