@@ -78,7 +78,15 @@ interface ProfessorFormProps {
 
 const GENERO_OPTIONS = ["Masculino", "Feminino", "Outro"];
 const FUNCAO_OPTIONS = ["Professor", "Coordenador", "Director", "Subdirector", "Administrativo", "Auxiliar"];
-const CATEGORIA_OPTIONS = ["1ª Categoria", "2ª Categoria", "3ª Categoria", "Estagiário"];
+const CATEGORIA_OPTIONS = [
+  "Prof. do Ens. Primário",
+  "Prof. do Ens. Secundário do 6º Grau",
+  "Prof. do Ens. Primário e Sec. do 6º Grau",
+  "1ª Categoria",
+  "2ª Categoria",
+  "3ª Categoria",
+  "Estagiário",
+];
 const NIVEL_ACADEMICO_OPTIONS = ["Ensino Médio", "Licenciatura", "Bacharelado", "Mestrado", "Doutorado", "Pós-Doutorado"];
 const REGIME_CONTRATO_OPTIONS = ["Efectivo", "Contratado", "Temporário", "Estagiário"];
 const ESTADO_CIVIL_OPTIONS = ["Solteiro(a)", "Casado(a)", "Divorciado(a)", "Viúvo(a)", "União de Facto"];
