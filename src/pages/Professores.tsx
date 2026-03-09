@@ -46,6 +46,7 @@ import {
   Filter,
   Download,
   MoreHorizontal,
+  AlertTriangle,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -99,6 +100,21 @@ export default function Professores() {
   const uniqueDisciplinas = [...new Set(professores?.map(p => p.disciplina).filter(Boolean) as string[])].sort();
 
   const activeFilterCount = [categoriaFilter, funcaoFilter, generoFilter, condicaoFisicaFilter, disciplinaFilter].filter(f => f && f !== "all").length;
+
+  // Retirement alert: age >= 65 or service time >= 35 years
+  const parseTempoServico = (tempo: string | null): number => {
+    if (!tempo) return 0;
+    const match = tempo.match(/(\d+)/);
+    return match ? parseInt(match[1], 10) : 0;
+  };
+
+  const agentesReforma = professores?.filter((p) => {
+    const byAge = (p.idade ?? 0) >= 65;
+    const byService = parseTempoServico(p.tempo_servico) >= 35;
+    return byAge || byService;
+  }) || [];
+
+  const [showReformaAlert, setShowReformaAlert] = useState(true);
 
   const clearAllFilters = () => {
     setCategoriaFilter("");
@@ -207,7 +223,7 @@ export default function Professores() {
         )}
 
         {/* Stats Summary */}
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-4">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -261,7 +277,55 @@ export default function Professores() {
               </div>
             </CardContent>
           </Card>
+          <Card className={agentesReforma.length > 0 ? "border-destructive/30" : ""}>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Para Reforma
+                  </p>
+                  <p className={`text-2xl font-bold ${agentesReforma.length > 0 ? "text-destructive" : ""}`}>
+                    {agentesReforma.length}
+                  </p>
+                </div>
+                <AlertTriangle className={`h-8 w-8 ${agentesReforma.length > 0 ? "text-destructive/40" : "text-muted/20"}`} />
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Retirement Alert */}
+        {agentesReforma.length > 0 && showReformaAlert && (
+          <Alert className="border-destructive/50 bg-destructive/5">
+            <AlertTriangle className="h-4 w-4 text-destructive" />
+            <AlertDescription className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-destructive">
+                  ⚠ {agentesReforma.length} agente(s) em condições de reforma
+                </span>
+                <Button variant="ghost" size="sm" className="h-6 text-xs text-muted-foreground" onClick={() => setShowReformaAlert(false)}>
+                  Fechar
+                </Button>
+              </div>
+              <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                {agentesReforma.map((a) => {
+                  const reasons: string[] = [];
+                  if ((a.idade ?? 0) >= 65) reasons.push(`Idade: ${a.idade} anos`);
+                  if (parseTempoServico(a.tempo_servico) >= 35) reasons.push(`Tempo de serviço: ${a.tempo_servico}`);
+                  return (
+                    <div key={a.id} className="flex items-center justify-between text-sm bg-background/50 rounded px-3 py-1.5">
+                      <div>
+                        <span className="font-medium">{a.nome}</span>
+                        {a.numero_agente && <span className="text-muted-foreground ml-2">#{a.numero_agente}</span>}
+                      </div>
+                      <span className="text-xs text-destructive">{reasons.join(" | ")}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Filters */}
         <Card>
