@@ -279,6 +279,39 @@ export default function Professores() {
           </Card>
         </div>
 
+        {/* Retirement Alert */}
+        {agentesReforma.length > 0 && showReformaAlert && (
+          <Alert className="border-destructive/50 bg-destructive/5">
+            <AlertTriangle className="h-4 w-4 text-destructive" />
+            <AlertDescription className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-destructive">
+                  ⚠ {agentesReforma.length} agente(s) em condições de reforma
+                </span>
+                <Button variant="ghost" size="sm" className="h-6 text-xs text-muted-foreground" onClick={() => setShowReformaAlert(false)}>
+                  Fechar
+                </Button>
+              </div>
+              <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                {agentesReforma.map((a) => {
+                  const reasons: string[] = [];
+                  if ((a.idade ?? 0) >= 65) reasons.push(`Idade: ${a.idade} anos`);
+                  if (parseTempoServico(a.tempo_servico) >= 35) reasons.push(`Tempo de serviço: ${a.tempo_servico}`);
+                  return (
+                    <div key={a.id} className="flex items-center justify-between text-sm bg-background/50 rounded px-3 py-1.5">
+                      <div>
+                        <span className="font-medium">{a.nome}</span>
+                        {a.numero_agente && <span className="text-muted-foreground ml-2">#{a.numero_agente}</span>}
+                      </div>
+                      <span className="text-xs text-destructive">{reasons.join(" | ")}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Filters */}
         <Card>
           <CardContent className="pt-6 space-y-4">
