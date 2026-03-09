@@ -70,6 +70,13 @@ export default function Professores() {
   const { isAdmin } = useAuth();
   const { data: escolas } = useEscolas();
   const [escolaFilter, setEscolaFilter] = useState<string>("");
+  const [categoriaFilter, setCategoriaFilter] = useState<string>("");
+  const [funcaoFilter, setFuncaoFilter] = useState<string>("");
+  const [generoFilter, setGeneroFilter] = useState<string>("");
+  const [condicaoFisicaFilter, setCondicaoFisicaFilter] = useState<string>("");
+  const [disciplinaFilter, setDisciplinaFilter] = useState<string>("");
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+
   const { data: professores, isLoading, error } = useProfessores(
     escolaFilter || undefined
   );
@@ -79,21 +86,43 @@ export default function Professores() {
 
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
-  const [editingProfessor, setEditingProfessor] = useState<Professor | null>(
-    null
-  );
+  const [editingProfessor, setEditingProfessor] = useState<Professor | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [viewingProfessor, setViewingProfessor] =
-    useState<ProfessorWithEscola | null>(null);
-  const [emitirIDProfessor, setEmitirIDProfessor] =
-    useState<ProfessorWithEscola | null>(null);
+  const [viewingProfessor, setViewingProfessor] = useState<ProfessorWithEscola | null>(null);
+  const [emitirIDProfessor, setEmitirIDProfessor] = useState<ProfessorWithEscola | null>(null);
 
-  const filteredProfessores = professores?.filter(
-    (professor) =>
+  // Extract unique values for filter options
+  const uniqueCategorias = [...new Set(professores?.map(p => p.categoria).filter(Boolean) as string[])].sort();
+  const uniqueFuncoes = [...new Set(professores?.map(p => p.funcao).filter(Boolean) as string[])].sort();
+  const uniqueGeneros = [...new Set(professores?.map(p => p.genero).filter(Boolean) as string[])].sort();
+  const uniqueCondicoes = [...new Set(professores?.map(p => p.condicao_fisica).filter(Boolean) as string[])].sort();
+  const uniqueDisciplinas = [...new Set(professores?.map(p => p.disciplina).filter(Boolean) as string[])].sort();
+
+  const activeFilterCount = [categoriaFilter, funcaoFilter, generoFilter, condicaoFisicaFilter, disciplinaFilter].filter(f => f && f !== "all").length;
+
+  const clearAllFilters = () => {
+    setCategoriaFilter("");
+    setFuncaoFilter("");
+    setGeneroFilter("");
+    setCondicaoFisicaFilter("");
+    setDisciplinaFilter("");
+    setEscolaFilter("");
+    setSearch("");
+  };
+
+  const filteredProfessores = professores?.filter((professor) => {
+    const matchesSearch =
+      !search ||
       professor.nome.toLowerCase().includes(search.toLowerCase()) ||
       professor.funcao?.toLowerCase().includes(search.toLowerCase()) ||
-      professor.numero_agente?.toLowerCase().includes(search.toLowerCase())
-  );
+      professor.numero_agente?.toLowerCase().includes(search.toLowerCase());
+    const matchesCategoria = !categoriaFilter || categoriaFilter === "all" || professor.categoria === categoriaFilter;
+    const matchesFuncao = !funcaoFilter || funcaoFilter === "all" || professor.funcao === funcaoFilter;
+    const matchesGenero = !generoFilter || generoFilter === "all" || professor.genero === generoFilter;
+    const matchesCondicao = !condicaoFisicaFilter || condicaoFisicaFilter === "all" || professor.condicao_fisica === condicaoFisicaFilter;
+    const matchesDisciplina = !disciplinaFilter || disciplinaFilter === "all" || professor.disciplina === disciplinaFilter;
+    return matchesSearch && matchesCategoria && matchesFuncao && matchesGenero && matchesCondicao && matchesDisciplina;
+  });
 
   const handleCreate = (data: ProfessorInput) => {
     createProfessor.mutate(data);
@@ -236,8 +265,8 @@ export default function Professores() {
 
         {/* Filters */}
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex flex-col sm:flex-row gap-4">
+          <CardContent className="pt-6 space-y-4">
+            <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -248,9 +277,9 @@ export default function Professores() {
                 />
               </div>
               <Select value={escolaFilter} onValueChange={setEscolaFilter}>
-                <SelectTrigger className="w-full sm:w-64">
+                <SelectTrigger className="w-full sm:w-56">
                   <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
-                  <SelectValue placeholder="Filtrar por local" />
+                  <SelectValue placeholder="Local de trabalho" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos os locais</SelectItem>
@@ -261,7 +290,91 @@ export default function Professores() {
                   ))}
                 </SelectContent>
               </Select>
+              <Button
+                variant={showMoreFilters ? "secondary" : "outline"}
+                size="sm"
+                className="gap-2 whitespace-nowrap"
+                onClick={() => setShowMoreFilters(!showMoreFilters)}
+              >
+                <Filter className="h-4 w-4" />
+                Mais Filtros
+                {activeFilterCount > 0 && (
+                  <Badge variant="destructive" className="h-5 w-5 p-0 flex items-center justify-center text-[10px]">
+                    {activeFilterCount}
+                  </Badge>
+                )}
+              </Button>
             </div>
+
+            {showMoreFilters && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 pt-2 border-t">
+                <Select value={categoriaFilter} onValueChange={setCategoriaFilter}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas categorias</SelectItem>
+                    {uniqueCategorias.map((cat) => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select value={funcaoFilter} onValueChange={setFuncaoFilter}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Função" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas funções</SelectItem>
+                    {uniqueFuncoes.map((f) => (
+                      <SelectItem key={f} value={f}>{f}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select value={generoFilter} onValueChange={setGeneroFilter}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Género" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos géneros</SelectItem>
+                    {uniqueGeneros.map((g) => (
+                      <SelectItem key={g} value={g}>{g}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select value={condicaoFisicaFilter} onValueChange={setCondicaoFisicaFilter}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Condição Física" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas condições</SelectItem>
+                    {uniqueCondicoes.map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select value={disciplinaFilter} onValueChange={setDisciplinaFilter}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Disciplina" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas disciplinas</SelectItem>
+                    {uniqueDisciplinas.map((d) => (
+                      <SelectItem key={d} value={d}>{d}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {activeFilterCount > 0 && (
+                  <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-destructive col-span-2 sm:col-span-1">
+                    Limpar filtros
+                  </Button>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 
