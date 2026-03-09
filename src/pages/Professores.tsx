@@ -223,7 +223,7 @@ export default function Professores() {
         )}
 
         {/* Stats Summary */}
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-4">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -274,6 +274,21 @@ export default function Professores() {
                   </p>
                 </div>
                 <div className="h-8 w-8 rounded-full bg-warning/10" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card className={agentesReforma.length > 0 ? "border-destructive/30" : ""}>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Para Reforma
+                  </p>
+                  <p className={`text-2xl font-bold ${agentesReforma.length > 0 ? "text-destructive" : ""}`}>
+                    {agentesReforma.length}
+                  </p>
+                </div>
+                <AlertTriangle className={`h-8 w-8 ${agentesReforma.length > 0 ? "text-destructive/40" : "text-muted/20"}`} />
               </div>
             </CardContent>
           </Card>
