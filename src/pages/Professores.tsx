@@ -70,6 +70,13 @@ export default function Professores() {
   const { isAdmin } = useAuth();
   const { data: escolas } = useEscolas();
   const [escolaFilter, setEscolaFilter] = useState<string>("");
+  const [categoriaFilter, setCategoriaFilter] = useState<string>("");
+  const [funcaoFilter, setFuncaoFilter] = useState<string>("");
+  const [generoFilter, setGeneroFilter] = useState<string>("");
+  const [condicaoFisicaFilter, setCondicaoFisicaFilter] = useState<string>("");
+  const [disciplinaFilter, setDisciplinaFilter] = useState<string>("");
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+
   const { data: professores, isLoading, error } = useProfessores(
     escolaFilter || undefined
   );
@@ -79,21 +86,43 @@ export default function Professores() {
 
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
-  const [editingProfessor, setEditingProfessor] = useState<Professor | null>(
-    null
-  );
+  const [editingProfessor, setEditingProfessor] = useState<Professor | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [viewingProfessor, setViewingProfessor] =
-    useState<ProfessorWithEscola | null>(null);
-  const [emitirIDProfessor, setEmitirIDProfessor] =
-    useState<ProfessorWithEscola | null>(null);
+  const [viewingProfessor, setViewingProfessor] = useState<ProfessorWithEscola | null>(null);
+  const [emitirIDProfessor, setEmitirIDProfessor] = useState<ProfessorWithEscola | null>(null);
 
-  const filteredProfessores = professores?.filter(
-    (professor) =>
+  // Extract unique values for filter options
+  const uniqueCategorias = [...new Set(professores?.map(p => p.categoria).filter(Boolean) as string[])].sort();
+  const uniqueFuncoes = [...new Set(professores?.map(p => p.funcao).filter(Boolean) as string[])].sort();
+  const uniqueGeneros = [...new Set(professores?.map(p => p.genero).filter(Boolean) as string[])].sort();
+  const uniqueCondicoes = [...new Set(professores?.map(p => p.condicao_fisica).filter(Boolean) as string[])].sort();
+  const uniqueDisciplinas = [...new Set(professores?.map(p => p.disciplina).filter(Boolean) as string[])].sort();
+
+  const activeFilterCount = [categoriaFilter, funcaoFilter, generoFilter, condicaoFisicaFilter, disciplinaFilter].filter(f => f && f !== "all").length;
+
+  const clearAllFilters = () => {
+    setCategoriaFilter("");
+    setFuncaoFilter("");
+    setGeneroFilter("");
+    setCondicaoFisicaFilter("");
+    setDisciplinaFilter("");
+    setEscolaFilter("");
+    setSearch("");
+  };
+
+  const filteredProfessores = professores?.filter((professor) => {
+    const matchesSearch =
+      !search ||
       professor.nome.toLowerCase().includes(search.toLowerCase()) ||
       professor.funcao?.toLowerCase().includes(search.toLowerCase()) ||
-      professor.numero_agente?.toLowerCase().includes(search.toLowerCase())
-  );
+      professor.numero_agente?.toLowerCase().includes(search.toLowerCase());
+    const matchesCategoria = !categoriaFilter || categoriaFilter === "all" || professor.categoria === categoriaFilter;
+    const matchesFuncao = !funcaoFilter || funcaoFilter === "all" || professor.funcao === funcaoFilter;
+    const matchesGenero = !generoFilter || generoFilter === "all" || professor.genero === generoFilter;
+    const matchesCondicao = !condicaoFisicaFilter || condicaoFisicaFilter === "all" || professor.condicao_fisica === condicaoFisicaFilter;
+    const matchesDisciplina = !disciplinaFilter || disciplinaFilter === "all" || professor.disciplina === disciplinaFilter;
+    return matchesSearch && matchesCategoria && matchesFuncao && matchesGenero && matchesCondicao && matchesDisciplina;
+  });
 
   const handleCreate = (data: ProfessorInput) => {
     createProfessor.mutate(data);
