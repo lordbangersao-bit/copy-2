@@ -200,7 +200,7 @@ Disciplina:          ${val(professor.disciplina)}
 Regime de Contrato:  ${val(professor.regime_contrato)}
 Data de Admissão:    ${val(professor.data_admissao)}
 Início de Função:    ${val(professor.inicio_funcao)}
-Tempo de Serviço:    ${val(professor.tempo_servico)}
+Tempo de Serviço:    ${val(calcularTempoServico(professor.data_admissao))}
 Proc. Disciplinares: ${val(professor.qtd_processo_disciplinar)}
 Actividade:          ${val(professor.actividade)}
 Agente Transferido:  ${val(professor.agente_transferido)}
