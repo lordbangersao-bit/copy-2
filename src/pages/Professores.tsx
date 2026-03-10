@@ -337,6 +337,10 @@ Documento gerado automaticamente pelo sistema SIGEM
           actions={
             isAdmin ? (
               <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Importar Excel
+                </Button>
                 <Button variant="outline" size="sm" onClick={exportToExcel} disabled={!filteredProfessores?.length}>
                   <Download className="h-4 w-4 mr-2" />
                   Exportar Excel
