@@ -778,7 +778,7 @@ Documento gerado automaticamente pelo sistema SIGEM
                       label="Data de Nascimento"
                       value={viewingProfessor.data_nascimento}
                     />
-                    <DetailItem label="Idade" value={viewingProfessor.idade} />
+                    <DetailItem label="Idade" value={calcularIdade(viewingProfessor.data_nascimento) !== null ? `${calcularIdade(viewingProfessor.data_nascimento)} anos` : null} />
                     <DetailItem label="Género" value={viewingProfessor.genero} />
                     <DetailItem label="Documento" value={viewingProfessor.cpf} />
                     <DetailItem
