@@ -634,6 +634,19 @@ Documento gerado automaticamente pelo sistema SIGEM
                             <CreditCard className="h-4 w-4 mr-2" />
                             Emitir ID
                           </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => downloadFicha(professor, "completa")}
+                          >
+                            <FileText className="h-4 w-4 mr-2" />
+                            Ficha Completa
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => downloadFicha(professor, "resumida")}
+                          >
+                            <FileDown className="h-4 w-4 mr-2" />
+                            Ficha Resumida
+                          </DropdownMenuItem>
                           {isAdmin && (
                             <>
                               <DropdownMenuSeparator />
