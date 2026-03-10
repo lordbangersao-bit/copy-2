@@ -273,7 +273,6 @@ Documento gerado automaticamente pelo sistema SIGEM
       "Data de Admissão": p.data_admissao || "",
       "Início de Função": p.inicio_funcao || "",
       "Tempo de Serviço": calcularTempoServico(p.data_admissao) || "",
-      "Idade": calcularIdade(p.data_nascimento) || "",
       "Actividade": p.actividade || "",
       "Condição Física": p.condicao_fisica || "",
       "Estado de Saúde": p.estado_saude || "",
