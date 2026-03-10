@@ -446,8 +446,10 @@ Documento gerado automaticamente pelo sistema SIGEM
               <div className="space-y-1.5 max-h-40 overflow-y-auto">
                 {agentesReforma.map((a) => {
                   const reasons: string[] = [];
-                  if ((a.idade ?? 0) >= 65) reasons.push(`Idade: ${a.idade} anos`);
-                  if (parseTempoServico(a.tempo_servico) >= 35) reasons.push(`Tempo de serviço: ${a.tempo_servico}`);
+                  const idadeCalc = calcularIdade(a.data_nascimento);
+                  const anosServico = calcularTempoServicoAnos(a.data_admissao);
+                  if (idadeCalc !== null && idadeCalc >= 65) reasons.push(`Idade: ${idadeCalc} anos`);
+                  if (anosServico >= 35) reasons.push(`Tempo de serviço: ${anosServico} anos`);
                   return (
                     <div key={a.id} className="flex items-center justify-between text-sm bg-background/50 rounded px-3 py-1.5">
                       <div>
