@@ -949,6 +949,9 @@ Documento gerado automaticamente pelo sistema SIGEM
         open={!!emitirIDProfessor}
         onOpenChange={(open) => !open && setEmitirIDProfessor(null)}
       />
+
+      {/* Import Dialog */}
+      <ImportAgentesDialog open={importOpen} onOpenChange={setImportOpen} />
     </AppLayout>
   );
 }
