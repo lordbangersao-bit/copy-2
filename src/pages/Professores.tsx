@@ -106,16 +106,10 @@ export default function Professores() {
   const activeFilterCount = [categoriaFilter, funcaoFilter, generoFilter, condicaoFisicaFilter, disciplinaFilter].filter(f => f && f !== "all").length;
 
   // Retirement alert: age >= 65 or service time >= 35 years
-  const parseTempoServico = (tempo: string | null): number => {
-    if (!tempo) return 0;
-    const match = tempo.match(/(\d+)/);
-    return match ? parseInt(match[1], 10) : 0;
-  };
-
   const agentesReforma = professores?.filter((p) => {
-    const byAge = (p.idade ?? 0) >= 65;
-    const byService = parseTempoServico(p.tempo_servico) >= 35;
-    return byAge || byService;
+    const idade = calcularIdade(p.data_nascimento);
+    const anosServico = calcularTempoServicoAnos(p.data_admissao);
+    return (idade !== null && idade >= 65) || anosServico >= 35;
   }) || [];
 
   const [showReformaAlert, setShowReformaAlert] = useState(true);
