@@ -550,20 +550,7 @@ export function ProfessorForm({
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="tempo_servico"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Tempo de Serviço</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Ex: 5 anos" {...field} value={field.value || ""} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <div className="grid grid-cols-1 gap-4">
                     <FormField
                       control={form.control}
                       name="qtd_processo_disciplinar"
