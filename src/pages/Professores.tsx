@@ -1,5 +1,6 @@
 import { useState } from "react";
 import * as XLSX from "xlsx";
+import { calcularIdade, calcularTempoServico, calcularTempoServicoAnos } from "@/lib/calcularAgente";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -105,16 +106,10 @@ export default function Professores() {
   const activeFilterCount = [categoriaFilter, funcaoFilter, generoFilter, condicaoFisicaFilter, disciplinaFilter].filter(f => f && f !== "all").length;
 
   // Retirement alert: age >= 65 or service time >= 35 years
-  const parseTempoServico = (tempo: string | null): number => {
-    if (!tempo) return 0;
-    const match = tempo.match(/(\d+)/);
-    return match ? parseInt(match[1], 10) : 0;
-  };
-
   const agentesReforma = professores?.filter((p) => {
-    const byAge = (p.idade ?? 0) >= 65;
-    const byService = parseTempoServico(p.tempo_servico) >= 35;
-    return byAge || byService;
+    const idade = calcularIdade(p.data_nascimento);
+    const anosServico = calcularTempoServicoAnos(p.data_admissao);
+    return (idade !== null && idade >= 65) || anosServico >= 35;
   }) || [];
 
   const [showReformaAlert, setShowReformaAlert] = useState(true);
@@ -186,7 +181,7 @@ Nº de Cadastro:      ${val(professor.numero_cadastro)}
 Nº Agente:           ${val(professor.numero_agente)}
 Nome Completo:       ${val(professor.nome)}
 Data de Nascimento:  ${val(professor.data_nascimento)}
-Idade:               ${val(professor.idade)}
+Idade:               ${val(calcularIdade(professor.data_nascimento) !== null ? `${calcularIdade(professor.data_nascimento)} anos` : null)}
 Género:              ${val(professor.genero)}
 Documento (BI):      ${val(professor.cpf)}
 Estado Civil:        ${val(professor.estado_civil)}
@@ -205,7 +200,7 @@ Disciplina:          ${val(professor.disciplina)}
 Regime de Contrato:  ${val(professor.regime_contrato)}
 Data de Admissão:    ${val(professor.data_admissao)}
 Início de Função:    ${val(professor.inicio_funcao)}
-Tempo de Serviço:    ${val(professor.tempo_servico)}
+Tempo de Serviço:    ${val(calcularTempoServico(professor.data_admissao))}
 Proc. Disciplinares: ${val(professor.qtd_processo_disciplinar)}
 Actividade:          ${val(professor.actividade)}
 Agente Transferido:  ${val(professor.agente_transferido)}
@@ -262,7 +257,7 @@ Documento gerado automaticamente pelo sistema SIGEM
       "Nº Cadastro": p.numero_cadastro || "",
       "Nome": p.nome,
       "Género": p.genero || "",
-      "Idade": p.idade || "",
+      "Idade": calcularIdade(p.data_nascimento) || "",
       "Data de Nascimento": p.data_nascimento || "",
       "Documento (BI)": p.cpf || "",
       "Estado Civil": p.estado_civil || "",
@@ -277,7 +272,7 @@ Documento gerado automaticamente pelo sistema SIGEM
       "Regime de Contrato": p.regime_contrato || "",
       "Data de Admissão": p.data_admissao || "",
       "Início de Função": p.inicio_funcao || "",
-      "Tempo de Serviço": p.tempo_servico || "",
+      "Tempo de Serviço": calcularTempoServico(p.data_admissao) || "",
       "Actividade": p.actividade || "",
       "Condição Física": p.condicao_fisica || "",
       "Estado de Saúde": p.estado_saude || "",
@@ -451,8 +446,10 @@ Documento gerado automaticamente pelo sistema SIGEM
               <div className="space-y-1.5 max-h-40 overflow-y-auto">
                 {agentesReforma.map((a) => {
                   const reasons: string[] = [];
-                  if ((a.idade ?? 0) >= 65) reasons.push(`Idade: ${a.idade} anos`);
-                  if (parseTempoServico(a.tempo_servico) >= 35) reasons.push(`Tempo de serviço: ${a.tempo_servico}`);
+                  const idadeCalc = calcularIdade(a.data_nascimento);
+                  const anosServico = calcularTempoServicoAnos(a.data_admissao);
+                  if (idadeCalc !== null && idadeCalc >= 65) reasons.push(`Idade: ${idadeCalc} anos`);
+                  if (anosServico >= 35) reasons.push(`Tempo de serviço: ${anosServico} anos`);
                   return (
                     <div key={a.id} className="flex items-center justify-between text-sm bg-background/50 rounded px-3 py-1.5">
                       <div>
@@ -781,7 +778,7 @@ Documento gerado automaticamente pelo sistema SIGEM
                       label="Data de Nascimento"
                       value={viewingProfessor.data_nascimento}
                     />
-                    <DetailItem label="Idade" value={viewingProfessor.idade} />
+                    <DetailItem label="Idade" value={calcularIdade(viewingProfessor.data_nascimento) !== null ? `${calcularIdade(viewingProfessor.data_nascimento)} anos` : null} />
                     <DetailItem label="Género" value={viewingProfessor.genero} />
                     <DetailItem label="Documento" value={viewingProfessor.cpf} />
                     <DetailItem
@@ -842,7 +839,7 @@ Documento gerado automaticamente pelo sistema SIGEM
                     />
                     <DetailItem
                       label="Tempo de Serviço"
-                      value={viewingProfessor.tempo_servico}
+                      value={calcularTempoServico(viewingProfessor.data_admissao)}
                     />
                     <DetailItem
                       label="Processos Disciplinares"
