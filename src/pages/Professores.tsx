@@ -166,6 +166,95 @@ export default function Professores() {
     setFormOpen(true);
   };
 
+  const downloadFicha = (professor: ProfessorWithEscola, tipo: "completa" | "resumida") => {
+    const val = (v: string | number | boolean | null | undefined) =>
+      v === true ? "Sim" : v === false ? "Não" : v || "-";
+
+    let content = "";
+    const title = tipo === "completa" ? "FICHA COMPLETA DO AGENTE" : "FICHA RESUMIDA DO AGENTE";
+    const date = new Date().toLocaleDateString("pt-AO");
+
+    if (tipo === "completa") {
+      content = `
+${title}
+${"=".repeat(60)}
+Data de emissão: ${date}
+
+── IDENTIFICAÇÃO ──────────────────────────────────────────
+Nº de Cadastro:      ${val(professor.numero_cadastro)}
+Nº Agente:           ${val(professor.numero_agente)}
+Nome Completo:       ${val(professor.nome)}
+Data de Nascimento:  ${val(professor.data_nascimento)}
+Idade:               ${val(professor.idade)}
+Género:              ${val(professor.genero)}
+Documento (BI):      ${val(professor.cpf)}
+Estado Civil:        ${val(professor.estado_civil)}
+Telefone:            ${val(professor.telefone)}
+Email:               ${val(professor.email)}
+Condição Física:     ${val(professor.condicao_fisica)}
+Estado de Saúde:     ${val(professor.estado_saude)}
+
+── DADOS PROFISSIONAIS ────────────────────────────────────
+Função:              ${val(professor.funcao)}
+Categoria:           ${val(professor.categoria)}
+Local de Trabalho:   ${val(professor.escolas?.nome)}
+Nível Académico:     ${val(professor.nivel_academico)}
+Formado em:          ${val(professor.formado_em)}
+Disciplina:          ${val(professor.disciplina)}
+Regime de Contrato:  ${val(professor.regime_contrato)}
+Data de Admissão:    ${val(professor.data_admissao)}
+Início de Função:    ${val(professor.inicio_funcao)}
+Tempo de Serviço:    ${val(professor.tempo_servico)}
+Proc. Disciplinares: ${val(professor.qtd_processo_disciplinar)}
+Actividade:          ${val(professor.actividade)}
+Agente Transferido:  ${val(professor.agente_transferido)}
+Arquivo Pessoal:     ${val(professor.arquivo_pessoal)}
+
+── LOCALIZAÇÃO ────────────────────────────────────────────
+Província:           ${val(professor.provincia)}
+Comuna:              ${val(professor.comuna)}
+Bairro / Localidade: ${val(professor.bairro_localidade)}
+
+── DADOS FAMILIARES ───────────────────────────────────────
+Dependentes:         ${val(professor.dependentes)}
+Nº de Dependentes:   ${val(professor.num_dependentes)}
+Nome do(a) Parceiro: ${val(professor.nome_parceira)}
+Tel. Parceiro(a):    ${val(professor.telefone_parceira)}
+Outro Familiar:      ${val(professor.outro_familiar)}
+
+${"=".repeat(60)}
+Documento gerado automaticamente pelo sistema SIGEM
+      `.trim();
+    } else {
+      content = `
+${title}
+${"=".repeat(45)}
+Data de emissão: ${date}
+
+Nome:             ${val(professor.nome)}
+Nº Agente:        ${val(professor.numero_agente)}
+Nº Cadastro:      ${val(professor.numero_cadastro)}
+Documento (BI):   ${val(professor.cpf)}
+Telefone:         ${val(professor.telefone)}
+Função:           ${val(professor.funcao)}
+Categoria:        ${val(professor.categoria)}
+Local de Trabalho:${val(professor.escolas?.nome)}
+Actividade:       ${val(professor.actividade)}
+
+${"=".repeat(45)}
+Documento gerado automaticamente pelo sistema SIGEM
+      `.trim();
+    }
+
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `ficha_${tipo}_${professor.nome.replace(/\s+/g, "_")}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const DetailItem = ({
     label,
     value,
