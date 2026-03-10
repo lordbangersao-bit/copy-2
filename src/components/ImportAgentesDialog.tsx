@@ -233,9 +233,63 @@ export function ImportAgentesDialog({ open, onOpenChange }: ImportAgentesDialogP
     reader.readAsArrayBuffer(file);
   };
 
+  const normalizeCategoria = (cat: string): string | null => {
+    if (!cat || cat === "CATEGORIA") return null;
+    const c = cat.trim();
+    
+    // Map Excel variations to system standard
+    const mapping: Record<string, string> = {
+      "Professor Do Ens. Prim. E Sec. Do 13o Grau": "Prof. do Ens. Primário e Sec. do 13º Grau",
+      "Professor Do Ens. Prim. E Sec. Do 12o Grau": "Prof. do Ens. Primário e Sec. do 12º Grau",
+      "Professor Do Ens. Prim. E Sec. Do 11o Grau": "Prof. do Ens. Primário e Sec. do 11º Grau",
+      "Professor Do Ens. Prim. E Sec. Do 10o Grau": "Prof. do Ens. Primário e Sec. do 10º Grau",
+      "Professor Do Ens. Prim. E Sec. Do 9o Grau": "Prof. do Ens. Primário e Sec. do 9º Grau",
+      "Professor Do Ens. Prim. E Sec. Do 8o Grau": "Prof. do Ens. Primário e Sec. do 8º Grau",
+      "Professor Do Ens. Prim. E Sec. Do 7o Grau": "Prof. do Ens. Primário e Sec. do 7º Grau",
+      "Professor Do Ens. Prim. E Sec. Do 6o Grau": "Prof. do Ens. Primário e Sec. do 6º Grau",
+      "Professor Do Ens. Prim. E Sec. Do 5o Grau": "Prof. do Ens. Primário e Sec. do 5º Grau",
+      "Professor Do Ens. Prim. E Sec. Do 4o Grau": "Prof. do Ens. Primário e Sec. do 4º Grau",
+      "Professor Do Ens. Prim. E Sec. Do 3o Grau": "Prof. do Ens. Primário e Sec. do 3º Grau",
+      "Professor Do Ens. Prim. E Sec. Do 2o Grau": "Prof. do Ens. Primário e Sec. do 2º Grau",
+      "Professor Do Ens. Prim. E Sec. Do 1o Grau": "Prof. do Ens. Primário e Sec. do 1º Grau",
+      "Prof. Do Ens. Prim. E Sec. Do 13.O Grau": "Prof. do Ens. Primário e Sec. do 13º Grau",
+      "Prof. Do Ens. Prim. E Sec. Do 12.O Grau": "Prof. do Ens. Primário e Sec. do 12º Grau",
+      "Prof. Do Ens. Prim. E Sec. Do 11.O Grau": "Prof. do Ens. Primário e Sec. do 11º Grau",
+      "Prof. Do Ens. Prim. E Sec. Do 10.O Grau": "Prof. do Ens. Primário e Sec. do 10º Grau",
+      "Prof. Do Ens. Prim. E Sec. Do 9.O Grau": "Prof. do Ens. Primário e Sec. do 9º Grau",
+      "Prof. Do Ens. Prim. E Sec. Do 8.O Grau": "Prof. do Ens. Primário e Sec. do 8º Grau",
+      "Prof. Do Ens. Prim. E Sec. Do 7.O Grau": "Prof. do Ens. Primário e Sec. do 7º Grau",
+      "Prof. Do Ens. Prim. E Sec. Do 6.O Grau": "Prof. do Ens. Primário e Sec. do 6º Grau",
+      "Prof. Do Ens. Prim. E Sec. Do 5.O Grau": "Prof. do Ens. Primário e Sec. do 5º Grau",
+      "Prof. Do Ens. Prim. E Sec. Do 4.O Grau": "Prof. do Ens. Primário e Sec. do 4º Grau",
+      "Prof. Do Ens. Prim. E Sec. Do 3.O Grau": "Prof. do Ens. Primário e Sec. do 3º Grau",
+      "Prof. Do Ens. Prim. E Sec. Do 2.O Grau": "Prof. do Ens. Primário e Sec. do 2º Grau",
+      "Prof. Do Ens. Prim. E Sec. Do 1.O Grau": "Prof. do Ens. Primário e Sec. do 1º Grau",
+      "Professor Auxiliar Do 1o Grau": "Prof. Auxiliar do 1º grau",
+      "Professor Auxiliar Do 2o Grau": "Prof. Auxiliar do 2º grau",
+      "Professor Auxiliar Do 3o Grau": "Prof. Auxiliar do 3º grau",
+      "Professor Auxiliar Do 4o Grau": "Prof. Auxiliar do 4º grau",
+      "Professor Auxiliar Do 5o Grau": "Prof. Auxiliar do 5º grau",
+      "Auxiliar De Limpeza De Segunda": "Auxiliar de Limpeza",
+      "Auxiliar De Limpeza De Primeira": "Auxiliar de Limpeza",
+      "Operario Qualificado De Segunda": "Operário Qualificado",
+      "Operario Qualificado De Primeira": "Operário Qualificado",
+    };
+
+    if (mapping[c]) return mapping[c];
+
+    // Try case-insensitive match
+    const lowerC = c.toLowerCase();
+    for (const [key, value] of Object.entries(mapping)) {
+      if (key.toLowerCase() === lowerC) return value;
+    }
+
+    return c;
+  };
+
   const mapFuncao = (grupo: string, categoria: string): string | null => {
     if (!grupo && !categoria) return null;
-    if (categoria) return categoria;
+    if (categoria) return normalizeCategoria(categoria);
     return grupo || null;
   };
 
