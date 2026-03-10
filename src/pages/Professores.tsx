@@ -839,7 +839,7 @@ Documento gerado automaticamente pelo sistema SIGEM
                     />
                     <DetailItem
                       label="Tempo de Serviço"
-                      value={viewingProfessor.tempo_servico}
+                      value={calcularTempoServico(viewingProfessor.data_admissao)}
                     />
                     <DetailItem
                       label="Processos Disciplinares"
