@@ -1,4 +1,5 @@
 import { useState } from "react";
+import * as XLSX from "xlsx";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatusBadge } from "@/components/ui/status-badge";
