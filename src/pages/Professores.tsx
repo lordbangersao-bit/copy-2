@@ -181,7 +181,7 @@ Nº de Cadastro:      ${val(professor.numero_cadastro)}
 Nº Agente:           ${val(professor.numero_agente)}
 Nome Completo:       ${val(professor.nome)}
 Data de Nascimento:  ${val(professor.data_nascimento)}
-Idade:               ${val(professor.idade)}
+Idade:               ${val(calcularIdade(professor.data_nascimento) !== null ? `${calcularIdade(professor.data_nascimento)} anos` : null)}
 Género:              ${val(professor.genero)}
 Documento (BI):      ${val(professor.cpf)}
 Estado Civil:        ${val(professor.estado_civil)}
