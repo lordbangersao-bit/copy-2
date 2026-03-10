@@ -1,4 +1,5 @@
 import { useState } from "react";
+import * as XLSX from "xlsx";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/ui/page-header";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -255,6 +256,55 @@ Documento gerado automaticamente pelo sistema SIGEM
     URL.revokeObjectURL(url);
   };
 
+  const exportToExcel = () => {
+    const data = (filteredProfessores || []).map((p) => ({
+      "Nº Agente": p.numero_agente || "",
+      "Nº Cadastro": p.numero_cadastro || "",
+      "Nome": p.nome,
+      "Género": p.genero || "",
+      "Idade": p.idade || "",
+      "Data de Nascimento": p.data_nascimento || "",
+      "Documento (BI)": p.cpf || "",
+      "Estado Civil": p.estado_civil || "",
+      "Telefone": p.telefone || "",
+      "Email": p.email || "",
+      "Função": p.funcao || "",
+      "Categoria": p.categoria || "",
+      "Local de Trabalho": p.escolas?.nome || "",
+      "Nível Académico": p.nivel_academico || "",
+      "Formado em": p.formado_em || "",
+      "Disciplina": p.disciplina || "",
+      "Regime de Contrato": p.regime_contrato || "",
+      "Data de Admissão": p.data_admissao || "",
+      "Início de Função": p.inicio_funcao || "",
+      "Tempo de Serviço": p.tempo_servico || "",
+      "Actividade": p.actividade || "",
+      "Condição Física": p.condicao_fisica || "",
+      "Estado de Saúde": p.estado_saude || "",
+      "Agente Transferido": p.agente_transferido ? "Sim" : "Não",
+      "Proc. Disciplinares": p.qtd_processo_disciplinar || 0,
+      "Província": p.provincia || "",
+      "Comuna": p.comuna || "",
+      "Bairro / Localidade": p.bairro_localidade || "",
+      "Dependentes": p.dependentes || "",
+      "Nº Dependentes": p.num_dependentes || 0,
+      "Nome Parceiro(a)": p.nome_parceira || "",
+      "Tel. Parceiro(a)": p.telefone_parceira || "",
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Agentes");
+
+    // Auto-size columns
+    const colWidths = Object.keys(data[0] || {}).map((key) => ({
+      wch: Math.max(key.length, ...data.map((r) => String((r as Record<string, unknown>)[key] || "").length)).toString().length + 2,
+    }));
+    ws["!cols"] = colWidths;
+
+    XLSX.writeFile(wb, `agentes_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
   const DetailItem = ({
     label,
     value,
@@ -289,9 +339,9 @@ Documento gerado automaticamente pelo sistema SIGEM
           actions={
             isAdmin ? (
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" disabled>
+                <Button variant="outline" size="sm" onClick={exportToExcel} disabled={!filteredProfessores?.length}>
                   <Download className="h-4 w-4 mr-2" />
-                  Exportar
+                  Exportar Excel
                 </Button>
                 <Button onClick={() => setFormOpen(true)} size="sm">
                   <Plus className="h-4 w-4 mr-2" />
