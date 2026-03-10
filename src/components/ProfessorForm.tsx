@@ -385,7 +385,7 @@ export function ProfessorForm({
                     )}
                   />
 
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="data_nascimento"
@@ -394,25 +394,6 @@ export function ProfessorForm({
                           <FormLabel>Data de Nascimento</FormLabel>
                           <FormControl>
                             <Input type="date" {...field} value={field.value || ""} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="idade"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Idade</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="number" 
-                              placeholder="Idade" 
-                              {...field} 
-                              value={field.value || ""} 
-                              onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : null)}
-                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
