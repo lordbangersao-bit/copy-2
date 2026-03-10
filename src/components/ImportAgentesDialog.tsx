@@ -373,7 +373,7 @@ export function ImportAgentesDialog({ open, onOpenChange }: ImportAgentesDialogP
             numero_cadastro: agent.numero_cadastro || null,
             escola_id: escolaId,
             cpf: agent.num_documento || null,
-            categoria: agent.categoria || null,
+            categoria: normalizeCategoria(agent.categoria),
             funcao: mapFuncao(agent.grupo, agent.categoria),
             regime_contrato: mapRegimeContrato(agent.regime, agent.vinculo_funcional),
             data_admissao: dataAdmissao,
