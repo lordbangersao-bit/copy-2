@@ -257,7 +257,7 @@ Documento gerado automaticamente pelo sistema SIGEM
       "Nº Cadastro": p.numero_cadastro || "",
       "Nome": p.nome,
       "Género": p.genero || "",
-      "Idade": p.idade || "",
+      "Idade": calcularIdade(p.data_nascimento) || "",
       "Data de Nascimento": p.data_nascimento || "",
       "Documento (BI)": p.cpf || "",
       "Estado Civil": p.estado_civil || "",
