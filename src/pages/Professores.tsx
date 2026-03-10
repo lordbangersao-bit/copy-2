@@ -25,6 +25,7 @@ import {
 import { ProfessorForm } from "@/components/ProfessorForm";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmitirIDDialog } from "@/components/EmitirIDDialog";
+import { ImportAgentesDialog } from "@/components/ImportAgentesDialog";
 import {
   useProfessores,
   useCreateProfessor,
@@ -51,6 +52,7 @@ import {
   AlertTriangle,
   FileText,
   FileDown,
+  Upload,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -95,6 +97,7 @@ export default function Professores() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [viewingProfessor, setViewingProfessor] = useState<ProfessorWithEscola | null>(null);
   const [emitirIDProfessor, setEmitirIDProfessor] = useState<ProfessorWithEscola | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   // Extract unique values for filter options
   const uniqueCategorias = [...new Set(professores?.map(p => p.categoria).filter(Boolean) as string[])].sort();
@@ -334,6 +337,10 @@ Documento gerado automaticamente pelo sistema SIGEM
           actions={
             isAdmin ? (
               <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Importar Excel
+                </Button>
                 <Button variant="outline" size="sm" onClick={exportToExcel} disabled={!filteredProfessores?.length}>
                   <Download className="h-4 w-4 mr-2" />
                   Exportar Excel
@@ -942,6 +949,9 @@ Documento gerado automaticamente pelo sistema SIGEM
         open={!!emitirIDProfessor}
         onOpenChange={(open) => !open && setEmitirIDProfessor(null)}
       />
+
+      {/* Import Dialog */}
+      <ImportAgentesDialog open={importOpen} onOpenChange={setImportOpen} />
     </AppLayout>
   );
 }
