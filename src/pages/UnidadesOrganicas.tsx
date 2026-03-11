@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -22,7 +22,12 @@ import {
   UnidadeOrganica,
   UnidadeOrganicaInput,
 } from "@/hooks/useUnidadesOrganicas";
+import { useProfessores } from "@/hooks/useProfessores";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  classificarFuncionario,
+  type ClasseFuncionario,
+} from "@/lib/classificarFuncionario";
 import {
   Plus,
   Search,
@@ -36,6 +41,10 @@ import {
   MoreHorizontal,
   Eye,
   MapPin,
+  BookOpen,
+  ShieldCheck,
+  Briefcase,
+  HardHat,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -55,10 +64,21 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Progress } from "@/components/ui/progress";
+
+interface EfectivosStats {
+  total: number;
+  docente: number;
+  direccao_chefia: number;
+  administrativo: number;
+  operario_apoio: number;
+  subclasses: { subclasse: string; classe: ClasseFuncionario; total: number }[];
+}
 
 export default function UnidadesOrganicas() {
   const { isAdmin } = useAuth();
   const { data: unidades, isLoading, error } = useUnidadesOrganicas();
+  const { data: professores, isLoading: professoresLoading } = useProfessores();
   const createUnidade = useCreateUnidadeOrganica();
   const updateUnidade = useUpdateUnidadeOrganica();
   const deleteUnidade = useDeleteUnidadeOrganica();
@@ -72,6 +92,67 @@ export default function UnidadesOrganicas() {
   const [viewingUnidade, setViewingUnidade] = useState<UnidadeOrganica | null>(
     null
   );
+
+  // Calculate efectivos stats per unidade orgânica
+  const efectivosPorUnidade = useMemo(() => {
+    const map = new Map<string, EfectivosStats>();
+    if (!professores) return map;
+
+    professores.forEach((p) => {
+      const escolaId = p.escola_id;
+      if (!escolaId) return;
+
+      const info = classificarFuncionario(p.categoria, p.funcao);
+      
+      if (!map.has(escolaId)) {
+        map.set(escolaId, {
+          total: 0,
+          docente: 0,
+          direccao_chefia: 0,
+          administrativo: 0,
+          operario_apoio: 0,
+          subclasses: [],
+        });
+      }
+
+      const stats = map.get(escolaId)!;
+      stats.total++;
+      stats[info.classe]++;
+
+      const existing = stats.subclasses.find(
+        (s) => s.subclasse === info.subclasse && s.classe === info.classe
+      );
+      if (existing) {
+        existing.total++;
+      } else {
+        stats.subclasses.push({
+          subclasse: info.subclasse,
+          classe: info.classe,
+          total: 1,
+        });
+      }
+    });
+
+    // Sort subclasses
+    map.forEach((stats) => {
+      stats.subclasses.sort((a, b) => b.total - a.total);
+    });
+
+    return map;
+  }, [professores]);
+
+  // Global totals from efectivos
+  const globalEfectivos = useMemo(() => {
+    const totals = { total: 0, docente: 0, direccao_chefia: 0, administrativo: 0, operario_apoio: 0 };
+    efectivosPorUnidade.forEach((stats) => {
+      totals.total += stats.total;
+      totals.docente += stats.docente;
+      totals.direccao_chefia += stats.direccao_chefia;
+      totals.administrativo += stats.administrativo;
+      totals.operario_apoio += stats.operario_apoio;
+    });
+    return totals;
+  }, [efectivosPorUnidade]);
 
   const filteredUnidades = unidades?.filter(
     (unidade) =>
@@ -175,7 +256,7 @@ export default function UnidadesOrganicas() {
         )}
 
         {/* Stats Summary */}
-        <div className="grid gap-4 sm:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -194,10 +275,10 @@ export default function UnidadesOrganicas() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
-                    Total de Docentes
+                    Total de Efectivos
                   </p>
                   <p className="text-2xl font-bold text-secondary">
-                    {totalDocentes.toLocaleString("pt-AO")}
+                    {globalEfectivos.total.toLocaleString("pt-AO")}
                   </p>
                 </div>
                 <Users className="h-8 w-8 text-secondary/20" />
@@ -230,6 +311,46 @@ export default function UnidadesOrganicas() {
                 </div>
                 <div className="h-8 w-8 rounded-full bg-muted" />
               </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Efectivos por Classe - Global */}
+        <div className="grid gap-3 sm:grid-cols-4">
+          <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <BookOpen className="h-4 w-4 text-primary" />
+                <p className="text-xs font-medium text-muted-foreground">Docentes</p>
+              </div>
+              <p className="text-xl font-bold text-primary">{globalEfectivos.docente}</p>
+            </CardContent>
+          </Card>
+          <Card className="border-secondary/20 bg-secondary/5">
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <ShieldCheck className="h-4 w-4 text-secondary" />
+                <p className="text-xs font-medium text-muted-foreground">Direcção e Chefia</p>
+              </div>
+              <p className="text-xl font-bold text-secondary">{globalEfectivos.direccao_chefia}</p>
+            </CardContent>
+          </Card>
+          <Card className="border-blue-500/20 bg-blue-500/5">
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <Briefcase className="h-4 w-4 text-blue-600" />
+                <p className="text-xs font-medium text-muted-foreground">Administrativos</p>
+              </div>
+              <p className="text-xl font-bold text-blue-600">{globalEfectivos.administrativo}</p>
+            </CardContent>
+          </Card>
+          <Card className="border-warning/20 bg-warning/5">
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <HardHat className="h-4 w-4 text-warning" />
+                <p className="text-xs font-medium text-muted-foreground">Operários e Apoio</p>
+              </div>
+              <p className="text-xl font-bold text-warning">{globalEfectivos.operario_apoio}</p>
             </CardContent>
           </Card>
         </div>
@@ -288,7 +409,7 @@ export default function UnidadesOrganicas() {
                   <TableHead className="hidden lg:table-cell font-semibold">
                     <div className="flex items-center gap-1">
                       <Users className="h-4 w-4" />
-                      Docentes
+                      Efectivos
                     </div>
                   </TableHead>
                   <TableHead className="hidden lg:table-cell font-semibold">
@@ -338,15 +459,39 @@ export default function UnidadesOrganicas() {
                       )}
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
-                      <div className="text-sm">
-                        <span className="font-medium">
-                          {unidade.total_docentes || 0}
-                        </span>
-                        <span className="text-muted-foreground text-xs ml-1">
-                          ({unidade.prof_masculino || 0}M /{" "}
-                          {unidade.prof_feminino || 0}F)
-                        </span>
-                      </div>
+                      {(() => {
+                        const stats = efectivosPorUnidade.get(unidade.id);
+                        const total = stats?.total || 0;
+                        return (
+                          <div className="space-y-1">
+                            <span className="font-semibold text-sm">{total}</span>
+                            {total > 0 && stats && (
+                              <div className="flex gap-1 flex-wrap">
+                                {stats.docente > 0 && (
+                                  <Badge variant="outline" className="text-[10px] px-1 py-0 border-primary/30 text-primary">
+                                    {stats.docente} Doc
+                                  </Badge>
+                                )}
+                                {stats.direccao_chefia > 0 && (
+                                  <Badge variant="outline" className="text-[10px] px-1 py-0 border-secondary/30 text-secondary">
+                                    {stats.direccao_chefia} Dir
+                                  </Badge>
+                                )}
+                                {stats.administrativo > 0 && (
+                                  <Badge variant="outline" className="text-[10px] px-1 py-0 border-accent/30 text-accent-foreground">
+                                    {stats.administrativo} Adm
+                                  </Badge>
+                                )}
+                                {stats.operario_apoio > 0 && (
+                                  <Badge variant="outline" className="text-[10px] px-1 py-0 border-warning/30 text-warning">
+                                    {stats.operario_apoio} Op
+                                  </Badge>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
                       <div className="text-sm">
@@ -470,26 +615,71 @@ export default function UnidadesOrganicas() {
                   </div>
                 </div>
 
-                {/* Recursos Humanos */}
+                {/* Efectivos - Recursos Humanos */}
                 <div>
                   <h3 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
                     <div className="h-1 w-4 bg-primary rounded" />
-                    Recursos Humanos
+                    Efectivos (Recursos Humanos)
                   </h3>
-                  <div className="grid grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg">
-                    <DetailItem
-                      label="Total de Docentes"
-                      value={viewingUnidade.total_docentes}
-                    />
-                    <DetailItem
-                      label="Docentes Masculinos"
-                      value={viewingUnidade.prof_masculino}
-                    />
-                    <DetailItem
-                      label="Docentes Femininos"
-                      value={viewingUnidade.prof_feminino}
-                    />
-                  </div>
+                  {(() => {
+                    const stats = viewingUnidade ? efectivosPorUnidade.get(viewingUnidade.id) : null;
+                    const total = stats?.total || 0;
+                    return (
+                      <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          <div className="text-center p-3 rounded-lg bg-primary/10">
+                            <p className="text-xs text-muted-foreground mb-1">Docentes</p>
+                            <p className="text-lg font-bold text-primary">{stats?.docente || 0}</p>
+                          </div>
+                          <div className="text-center p-3 rounded-lg bg-secondary/10">
+                            <p className="text-xs text-muted-foreground mb-1">Direcção</p>
+                            <p className="text-lg font-bold text-secondary">{stats?.direccao_chefia || 0}</p>
+                          </div>
+                          <div className="text-center p-3 rounded-lg bg-accent/10">
+                            <p className="text-xs text-muted-foreground mb-1">Administrativos</p>
+                            <p className="text-lg font-bold text-accent-foreground">{stats?.administrativo || 0}</p>
+                          </div>
+                          <div className="text-center p-3 rounded-lg bg-warning/10">
+                            <p className="text-xs text-muted-foreground mb-1">Operários</p>
+                            <p className="text-lg font-bold text-warning">{stats?.operario_apoio || 0}</p>
+                          </div>
+                        </div>
+                        
+                        {total > 0 && stats && (
+                          <>
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-muted-foreground">Total de Efectivos</span>
+                              <span className="font-bold">{total}</span>
+                            </div>
+                            <div className="space-y-2">
+                              {stats.subclasses.map((sub, idx) => (
+                                <div key={idx} className="flex items-center justify-between text-sm">
+                                  <div className="flex items-center gap-2">
+                                    <div className={`h-2 w-2 rounded-full ${
+                                      sub.classe === "docente" ? "bg-primary" :
+                                      sub.classe === "direccao_chefia" ? "bg-secondary" :
+                                      sub.classe === "administrativo" ? "bg-accent" :
+                                      "bg-warning"
+                                    }`} />
+                                    <span>{sub.subclasse}</span>
+                                  </div>
+                                  <Badge variant="secondary" className="text-xs font-mono">
+                                    {sub.total}
+                                  </Badge>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        )}
+
+                        {total === 0 && (
+                          <p className="text-sm text-muted-foreground text-center py-2">
+                            Nenhum agente vinculado a esta unidade
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Dados Académicos */}
