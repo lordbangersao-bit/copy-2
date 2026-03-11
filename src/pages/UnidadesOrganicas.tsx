@@ -459,15 +459,39 @@ export default function UnidadesOrganicas() {
                       )}
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
-                      <div className="text-sm">
-                        <span className="font-medium">
-                          {unidade.total_docentes || 0}
-                        </span>
-                        <span className="text-muted-foreground text-xs ml-1">
-                          ({unidade.prof_masculino || 0}M /{" "}
-                          {unidade.prof_feminino || 0}F)
-                        </span>
-                      </div>
+                      {(() => {
+                        const stats = efectivosPorUnidade.get(unidade.id);
+                        const total = stats?.total || 0;
+                        return (
+                          <div className="space-y-1">
+                            <span className="font-semibold text-sm">{total}</span>
+                            {total > 0 && stats && (
+                              <div className="flex gap-1 flex-wrap">
+                                {stats.docente > 0 && (
+                                  <Badge variant="outline" className="text-[10px] px-1 py-0 border-primary/30 text-primary">
+                                    {stats.docente} Doc
+                                  </Badge>
+                                )}
+                                {stats.direccao_chefia > 0 && (
+                                  <Badge variant="outline" className="text-[10px] px-1 py-0 border-secondary/30 text-secondary">
+                                    {stats.direccao_chefia} Dir
+                                  </Badge>
+                                )}
+                                {stats.administrativo > 0 && (
+                                  <Badge variant="outline" className="text-[10px] px-1 py-0 border-accent/30 text-accent-foreground">
+                                    {stats.administrativo} Adm
+                                  </Badge>
+                                )}
+                                {stats.operario_apoio > 0 && (
+                                  <Badge variant="outline" className="text-[10px] px-1 py-0 border-warning/30 text-warning">
+                                    {stats.operario_apoio} Op
+                                  </Badge>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
                       <div className="text-sm">
