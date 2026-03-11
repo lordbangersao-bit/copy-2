@@ -78,6 +78,7 @@ interface EfectivosStats {
 export default function UnidadesOrganicas() {
   const { isAdmin } = useAuth();
   const { data: unidades, isLoading, error } = useUnidadesOrganicas();
+  const { data: professores, isLoading: professoresLoading } = useProfessores();
   const createUnidade = useCreateUnidadeOrganica();
   const updateUnidade = useUpdateUnidadeOrganica();
   const deleteUnidade = useDeleteUnidadeOrganica();
@@ -91,6 +92,67 @@ export default function UnidadesOrganicas() {
   const [viewingUnidade, setViewingUnidade] = useState<UnidadeOrganica | null>(
     null
   );
+
+  // Calculate efectivos stats per unidade orgânica
+  const efectivosPorUnidade = useMemo(() => {
+    const map = new Map<string, EfectivosStats>();
+    if (!professores) return map;
+
+    professores.forEach((p) => {
+      const escolaId = p.escola_id;
+      if (!escolaId) return;
+
+      const info = classificarFuncionario(p.categoria, p.funcao);
+      
+      if (!map.has(escolaId)) {
+        map.set(escolaId, {
+          total: 0,
+          docente: 0,
+          direccao_chefia: 0,
+          administrativo: 0,
+          operario_apoio: 0,
+          subclasses: [],
+        });
+      }
+
+      const stats = map.get(escolaId)!;
+      stats.total++;
+      stats[info.classe]++;
+
+      const existing = stats.subclasses.find(
+        (s) => s.subclasse === info.subclasse && s.classe === info.classe
+      );
+      if (existing) {
+        existing.total++;
+      } else {
+        stats.subclasses.push({
+          subclasse: info.subclasse,
+          classe: info.classe,
+          total: 1,
+        });
+      }
+    });
+
+    // Sort subclasses
+    map.forEach((stats) => {
+      stats.subclasses.sort((a, b) => b.total - a.total);
+    });
+
+    return map;
+  }, [professores]);
+
+  // Global totals from efectivos
+  const globalEfectivos = useMemo(() => {
+    const totals = { total: 0, docente: 0, direccao_chefia: 0, administrativo: 0, operario_apoio: 0 };
+    efectivosPorUnidade.forEach((stats) => {
+      totals.total += stats.total;
+      totals.docente += stats.docente;
+      totals.direccao_chefia += stats.direccao_chefia;
+      totals.administrativo += stats.administrativo;
+      totals.operario_apoio += stats.operario_apoio;
+    });
+    return totals;
+  }, [efectivosPorUnidade]);
 
   const filteredUnidades = unidades?.filter(
     (unidade) =>
