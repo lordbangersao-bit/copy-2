@@ -256,7 +256,7 @@ export default function UnidadesOrganicas() {
         )}
 
         {/* Stats Summary */}
-        <div className="grid gap-4 sm:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -275,10 +275,10 @@ export default function UnidadesOrganicas() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
-                    Total de Docentes
+                    Total de Efectivos
                   </p>
                   <p className="text-2xl font-bold text-secondary">
-                    {totalDocentes.toLocaleString("pt-AO")}
+                    {globalEfectivos.total.toLocaleString("pt-AO")}
                   </p>
                 </div>
                 <Users className="h-8 w-8 text-secondary/20" />
@@ -311,6 +311,46 @@ export default function UnidadesOrganicas() {
                 </div>
                 <div className="h-8 w-8 rounded-full bg-muted" />
               </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Efectivos por Classe - Global */}
+        <div className="grid gap-3 sm:grid-cols-4">
+          <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <BookOpen className="h-4 w-4 text-primary" />
+                <p className="text-xs font-medium text-muted-foreground">Docentes</p>
+              </div>
+              <p className="text-xl font-bold text-primary">{globalEfectivos.docente}</p>
+            </CardContent>
+          </Card>
+          <Card className="border-secondary/20 bg-secondary/5">
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <ShieldCheck className="h-4 w-4 text-secondary" />
+                <p className="text-xs font-medium text-muted-foreground">Direcção e Chefia</p>
+              </div>
+              <p className="text-xl font-bold text-secondary">{globalEfectivos.direccao_chefia}</p>
+            </CardContent>
+          </Card>
+          <Card className="border-blue-500/20 bg-blue-500/5">
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <Briefcase className="h-4 w-4 text-blue-600" />
+                <p className="text-xs font-medium text-muted-foreground">Administrativos</p>
+              </div>
+              <p className="text-xl font-bold text-blue-600">{globalEfectivos.administrativo}</p>
+            </CardContent>
+          </Card>
+          <Card className="border-warning/20 bg-warning/5">
+            <CardContent className="pt-4 pb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <HardHat className="h-4 w-4 text-warning" />
+                <p className="text-xs font-medium text-muted-foreground">Operários e Apoio</p>
+              </div>
+              <p className="text-xl font-bold text-warning">{globalEfectivos.operario_apoio}</p>
             </CardContent>
           </Card>
         </div>
