@@ -409,7 +409,7 @@ export default function UnidadesOrganicas() {
                   <TableHead className="hidden lg:table-cell font-semibold">
                     <div className="flex items-center gap-1">
                       <Users className="h-4 w-4" />
-                      Docentes
+                      Efectivos
                     </div>
                   </TableHead>
                   <TableHead className="hidden lg:table-cell font-semibold">
