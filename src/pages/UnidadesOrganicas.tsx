@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -22,7 +22,12 @@ import {
   UnidadeOrganica,
   UnidadeOrganicaInput,
 } from "@/hooks/useUnidadesOrganicas";
+import { useProfessores } from "@/hooks/useProfessores";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  classificarFuncionario,
+  type ClasseFuncionario,
+} from "@/lib/classificarFuncionario";
 import {
   Plus,
   Search,
@@ -36,6 +41,10 @@ import {
   MoreHorizontal,
   Eye,
   MapPin,
+  BookOpen,
+  ShieldCheck,
+  Briefcase,
+  HardHat,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -55,6 +64,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Progress } from "@/components/ui/progress";
+
+interface EfectivosStats {
+  total: number;
+  docente: number;
+  direccao_chefia: number;
+  administrativo: number;
+  operario_apoio: number;
+  subclasses: { subclasse: string; classe: ClasseFuncionario; total: number }[];
+}
 
 export default function UnidadesOrganicas() {
   const { isAdmin } = useAuth();
