@@ -615,26 +615,71 @@ export default function UnidadesOrganicas() {
                   </div>
                 </div>
 
-                {/* Recursos Humanos */}
+                {/* Efectivos - Recursos Humanos */}
                 <div>
                   <h3 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
                     <div className="h-1 w-4 bg-primary rounded" />
-                    Recursos Humanos
+                    Efectivos (Recursos Humanos)
                   </h3>
-                  <div className="grid grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg">
-                    <DetailItem
-                      label="Total de Docentes"
-                      value={viewingUnidade.total_docentes}
-                    />
-                    <DetailItem
-                      label="Docentes Masculinos"
-                      value={viewingUnidade.prof_masculino}
-                    />
-                    <DetailItem
-                      label="Docentes Femininos"
-                      value={viewingUnidade.prof_feminino}
-                    />
-                  </div>
+                  {(() => {
+                    const stats = viewingUnidade ? efectivosPorUnidade.get(viewingUnidade.id) : null;
+                    const total = stats?.total || 0;
+                    return (
+                      <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          <div className="text-center p-3 rounded-lg bg-primary/10">
+                            <p className="text-xs text-muted-foreground mb-1">Docentes</p>
+                            <p className="text-lg font-bold text-primary">{stats?.docente || 0}</p>
+                          </div>
+                          <div className="text-center p-3 rounded-lg bg-secondary/10">
+                            <p className="text-xs text-muted-foreground mb-1">Direcção</p>
+                            <p className="text-lg font-bold text-secondary">{stats?.direccao_chefia || 0}</p>
+                          </div>
+                          <div className="text-center p-3 rounded-lg bg-accent/10">
+                            <p className="text-xs text-muted-foreground mb-1">Administrativos</p>
+                            <p className="text-lg font-bold text-accent-foreground">{stats?.administrativo || 0}</p>
+                          </div>
+                          <div className="text-center p-3 rounded-lg bg-warning/10">
+                            <p className="text-xs text-muted-foreground mb-1">Operários</p>
+                            <p className="text-lg font-bold text-warning">{stats?.operario_apoio || 0}</p>
+                          </div>
+                        </div>
+                        
+                        {total > 0 && stats && (
+                          <>
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-muted-foreground">Total de Efectivos</span>
+                              <span className="font-bold">{total}</span>
+                            </div>
+                            <div className="space-y-2">
+                              {stats.subclasses.map((sub, idx) => (
+                                <div key={idx} className="flex items-center justify-between text-sm">
+                                  <div className="flex items-center gap-2">
+                                    <div className={`h-2 w-2 rounded-full ${
+                                      sub.classe === "docente" ? "bg-primary" :
+                                      sub.classe === "direccao_chefia" ? "bg-secondary" :
+                                      sub.classe === "administrativo" ? "bg-accent" :
+                                      "bg-warning"
+                                    }`} />
+                                    <span>{sub.subclasse}</span>
+                                  </div>
+                                  <Badge variant="secondary" className="text-xs font-mono">
+                                    {sub.total}
+                                  </Badge>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        )}
+
+                        {total === 0 && (
+                          <p className="text-sm text-muted-foreground text-center py-2">
+                            Nenhum agente vinculado a esta unidade
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Dados Académicos */}
