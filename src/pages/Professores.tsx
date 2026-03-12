@@ -99,7 +99,7 @@ export default function Professores() {
   const [editingProfessor, setEditingProfessor] = useState<Professor | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [viewingProfessor, setViewingProfessor] = useState<ProfessorWithEscola | null>(null);
-  const [emitirIDProfessor, setEmitirIDProfessor] = useState<ProfessorWithEscola | null>(null);
+  
   const [importOpen, setImportOpen] = useState(false);
   const [emissaoProfessor, setEmissaoProfessor] = useState<ProfessorWithEscola | null>(null);
 
