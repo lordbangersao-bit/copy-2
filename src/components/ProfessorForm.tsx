@@ -1,9 +1,11 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect } from "react";
+import { calcularIdade, calcularTempoServico } from "@/lib/calcularAgente";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Form,
   FormControl,
@@ -251,9 +253,18 @@ export function ProfessorForm({
     }
   }, [professor, form]);
 
+  // Auto-calculated fields
+  const watchDataNascimento = useWatch({ control: form.control, name: "data_nascimento" });
+  const watchDataAdmissao = useWatch({ control: form.control, name: "data_admissao" });
+  const idadeCalculada = calcularIdade(watchDataNascimento || null);
+  const tempoServicoCalculado = calcularTempoServico(watchDataAdmissao || null);
+
   const handleSubmit = (data: ProfessorInput) => {
     const cleanData = {
       ...data,
+      // Auto-calculated fields
+      idade: calcularIdade(data.data_nascimento || null),
+      tempo_servico: calcularTempoServico(data.data_admissao || null),
       cpf: data.cpf || null,
       email: data.email || null,
       telefone: data.telefone || null,
@@ -270,7 +281,6 @@ export function ProfessorForm({
       formado_em: data.formado_em || null,
       regime_contrato: data.regime_contrato || null,
       inicio_funcao: data.inicio_funcao || null,
-      tempo_servico: data.tempo_servico || null,
       estado_civil: data.estado_civil || null,
       data_nascimento: data.data_nascimento || null,
       provincia: data.provincia || null,
@@ -387,7 +397,7 @@ export function ProfessorForm({
                     )}
                   />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <FormField
                       control={form.control}
                       name="data_nascimento"
@@ -401,6 +411,12 @@ export function ProfessorForm({
                         </FormItem>
                       )}
                     />
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Idade (auto)</Label>
+                      <div className="h-10 px-3 py-2 rounded-md border bg-muted/50 text-sm flex items-center text-muted-foreground">
+                        {idadeCalculada !== null ? `${idadeCalculada} anos` : "—"}
+                      </div>
+                    </div>
                     {renderSelectField("genero", "Género", GENERO_OPTIONS, "Selecione")}
                   </div>
 
@@ -535,8 +551,30 @@ export function ProfessorForm({
                     )}
                   />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     {renderSelectField("regime_contrato", "Regime de Contrato", REGIME_CONTRATO_OPTIONS, "Selecione")}
+                    <FormField
+                      control={form.control}
+                      name="data_admissao"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Data de Admissão</FormLabel>
+                          <FormControl>
+                            <Input type="date" {...field} value={field.value || ""} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Tempo de Serviço (auto)</Label>
+                      <div className="h-10 px-3 py-2 rounded-md border bg-muted/50 text-sm flex items-center text-muted-foreground">
+                        {tempoServicoCalculado || "—"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="inicio_funcao"
