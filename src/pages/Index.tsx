@@ -277,7 +277,7 @@ const Index = () => {
             trend="up"
             trendValue="+2"
             description="este mês"
-            onClick={() => {}}
+            onClick={() => navigate("/escolas")}
           />
           <KPICard
             title="Total de Agentes"
@@ -287,12 +287,14 @@ const Index = () => {
             trend="up"
             trendValue="+5%"
             description="vs. mês anterior"
+            onClick={() => navigate("/professores")}
           />
           <KPICard
             title="Agentes Activos"
             value={professoresAtivos}
             icon={<UserCheck className="h-6 w-6" />}
             description={`${totalProfessores > 0 ? ((professoresAtivos / totalProfessores) * 100).toFixed(0) : 0}% do total`}
+            onClick={() => navigate("/professores")}
           />
           <KPICard
             title="Agentes Afastados"
@@ -301,6 +303,7 @@ const Index = () => {
             description="Licença, reforma ou inactivo"
             trend={professoresAfastados > 5 ? "down" : "neutral"}
             trendValue={professoresAfastados > 5 ? "Atenção" : "Normal"}
+            onClick={() => navigate("/professores")}
           />
         </div>
 
