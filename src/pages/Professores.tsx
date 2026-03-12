@@ -696,6 +696,12 @@ export default function Professores() {
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
+                            onClick={() => setEmissaoProfessor(professor)}
+                          >
+                            <Printer className="h-4 w-4 mr-2" />
+                            Emissão de Documentos
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
                             onClick={() => downloadFicha(professor, "completa")}
                           >
                             <FileText className="h-4 w-4 mr-2" />
