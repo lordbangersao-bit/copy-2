@@ -412,7 +412,7 @@ export function ProfessorForm({
                       )}
                     />
                     <div className="space-y-2">
-                      <FormLabel>Idade (auto)</FormLabel>
+                      <Label className="text-sm font-medium">Idade (auto)</Label>
                       <div className="h-10 px-3 py-2 rounded-md border bg-muted/50 text-sm flex items-center text-muted-foreground">
                         {idadeCalculada !== null ? `${idadeCalculada} anos` : "—"}
                       </div>
