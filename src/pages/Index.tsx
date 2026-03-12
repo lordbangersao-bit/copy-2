@@ -225,12 +225,47 @@ const Index = () => {
     <AppLayout>
       <div className="space-y-6">
         {/* Page Header */}
-        <PageHeader
-          title="Dashboard"
-          description="Visão geral do sistema de gestão educacional da província"
-          icon={<LayoutDashboard className="h-6 w-6" />}
-          isLoading={isLoading}
-        />
+        <div className="flex items-center justify-between">
+          <PageHeader
+            title="Dashboard"
+            description="Visão geral do sistema de gestão educacional da província"
+            icon={<LayoutDashboard className="h-6 w-6" />}
+            isLoading={isLoading}
+          />
+          <PrintableReport title="Relatório Geral — Dashboard">
+            <div className="stats-grid">
+              <div className="stat-box"><div className="value">{totalEscolas}</div><div className="label">Unidades Orgânicas</div></div>
+              <div className="stat-box"><div className="value">{totalProfessores}</div><div className="label">Total de Agentes</div></div>
+              <div className="stat-box"><div className="value">{professoresAtivos}</div><div className="label">Agentes Activos</div></div>
+              <div className="stat-box"><div className="value">{professoresAfastados}</div><div className="label">Agentes Afastados</div></div>
+            </div>
+            <div className="section">
+              <h2>Classificação do Pessoal</h2>
+              <table><thead><tr><th>Classe</th><th>Quantidade</th></tr></thead><tbody>
+                <tr><td>Pessoal Docente</td><td>{classificacao.docente}</td></tr>
+                <tr><td>Direcção e Chefia</td><td>{classificacao.direccao_chefia}</td></tr>
+                <tr><td>Pessoal Administrativo</td><td>{classificacao.administrativo}</td></tr>
+                <tr><td>Operários e Apoio</td><td>{classificacao.operario_apoio}</td></tr>
+              </tbody></table>
+            </div>
+            <div className="section">
+              <h2>Agentes por Unidade Orgânica (Top 6)</h2>
+              <table><thead><tr><th>#</th><th>Unidade Orgânica</th><th>Agentes</th></tr></thead><tbody>
+                {professorPorEscola?.map(({ escola, quantidade }, i) => (
+                  <tr key={escola.id}><td>{i + 1}</td><td>{escola.nome}</td><td>{quantidade}</td></tr>
+                ))}
+              </tbody></table>
+            </div>
+            <div className="section">
+              <h2>Distribuição por Subclasse</h2>
+              <table><thead><tr><th>Subclasse</th><th>Classe</th><th>Total</th></tr></thead><tbody>
+                {subclasses.map((s, i) => (
+                  <tr key={i}><td>{s.subclasse}</td><td>{s.classe}</td><td>{s.total}</td></tr>
+                ))}
+              </tbody></table>
+            </div>
+          </PrintableReport>
+        </div>
 
         {/* General KPI Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
