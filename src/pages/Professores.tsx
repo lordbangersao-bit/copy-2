@@ -100,6 +100,7 @@ export default function Professores() {
   const [viewingProfessor, setViewingProfessor] = useState<ProfessorWithEscola | null>(null);
   const [emitirIDProfessor, setEmitirIDProfessor] = useState<ProfessorWithEscola | null>(null);
   const [importOpen, setImportOpen] = useState(false);
+  const [emissaoProfessor, setEmissaoProfessor] = useState<ProfessorWithEscola | null>(null);
 
   // Extract unique values for filter options
   const uniqueCategorias = [...new Set(professores?.map(p => p.categoria).filter(Boolean) as string[])].sort();
