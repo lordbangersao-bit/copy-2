@@ -1,23 +1,72 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Bot, X, Send, Sparkles, Loader2, MessageSquare } from "lucide-react";
+import {
+  Bot, X, Send, Sparkles, Loader2, MessageSquare,
+  Printer, Search, ArrowRight, Filter, LayoutGrid, Trash2,
+} from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { useEscolas } from "@/hooks/useEscolas";
+import { useProfessores } from "@/hooks/useProfessores";
+import { classificarFuncionario } from "@/lib/classificarFuncionario";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
+interface AIAction {
+  type: "navigate" | "search" | "print" | "filter" | "group";
+  param: string;
+  label: string;
+  icon: React.ReactNode;
+}
+
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`;
+
+// Parse [[ACTION:type:param]] from text
+function parseActions(text: string): { cleanText: string; actions: AIAction[] } {
+  const actionRegex = /\[\[ACTION:(\w+):([^\]]+)\]\]/g;
+  const actions: AIAction[] = [];
+  let match;
+
+  while ((match = actionRegex.exec(text)) !== null) {
+    const [, type, param] = match;
+    const iconMap: Record<string, React.ReactNode> = {
+      navigate: <ArrowRight className="h-3.5 w-3.5" />,
+      search: <Search className="h-3.5 w-3.5" />,
+      print: <Printer className="h-3.5 w-3.5" />,
+      filter: <Filter className="h-3.5 w-3.5" />,
+      group: <LayoutGrid className="h-3.5 w-3.5" />,
+    };
+    const labelMap: Record<string, string> = {
+      navigate: `Ir para ${param}`,
+      search: `Pesquisar "${param}"`,
+      print: `Imprimir: ${param}`,
+      filter: `Filtrar: ${param}`,
+      group: `Agrupar por ${param}`,
+    };
+    actions.push({
+      type: type as AIAction["type"],
+      param,
+      label: labelMap[type] || param,
+      icon: iconMap[type] || <ArrowRight className="h-3.5 w-3.5" />,
+    });
+  }
+
+  const cleanText = text.replace(actionRegex, "").trim();
+  return { cleanText, actions };
+}
 
 async function streamChat({
   messages,
+  context,
   onDelta,
   onDone,
 }: {
   messages: Msg[];
+  context: any;
   onDelta: (deltaText: string) => void;
   onDone: () => void;
 }) {
@@ -27,7 +76,7 @@ async function streamChat({
       "Content-Type": "application/json",
       Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
     },
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify({ messages, context }),
   });
 
   if (resp.status === 429) {
@@ -97,12 +146,18 @@ async function streamChat({
 
 const SUGGESTIONS = [
   "Quantos agentes existem no sistema?",
-  "Quais as classes de funcionários?",
-  "Como exportar relatórios?",
-  "Onde vejo a assiduidade?",
+  "Lista os agentes docentes",
+  "Agrupar agentes por escola",
+  "Pesquisar agentes femininos",
+  "Imprimir relatório geral",
+  "Quais escolas têm mais alunos?",
 ];
 
 export function AIAssistant() {
+  const navigate = useNavigate();
+  const { data: escolas } = useEscolas();
+  const { data: professores } = useProfessores();
+
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -119,6 +174,132 @@ export function AIAssistant() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Build context data to send to AI
+  const context = useMemo(() => {
+    if (!professores && !escolas) return null;
+
+    const agentesComClasse = professores?.map((p) => {
+      const info = classificarFuncionario(p.categoria, p.funcao);
+      const escola = escolas?.find((e) => e.id === p.escola_id);
+      return {
+        ...p,
+        classe: info.label,
+        subclasse: info.subclasse,
+        escola_nome: escola?.nome || "Sem escola",
+      };
+    }) || [];
+
+    const classificacao = {
+      docente: agentesComClasse.filter((a) => a.classe === "Pessoal Docente").length,
+      direccao_chefia: agentesComClasse.filter((a) => a.classe === "Direcção e Chefia").length,
+      administrativo: agentesComClasse.filter((a) => a.classe === "Pessoal Administrativo").length,
+      operario_apoio: agentesComClasse.filter((a) => a.classe === "Pessoal Operário e de Apoio").length,
+    };
+
+    const activos = professores?.filter((p) => p.status === "ativo" || p.actividade?.toLowerCase() === "activo").length || 0;
+
+    return {
+      resumo: {
+        total_agentes: professores?.length || 0,
+        agentes_activos: activos,
+        agentes_afastados: (professores?.length || 0) - activos,
+        total_escolas: escolas?.length || 0,
+        total_alunos: escolas?.reduce((acc, e) => acc + (e.total_alunos || 0), 0) || 0,
+      },
+      classificacao,
+      agentes: agentesComClasse,
+      escolas: escolas || [],
+    };
+  }, [professores, escolas]);
+
+  // Handle AI actions
+  const handleAction = useCallback((action: AIAction) => {
+    switch (action.type) {
+      case "navigate":
+        navigate(action.param);
+        setOpen(false);
+        toast.success(`Navegando para ${action.param}`);
+        break;
+
+      case "search": {
+        navigate(`/professores?search=${encodeURIComponent(action.param)}`);
+        setOpen(false);
+        toast.success(`Pesquisando "${action.param}"`);
+        break;
+      }
+
+      case "print": {
+        // Build print content from the last assistant message
+        const lastAssistant = messages.filter((m) => m.role === "assistant").pop();
+        const printContent = lastAssistant?.content || "";
+        const { cleanText } = parseActions(printContent);
+
+        const printWindow = window.open("", "_blank");
+        if (printWindow) {
+          printWindow.document.write(`
+            <!DOCTYPE html>
+            <html><head>
+              <title>${action.param}</title>
+              <style>
+                body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1a1a1a; }
+                .header { text-align: center; border-bottom: 3px solid #1a365d; padding-bottom: 20px; margin-bottom: 30px; }
+                .header h1 { color: #1a365d; font-size: 20px; margin: 0; }
+                .header p { color: #666; font-size: 12px; margin: 5px 0 0; }
+                .content { font-size: 14px; line-height: 1.8; }
+                table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+                th, td { border: 1px solid #ddd; padding: 8px 12px; text-align: left; font-size: 12px; }
+                th { background: #1a365d; color: white; }
+                tr:nth-child(even) { background: #f9f9f9; }
+                h2, h3 { color: #1a365d; margin-top: 20px; }
+                .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 11px; color: #999; }
+                @media print { body { padding: 20px; } }
+              </style>
+            </head><body>
+              <div class="header">
+                <h1>REPÚBLICA DE ANGOLA — DIRECÇÃO PROVINCIAL DA EDUCAÇÃO</h1>
+                <p>${action.param} — ${new Date().toLocaleDateString('pt-AO')}</p>
+              </div>
+              <div class="content">${cleanText.replace(/\n/g, '<br/>')
+                .replace(/\|(.+)\|/g, (match) => {
+                  const rows = match.split('\n').filter(r => r.trim());
+                  if (rows.length < 2) return match;
+                  const headers = rows[0].split('|').filter(c => c.trim()).map(c => `<th>${c.trim()}</th>`).join('');
+                  const body = rows.slice(2).map(r => {
+                    const cells = r.split('|').filter(c => c.trim()).map(c => `<td>${c.trim()}</td>`).join('');
+                    return `<tr>${cells}</tr>`;
+                  }).join('');
+                  return `<table><thead><tr>${headers}</tr></thead><tbody>${body}</tbody></table>`;
+                })
+              }</div>
+              <div class="footer">
+                Documento gerado pelo Sistema DMN Gestor — ${new Date().toLocaleString('pt-AO')}
+              </div>
+            </body></html>
+          `);
+          printWindow.document.close();
+          printWindow.print();
+        }
+        toast.success("Documento preparado para impressão");
+        break;
+      }
+
+      case "filter": {
+        const [field, value] = action.param.split("=");
+        navigate(`/professores?filter=${encodeURIComponent(field)}&value=${encodeURIComponent(value)}`);
+        setOpen(false);
+        toast.success(`Filtro aplicado: ${action.param}`);
+        break;
+      }
+
+      case "group": {
+        navigate(`/professores?group=${encodeURIComponent(action.param)}`);
+        setOpen(false);
+        toast.success(`Agrupando por ${action.param}`);
+        break;
+      }
+    }
+  }, [navigate, messages]);
 
   const send = useCallback(async (text: string) => {
     if (!text.trim() || isLoading) return;
@@ -142,13 +323,63 @@ export function AIAssistant() {
     try {
       await streamChat({
         messages: [...messages, userMsg],
+        context,
         onDelta: (chunk) => upsertAssistant(chunk),
         onDone: () => setIsLoading(false),
       });
     } catch {
       setIsLoading(false);
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, context]);
+
+  const clearChat = useCallback(() => {
+    setMessages([]);
+    toast.success("Conversa limpa");
+  }, []);
+
+  // Render a message with action buttons
+  const renderMessage = (msg: Msg, index: number) => {
+    if (msg.role === "user") {
+      return (
+        <div key={index} className="flex justify-end">
+          <div className="max-w-[85%] rounded-2xl px-4 py-2.5 text-sm bg-primary text-primary-foreground rounded-br-md">
+            {msg.content}
+          </div>
+        </div>
+      );
+    }
+
+    const { cleanText, actions } = parseActions(msg.content);
+
+    return (
+      <div key={index} className="flex justify-start">
+        <div className="max-w-[90%] space-y-2">
+          <div className="rounded-2xl px-4 py-2.5 text-sm bg-muted text-foreground rounded-bl-md">
+            <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1 [&>table]:text-xs [&>table]:w-full [&_th]:bg-primary/10 [&_th]:px-2 [&_th]:py-1 [&_td]:px-2 [&_td]:py-1 [&_table]:border-collapse [&_th]:border [&_th]:border-border [&_td]:border [&_td]:border-border">
+              <ReactMarkdown>{cleanText}</ReactMarkdown>
+            </div>
+          </div>
+
+          {actions.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 px-1">
+              {actions.map((action, aIdx) => (
+                <Button
+                  key={aIdx}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleAction(action)}
+                  className="h-7 text-xs gap-1.5 rounded-full border-primary/30 text-primary hover:bg-primary/10 hover:text-primary"
+                >
+                  {action.icon}
+                  {action.label}
+                </Button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -168,7 +399,7 @@ export function AIAssistant() {
       {/* Chat Panel */}
       <div
         className={cn(
-          "fixed bottom-6 right-6 z-50 w-[380px] max-h-[600px] rounded-2xl border border-border bg-card shadow-xl flex flex-col overflow-hidden transition-all duration-300 origin-bottom-right",
+          "fixed bottom-6 right-6 z-50 w-[400px] max-h-[620px] rounded-2xl border border-border bg-card shadow-xl flex flex-col overflow-hidden transition-all duration-300 origin-bottom-right",
           open ? "scale-100 opacity-100" : "scale-0 opacity-0 pointer-events-none"
         )}
       >
@@ -180,11 +411,16 @@ export function AIAssistant() {
             </div>
             <div>
               <p className="text-sm font-semibold text-foreground">Assistente IA</p>
-              <p className="text-[10px] text-muted-foreground">DMN Gestor</p>
+              <p className="text-[10px] text-muted-foreground">DMN Gestor • Dados em tempo real</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
             <Badge variant="secondary" className="text-[10px] bg-success/10 text-success">Online</Badge>
+            {messages.length > 0 && (
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={clearChat} title="Limpar conversa">
+                <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
+              </Button>
+            )}
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setOpen(false)}>
               <X className="h-4 w-4" />
             </Button>
@@ -192,17 +428,19 @@ export function AIAssistant() {
         </div>
 
         {/* Messages */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[300px] max-h-[420px]">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[320px] max-h-[440px]">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center space-y-4 py-8">
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-4 py-6">
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
                 <MessageSquare className="h-7 w-7 text-primary" />
               </div>
               <div>
                 <p className="font-semibold text-foreground">Olá! 👋</p>
-                <p className="text-sm text-muted-foreground mt-1">Sou o assistente do DMN Gestor. Como posso ajudar?</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Sou o assistente do DMN Gestor. Posso pesquisar, agrupar, filtrar e imprimir dados.
+                </p>
               </div>
-              <div className="grid grid-cols-1 gap-2 w-full">
+              <div className="grid grid-cols-2 gap-2 w-full">
                 {SUGGESTIONS.map((s) => (
                   <button
                     key={s}
@@ -215,26 +453,7 @@ export function AIAssistant() {
               </div>
             </div>
           ) : (
-            messages.map((msg, i) => (
-              <div key={i} className={cn("flex", msg.role === "user" ? "justify-end" : "justify-start")}>
-                <div
-                  className={cn(
-                    "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm",
-                    msg.role === "user"
-                      ? "bg-primary text-primary-foreground rounded-br-md"
-                      : "bg-muted text-foreground rounded-bl-md"
-                  )}
-                >
-                  {msg.role === "assistant" ? (
-                    <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:m-0 [&>ul]:my-1 [&>ol]:my-1">
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
-                    </div>
-                  ) : (
-                    msg.content
-                  )}
-                </div>
-              </div>
-            ))
+            messages.map((msg, i) => renderMessage(msg, i))
           )}
           {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
             <div className="flex justify-start">
@@ -258,7 +477,7 @@ export function AIAssistant() {
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Escreva sua pergunta..."
+              placeholder="Pesquisar, agrupar, imprimir..."
               className="flex-1 text-sm"
               disabled={isLoading}
             />
