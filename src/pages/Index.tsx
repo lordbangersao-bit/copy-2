@@ -320,12 +320,14 @@ const Index = () => {
             value={totalAlunos}
             icon={<GraduationCap className="h-6 w-6" />}
             description="Matriculados nas unidades"
+            onClick={() => navigate("/escolas")}
           />
           <KPICard
             title="Total de Docentes"
             value={totalDocentes}
             icon={<ClipboardCheck className="h-6 w-6" />}
             description="Registados nas unidades"
+            onClick={() => navigate("/professores")}
           />
           <KPICard
             title="Processos Abertos"
@@ -333,6 +335,7 @@ const Index = () => {
             icon={<FileWarning className="h-6 w-6" />}
             description="Nenhum processo pendente"
             variant="default"
+            onClick={() => navigate("/processos")}
           />
         </div>
 
