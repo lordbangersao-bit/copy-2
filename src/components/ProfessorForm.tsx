@@ -567,7 +567,7 @@ export function ProfessorForm({
                       )}
                     />
                     <div className="space-y-2">
-                      <FormLabel>Tempo de Serviço (auto)</FormLabel>
+                      <Label className="text-sm font-medium">Tempo de Serviço (auto)</Label>
                       <div className="h-10 px-3 py-2 rounded-md border bg-muted/50 text-sm flex items-center text-muted-foreground">
                         {tempoServicoCalculado || "—"}
                       </div>
