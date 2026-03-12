@@ -184,7 +184,7 @@ export function AIAssistant() {
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <Badge variant="secondary" className="text-[10px] bg-green-500/10 text-green-600">Online</Badge>
+            <Badge variant="secondary" className="text-[10px] bg-success/10 text-success">Online</Badge>
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setOpen(false)}>
               <X className="h-4 w-4" />
             </Button>
