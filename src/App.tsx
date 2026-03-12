@@ -18,6 +18,7 @@ import Comunicados from "./pages/Comunicados";
 import Documentos from "./pages/Documentos";
 import Relatorios from "./pages/Relatorios";
 import NotFound from "./pages/NotFound";
+import { AIAssistant } from "./components/AIAssistant";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <AIAssistant />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

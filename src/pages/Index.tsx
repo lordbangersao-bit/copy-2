@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { useEscolas } from "@/hooks/useEscolas";
 import { useProfessores } from "@/hooks/useProfessores";
 import { classificarFuncionario, type ClasseFuncionario } from "@/lib/classificarFuncionario";
-import { Link } from "react-router-dom";
+import { PrintableReport } from "@/components/PrintableReport";
+import { Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Building2,
@@ -24,6 +25,7 @@ import {
   HardHat,
   ShieldCheck,
   BookOpen,
+  Printer,
 } from "lucide-react";
 import {
   BarChart,
@@ -132,6 +134,7 @@ function StaffSubclassBreakdown({
 // --- Main Component ---
 
 const Index = () => {
+  const navigate = useNavigate();
   const { data: escolas, isLoading: escolasLoading } = useEscolas();
   const { data: professores, isLoading: professoresLoading } = useProfessores();
 
@@ -222,12 +225,47 @@ const Index = () => {
     <AppLayout>
       <div className="space-y-6">
         {/* Page Header */}
-        <PageHeader
-          title="Dashboard"
-          description="Visão geral do sistema de gestão educacional da província"
-          icon={<LayoutDashboard className="h-6 w-6" />}
-          isLoading={isLoading}
-        />
+        <div className="flex items-center justify-between">
+          <PageHeader
+            title="Dashboard"
+            description="Visão geral do sistema de gestão educacional da província"
+            icon={<LayoutDashboard className="h-6 w-6" />}
+            isLoading={isLoading}
+          />
+          <PrintableReport title="Relatório Geral — Dashboard">
+            <div className="stats-grid">
+              <div className="stat-box"><div className="value">{totalEscolas}</div><div className="label">Unidades Orgânicas</div></div>
+              <div className="stat-box"><div className="value">{totalProfessores}</div><div className="label">Total de Agentes</div></div>
+              <div className="stat-box"><div className="value">{professoresAtivos}</div><div className="label">Agentes Activos</div></div>
+              <div className="stat-box"><div className="value">{professoresAfastados}</div><div className="label">Agentes Afastados</div></div>
+            </div>
+            <div className="section">
+              <h2>Classificação do Pessoal</h2>
+              <table><thead><tr><th>Classe</th><th>Quantidade</th></tr></thead><tbody>
+                <tr><td>Pessoal Docente</td><td>{classificacao.docente}</td></tr>
+                <tr><td>Direcção e Chefia</td><td>{classificacao.direccao_chefia}</td></tr>
+                <tr><td>Pessoal Administrativo</td><td>{classificacao.administrativo}</td></tr>
+                <tr><td>Operários e Apoio</td><td>{classificacao.operario_apoio}</td></tr>
+              </tbody></table>
+            </div>
+            <div className="section">
+              <h2>Agentes por Unidade Orgânica (Top 6)</h2>
+              <table><thead><tr><th>#</th><th>Unidade Orgânica</th><th>Agentes</th></tr></thead><tbody>
+                {professorPorEscola?.map(({ escola, quantidade }, i) => (
+                  <tr key={escola.id}><td>{i + 1}</td><td>{escola.nome}</td><td>{quantidade}</td></tr>
+                ))}
+              </tbody></table>
+            </div>
+            <div className="section">
+              <h2>Distribuição por Subclasse</h2>
+              <table><thead><tr><th>Subclasse</th><th>Classe</th><th>Total</th></tr></thead><tbody>
+                {subclasses.map((s, i) => (
+                  <tr key={i}><td>{s.subclasse}</td><td>{s.classe}</td><td>{s.total}</td></tr>
+                ))}
+              </tbody></table>
+            </div>
+          </PrintableReport>
+        </div>
 
         {/* General KPI Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -239,7 +277,7 @@ const Index = () => {
             trend="up"
             trendValue="+2"
             description="este mês"
-            onClick={() => {}}
+            onClick={() => navigate("/escolas")}
           />
           <KPICard
             title="Total de Agentes"
@@ -249,12 +287,14 @@ const Index = () => {
             trend="up"
             trendValue="+5%"
             description="vs. mês anterior"
+            onClick={() => navigate("/professores")}
           />
           <KPICard
             title="Agentes Activos"
             value={professoresAtivos}
             icon={<UserCheck className="h-6 w-6" />}
             description={`${totalProfessores > 0 ? ((professoresAtivos / totalProfessores) * 100).toFixed(0) : 0}% do total`}
+            onClick={() => navigate("/professores")}
           />
           <KPICard
             title="Agentes Afastados"
@@ -263,6 +303,7 @@ const Index = () => {
             description="Licença, reforma ou inactivo"
             trend={professoresAfastados > 5 ? "down" : "neutral"}
             trendValue={professoresAfastados > 5 ? "Atenção" : "Normal"}
+            onClick={() => navigate("/professores")}
           />
         </div>
 
@@ -279,12 +320,14 @@ const Index = () => {
             value={totalAlunos}
             icon={<GraduationCap className="h-6 w-6" />}
             description="Matriculados nas unidades"
+            onClick={() => navigate("/escolas")}
           />
           <KPICard
             title="Total de Docentes"
             value={totalDocentes}
             icon={<ClipboardCheck className="h-6 w-6" />}
             description="Registados nas unidades"
+            onClick={() => navigate("/professores")}
           />
           <KPICard
             title="Processos Abertos"
@@ -292,6 +335,7 @@ const Index = () => {
             icon={<FileWarning className="h-6 w-6" />}
             description="Nenhum processo pendente"
             variant="default"
+            onClick={() => navigate("/processos")}
           />
         </div>
 
