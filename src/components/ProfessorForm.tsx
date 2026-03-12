@@ -1,7 +1,8 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect } from "react";
+import { calcularIdade, calcularTempoServico } from "@/lib/calcularAgente";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
