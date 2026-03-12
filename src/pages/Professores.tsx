@@ -962,6 +962,13 @@ export default function Professores() {
         onOpenChange={(open) => !open && setEmitirIDProfessor(null)}
       />
 
+      {/* Emissão de Documentos Dialog */}
+      <EmissaoDocumentosDialog
+        professor={emissaoProfessor}
+        open={!!emissaoProfessor}
+        onOpenChange={(open) => !open && setEmissaoProfessor(null)}
+      />
+
       {/* Import Dialog */}
       <ImportAgentesDialog open={importOpen} onOpenChange={setImportOpen} />
     </AppLayout>
