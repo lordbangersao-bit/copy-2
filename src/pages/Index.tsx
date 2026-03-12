@@ -134,6 +134,7 @@ function StaffSubclassBreakdown({
 // --- Main Component ---
 
 const Index = () => {
+  const navigate = useNavigate();
   const { data: escolas, isLoading: escolasLoading } = useEscolas();
   const { data: professores, isLoading: professoresLoading } = useProfessores();
 
