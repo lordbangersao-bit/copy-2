@@ -231,56 +231,27 @@ export function AIAssistant() {
       }
 
       case "print": {
-        // Build print content from the last assistant message
         const lastAssistant = messages.filter((m) => m.role === "assistant").pop();
         const printContent = lastAssistant?.content || "";
         const { cleanText } = parseActions(printContent);
 
-        const printWindow = window.open("", "_blank");
-        if (printWindow) {
-          printWindow.document.write(`
-            <!DOCTYPE html>
-            <html><head>
-              <title>${action.param}</title>
-              <style>
-                body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1a1a1a; }
-                .header { text-align: center; border-bottom: 3px solid #1a365d; padding-bottom: 20px; margin-bottom: 30px; }
-                .header h1 { color: #1a365d; font-size: 20px; margin: 0; }
-                .header p { color: #666; font-size: 12px; margin: 5px 0 0; }
-                .content { font-size: 14px; line-height: 1.8; }
-                table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-                th, td { border: 1px solid #ddd; padding: 8px 12px; text-align: left; font-size: 12px; }
-                th { background: #1a365d; color: white; }
-                tr:nth-child(even) { background: #f9f9f9; }
-                h2, h3 { color: #1a365d; margin-top: 20px; }
-                .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 11px; color: #999; }
-                @media print { body { padding: 20px; } }
-              </style>
-            </head><body>
-              <div class="header">
-                <h1>REPÚBLICA DE ANGOLA — DIRECÇÃO PROVINCIAL DA EDUCAÇÃO</h1>
-                <p>${action.param} — ${new Date().toLocaleDateString('pt-AO')}</p>
-              </div>
-              <div class="content">${cleanText.replace(/\n/g, '<br/>')
-                .replace(/\|(.+)\|/g, (match) => {
-                  const rows = match.split('\n').filter(r => r.trim());
-                  if (rows.length < 2) return match;
-                  const headers = rows[0].split('|').filter(c => c.trim()).map(c => `<th>${c.trim()}</th>`).join('');
-                  const body = rows.slice(2).map(r => {
-                    const cells = r.split('|').filter(c => c.trim()).map(c => `<td>${c.trim()}</td>`).join('');
-                    return `<tr>${cells}</tr>`;
-                  }).join('');
-                  return `<table><thead><tr>${headers}</tr></thead><tbody>${body}</tbody></table>`;
-                })
-              }</div>
-              <div class="footer">
-                Documento gerado pelo Sistema DMN Gestor — ${new Date().toLocaleString('pt-AO')}
-              </div>
-            </body></html>
-          `);
-          printWindow.document.close();
-          printWindow.print();
-        }
+        const formattedContent = cleanText.replace(/\n/g, '<br/>')
+          .replace(/\|(.+)\|/g, (match) => {
+            const rows = match.split('\n').filter(r => r.trim());
+            if (rows.length < 2) return match;
+            const headers = rows[0].split('|').filter(c => c.trim()).map(c => `<th>${c.trim()}</th>`).join('');
+            const body = rows.slice(2).map(r => {
+              const cells = r.split('|').filter(c => c.trim()).map(c => `<td>${c.trim()}</td>`).join('');
+              return `<tr>${cells}</tr>`;
+            }).join('');
+            return `<table><thead><tr>${headers}</tr></thead><tbody>${body}</tbody></table>`;
+          });
+
+        const html = getOfficialPrintHTML({
+          title: action.param,
+          content: formattedContent,
+        });
+        openPrintWindow(html);
         toast.success("Documento preparado para impressão");
         break;
       }
