@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { getOfficialPrintHTML, openPrintWindow } from "@/lib/printTemplate";
 import { calcularIdade, calcularTempoServico } from "@/lib/calcularAgente";
 import { ProfessorWithEscola } from "@/hooks/useProfessores";
+import { useUpdateProfessor } from "@/hooks/useProfessores";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +22,10 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
-import { FileText, FileDown, Landmark, Briefcase, Printer } from "lucide-react";
+import { AgentIDCard } from "./AgentIDCard";
+import { AgentPhotoUpload } from "./AgentPhotoUpload";
+import { FileText, FileDown, Landmark, Briefcase, Printer, CreditCard, ClipboardCheck, Download } from "lucide-react";
+import { toast } from "sonner";
 
 const BANCOS_ANGOLA = [
   "BAI - Banco Angolano de Investimentos",
@@ -58,8 +62,13 @@ export function EmissaoDocumentosDialog({
   const [selectedBank, setSelectedBank] = useState("");
   const [outroBanco, setOutroBanco] = useState("");
   const [finalidade, setFinalidade] = useState("criação de conta bancária");
+  const cardRef = useRef<HTMLDivElement>(null);
+  const updateProfessor = useUpdateProfessor();
+  const [localProfessor, setLocalProfessor] = useState<ProfessorWithEscola | null>(null);
 
-  if (!professor) return null;
+  const displayProfessor = localProfessor || professor;
+
+  if (!professor || !displayProfessor) return null;
 
   const val = (v: string | number | boolean | null | undefined): string =>
     v === true ? "Sim" : v === false ? "Não" : v != null ? String(v) : "-";
@@ -177,6 +186,70 @@ export function EmissaoDocumentosDialog({
     openPrintWindow(getOfficialPrintHTML({ title: "DECLARAÇÃO DE SERVIÇO", content }));
   };
 
+  // ===== TERMO DE INÍCIO DE FUNÇÕES =====
+  const emitirTermoInicioFuncoes = () => {
+    const content = `
+      <p style="text-indent: 40px; font-size: 12pt; line-height: 2; text-align: justify;">
+        Aos <strong>${dataAtual}</strong>, nesta Direcção Municipal da Educação em Namacunde, 
+        Província do Cunene, República de Angola, perante mim, 
+        <strong>Jorge M. dos Santos Kengele David</strong>, Director Municipal da Educação, 
+        compareceu <strong>${professor.nome}</strong>, portador(a) do Bilhete de Identidade 
+        nº <strong>${val(professor.cpf)}</strong>, Agente nº <strong>${val(professor.numero_agente)}</strong>, 
+        para efeitos de início de funções nesta instituição.
+      </p>
+      <br/>
+      <p style="text-indent: 40px; font-size: 12pt; line-height: 2; text-align: justify;">
+        O(A) referido(a) agente foi colocado(a) na escola/instituição <strong>${val(professor.escolas?.nome)}</strong>, 
+        para exercer a função de <strong>${val(professor.funcao)}</strong>, 
+        na categoria de <strong>${val(professor.categoria)}</strong>, 
+        sob o regime de contrato <strong>${val(professor.regime_contrato)}</strong>, 
+        com efeitos a partir de <strong>${val(professor.inicio_funcao || professor.data_admissao)}</strong>.
+      </p>
+      <br/>
+
+      ${sectionTitle("Dados do Agente")}
+      <table style="margin-top:10px;">${[
+        row("Nome Completo", val(professor.nome)),
+        row("Nº Agente", val(professor.numero_agente)),
+        row("Nº de Cadastro", val(professor.numero_cadastro)),
+        row("Bilhete de Identidade", val(professor.cpf)),
+        row("Data de Nascimento", val(professor.data_nascimento)),
+        row("Género", val(professor.genero)),
+        row("Nível Académico", val(professor.nivel_academico)),
+        row("Formado em", val(professor.formado_em)),
+        row("Função", val(professor.funcao)),
+        row("Categoria", val(professor.categoria)),
+        row("Local de Trabalho", val(professor.escolas?.nome)),
+        row("Data de Admissão", val(professor.data_admissao)),
+        row("Início de Função", val(professor.inicio_funcao)),
+        row("Regime de Contrato", val(professor.regime_contrato)),
+      ].join("")}</table>
+      <br/>
+
+      <p style="font-size: 12pt; line-height: 2; text-align: justify;">
+        Para constar, lavrou-se o presente Termo de Início de Funções, que depois de lido e achado conforme, 
+        vai ser assinado pelo(a) funcionário(a) e pelo Director Municipal da Educação.
+      </p>
+      <br/><br/>
+
+      <div style="display: flex; justify-content: space-between; margin-top: 40px;">
+        <div style="text-align: center; width: 45%;">
+          <div style="border-top: 1px solid #333; padding-top: 5px; margin-top: 60px;">
+            <strong>O(A) Funcionário(a)</strong><br/>
+            <span style="font-size:10pt;">${professor.nome}</span>
+          </div>
+        </div>
+        <div style="text-align: center; width: 45%;">
+          <div style="border-top: 1px solid #333; padding-top: 5px; margin-top: 60px;">
+            <strong>O Director Municipal</strong><br/>
+            <span style="font-size:10pt;">Jorge M. dos Santos Kengele David</span>
+          </div>
+        </div>
+      </div>
+    `;
+    openPrintWindow(getOfficialPrintHTML({ title: "TERMO DE INÍCIO DE FUNÇÕES", content }));
+  };
+
   // ===== DECLARAÇÃO PARA CRÉDITO BANCÁRIO =====
   const emitirDeclaracaoBancaria = () => {
     const nomeBanco = selectedBank === "Outro" ? outroBanco : selectedBank;
@@ -228,8 +301,65 @@ export function EmissaoDocumentosDialog({
     openPrintWindow(getOfficialPrintHTML({ title: "DECLARAÇÃO PARA FINS BANCÁRIOS", content }));
   };
 
+  // ===== PASSE DE IDENTIFICAÇÃO =====
+  const handlePhotoUploaded = (url: string) => {
+    if (!professor) return;
+    setLocalProfessor({ ...professor, foto_url: url });
+    updateProfessor.mutate({ id: professor.id, foto_url: url || null });
+  };
+
+  const handlePrintID = () => {
+    if (!cardRef.current) return;
+    const printContent = cardRef.current.outerHTML;
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      toast.error("Não foi possível abrir a janela de impressão");
+      return;
+    }
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Cartão de Identificação - ${displayProfessor?.nome}</title>
+          <style>
+            @page { size: 86mm 54mm; margin: 0; }
+            body { margin: 0; padding: 10mm; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f5f5f5; font-family: 'Segoe UI', system-ui, sans-serif; }
+            @media print { body { background: white; padding: 0; } }
+          </style>
+          <script src="https://cdn.tailwindcss.com"></script>
+        </head>
+        <body>
+          ${printContent}
+          <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
+  const handleDownloadID = async () => {
+    if (!cardRef.current) return;
+    try {
+      const html2canvas = (await import("html2canvas")).default;
+      const canvas = await html2canvas(cardRef.current, { scale: 3, backgroundColor: null, useCORS: true });
+      const link = document.createElement("a");
+      link.download = `cartao-id-${displayProfessor?.nome?.replace(/\s+/g, "-").toLowerCase()}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      toast.success("Cartão salvo com sucesso!");
+    } catch (error) {
+      console.error("Error downloading card:", error);
+      toast.error("Erro ao salvar o cartão");
+    }
+  };
+
+  const handleClose = () => {
+    setLocalProfessor(null);
+    onOpenChange(false);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -239,18 +369,26 @@ export function EmissaoDocumentosDialog({
         </DialogHeader>
 
         <Tabs defaultValue="fichas" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="fichas" className="gap-1.5 text-xs sm:text-sm">
-              <FileText className="h-4 w-4" />
-              Fichas
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="fichas" className="gap-1 text-[10px] sm:text-xs px-1">
+              <FileText className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Fichas</span>
             </TabsTrigger>
-            <TabsTrigger value="declaracao" className="gap-1.5 text-xs sm:text-sm">
-              <Briefcase className="h-4 w-4" />
-              Declaração
+            <TabsTrigger value="declaracao" className="gap-1 text-[10px] sm:text-xs px-1">
+              <Briefcase className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Declaração</span>
             </TabsTrigger>
-            <TabsTrigger value="banco" className="gap-1.5 text-xs sm:text-sm">
-              <Landmark className="h-4 w-4" />
-              Crédito Bancário
+            <TabsTrigger value="termo" className="gap-1 text-[10px] sm:text-xs px-1">
+              <ClipboardCheck className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Termo</span>
+            </TabsTrigger>
+            <TabsTrigger value="banco" className="gap-1 text-[10px] sm:text-xs px-1">
+              <Landmark className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Banco</span>
+            </TabsTrigger>
+            <TabsTrigger value="passe" className="gap-1 text-[10px] sm:text-xs px-1">
+              <CreditCard className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Passe ID</span>
             </TabsTrigger>
           </TabsList>
 
@@ -325,6 +463,49 @@ export function EmissaoDocumentosDialog({
                 <Button onClick={emitirDeclaracaoServico} className="w-full gap-2">
                   <Printer className="h-4 w-4" />
                   Emitir Declaração de Serviço
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* ===== TERMO DE INÍCIO DE FUNÇÕES ===== */}
+          <TabsContent value="termo" className="mt-4">
+            <Card>
+              <CardContent className="pt-6 space-y-4">
+                <div className="flex items-start gap-4">
+                  <ClipboardCheck className="h-10 w-10 text-primary/60 shrink-0 mt-1" />
+                  <div className="space-y-1">
+                    <h3 className="font-semibold">Termo de Início de Funções</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Documento oficial que formaliza o início de funções do agente na Direcção Municipal da Educação em Namacunde.
+                    </p>
+                  </div>
+                </div>
+                <div className="bg-muted/30 rounded-lg p-4 space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Agente:</span>
+                    <span className="font-medium">{professor.nome}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Nº Agente:</span>
+                    <span className="font-medium">{professor.numero_agente || "-"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Função:</span>
+                    <span className="font-medium">{professor.funcao || "-"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Início de Função:</span>
+                    <span className="font-medium">{professor.inicio_funcao || professor.data_admissao || "-"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Local:</span>
+                    <span className="font-medium">{professor.escolas?.nome || "-"}</span>
+                  </div>
+                </div>
+                <Button onClick={emitirTermoInicioFuncoes} className="w-full gap-2">
+                  <Printer className="h-4 w-4" />
+                  Emitir Termo de Início de Funções
                 </Button>
               </CardContent>
             </Card>
@@ -425,6 +606,40 @@ export function EmissaoDocumentosDialog({
                   </Button>
                 </CardContent>
               </Card>
+            </ScrollArea>
+          </TabsContent>
+
+          {/* ===== PASSE DE IDENTIFICAÇÃO ===== */}
+          <TabsContent value="passe" className="mt-4">
+            <ScrollArea className="h-[50vh]">
+              <div className="space-y-4">
+                <div className="p-4 bg-muted/30 rounded-lg">
+                  <h4 className="text-sm font-medium mb-3">Fotografia do Agente</h4>
+                  <AgentPhotoUpload
+                    agentId={displayProfessor.id}
+                    currentPhotoUrl={displayProfessor.foto_url}
+                    onPhotoUploaded={handlePhotoUploaded}
+                  />
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium mb-3">Pré-visualização do Cartão</h4>
+                  <div className="flex justify-center p-4 bg-muted/20 rounded-lg">
+                    <AgentIDCard ref={cardRef} professor={displayProfessor} />
+                  </div>
+                </div>
+
+                <div className="flex gap-3 justify-end">
+                  <Button variant="outline" onClick={handleDownloadID} className="gap-2">
+                    <Download className="w-4 h-4" />
+                    Baixar PNG
+                  </Button>
+                  <Button onClick={handlePrintID} className="gap-2">
+                    <Printer className="w-4 h-4" />
+                    Imprimir Cartão
+                  </Button>
+                </div>
+              </div>
             </ScrollArea>
           </TabsContent>
         </Tabs>

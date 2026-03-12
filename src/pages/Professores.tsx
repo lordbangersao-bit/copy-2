@@ -689,12 +689,6 @@ export default function Professores() {
                             <Eye className="h-4 w-4 mr-2" />
                             Ver detalhes
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => setEmitirIDProfessor(professor)}
-                          >
-                            <CreditCard className="h-4 w-4 mr-2" />
-                            Emitir ID
-                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() => setEmissaoProfessor(professor)}
