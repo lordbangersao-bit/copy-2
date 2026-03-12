@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { calcularIdade, calcularTempoServico } from "@/lib/calcularAgente";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Form,
   FormControl,
