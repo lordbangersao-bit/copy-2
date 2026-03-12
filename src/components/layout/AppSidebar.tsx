@@ -286,6 +286,20 @@ export function AppSidebar({ collapsed, onToggle, mobile = false }: AppSidebarPr
           )}
         </Button>
       </div>
+
+      {/* Créditos do criador - NÃO ALTERAR */}
+      <div className={cn(
+        "px-3 py-2 border-t border-sidebar-border",
+        collapsed && "px-1"
+      )}>
+        <p className={cn(
+          "text-[10px] text-sidebar-muted-foreground/60 text-center leading-tight select-none",
+          collapsed && "hidden"
+        )}>
+          Criado por <span className="font-semibold text-sidebar-muted-foreground/80">Áureo Chissanhino Maria da Silva</span>
+          <br />Advogado e Codificador Informático
+        </p>
+      </div>
     </aside>
   );
 }
