@@ -550,8 +550,30 @@ export function ProfessorForm({
                     )}
                   />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     {renderSelectField("regime_contrato", "Regime de Contrato", REGIME_CONTRATO_OPTIONS, "Selecione")}
+                    <FormField
+                      control={form.control}
+                      name="data_admissao"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Data de Admissão</FormLabel>
+                          <FormControl>
+                            <Input type="date" {...field} value={field.value || ""} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="space-y-2">
+                      <FormLabel>Tempo de Serviço (auto)</FormLabel>
+                      <div className="h-10 px-3 py-2 rounded-md border bg-muted/50 text-sm flex items-center text-muted-foreground">
+                        {tempoServicoCalculado || "—"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
                       name="inicio_funcao"
