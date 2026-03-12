@@ -18,6 +18,7 @@ import Comunicados from "./pages/Comunicados";
 import Documentos from "./pages/Documentos";
 import Relatorios from "./pages/Relatorios";
 import NotFound from "./pages/NotFound";
+import { AIAssistant } from "./components/AIAssistant";
 
 const queryClient = new QueryClient();
 
