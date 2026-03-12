@@ -46,7 +46,7 @@ import {
   Trash2,
   Users,
   Eye,
-  CreditCard,
+  
   Lock,
   Filter,
   Download,
