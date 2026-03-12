@@ -26,6 +26,7 @@ import {
 import { ProfessorForm } from "@/components/ProfessorForm";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmitirIDDialog } from "@/components/EmitirIDDialog";
+import { EmissaoDocumentosDialog } from "@/components/EmissaoDocumentosDialog";
 import { ImportAgentesDialog } from "@/components/ImportAgentesDialog";
 import {
   useProfessores,
@@ -54,6 +55,7 @@ import {
   FileText,
   FileDown,
   Upload,
+  Printer,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -99,6 +101,7 @@ export default function Professores() {
   const [viewingProfessor, setViewingProfessor] = useState<ProfessorWithEscola | null>(null);
   const [emitirIDProfessor, setEmitirIDProfessor] = useState<ProfessorWithEscola | null>(null);
   const [importOpen, setImportOpen] = useState(false);
+  const [emissaoProfessor, setEmissaoProfessor] = useState<ProfessorWithEscola | null>(null);
 
   // Extract unique values for filter options
   const uniqueCategorias = [...new Set(professores?.map(p => p.categoria).filter(Boolean) as string[])].sort();
@@ -694,6 +697,12 @@ export default function Professores() {
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
+                            onClick={() => setEmissaoProfessor(professor)}
+                          >
+                            <Printer className="h-4 w-4 mr-2" />
+                            Emissão de Documentos
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
                             onClick={() => downloadFicha(professor, "completa")}
                           >
                             <FileText className="h-4 w-4 mr-2" />
@@ -952,6 +961,13 @@ export default function Professores() {
         professor={emitirIDProfessor}
         open={!!emitirIDProfessor}
         onOpenChange={(open) => !open && setEmitirIDProfessor(null)}
+      />
+
+      {/* Emissão de Documentos Dialog */}
+      <EmissaoDocumentosDialog
+        professor={emissaoProfessor}
+        open={!!emissaoProfessor}
+        onOpenChange={(open) => !open && setEmissaoProfessor(null)}
       />
 
       {/* Import Dialog */}
