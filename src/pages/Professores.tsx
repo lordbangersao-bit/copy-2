@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { ProfessorForm } from "@/components/ProfessorForm";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { EmitirIDDialog } from "@/components/EmitirIDDialog";
+
 import { EmissaoDocumentosDialog } from "@/components/EmissaoDocumentosDialog";
 import { ImportAgentesDialog } from "@/components/ImportAgentesDialog";
 import {
@@ -46,7 +46,7 @@ import {
   Trash2,
   Users,
   Eye,
-  CreditCard,
+  
   Lock,
   Filter,
   Download,
@@ -99,7 +99,7 @@ export default function Professores() {
   const [editingProfessor, setEditingProfessor] = useState<Professor | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [viewingProfessor, setViewingProfessor] = useState<ProfessorWithEscola | null>(null);
-  const [emitirIDProfessor, setEmitirIDProfessor] = useState<ProfessorWithEscola | null>(null);
+  
   const [importOpen, setImportOpen] = useState(false);
   const [emissaoProfessor, setEmissaoProfessor] = useState<ProfessorWithEscola | null>(null);
 
@@ -689,12 +689,6 @@ export default function Professores() {
                             <Eye className="h-4 w-4 mr-2" />
                             Ver detalhes
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => setEmitirIDProfessor(professor)}
-                          >
-                            <CreditCard className="h-4 w-4 mr-2" />
-                            Emitir ID
-                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() => setEmissaoProfessor(professor)}
@@ -956,12 +950,6 @@ export default function Professores() {
         </>
       )}
 
-      {/* Emitir ID Dialog */}
-      <EmitirIDDialog
-        professor={emitirIDProfessor}
-        open={!!emitirIDProfessor}
-        onOpenChange={(open) => !open && setEmitirIDProfessor(null)}
-      />
 
       {/* Emissão de Documentos Dialog */}
       <EmissaoDocumentosDialog
