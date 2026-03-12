@@ -167,8 +167,8 @@ export default function Professores() {
   };
 
   const downloadFicha = (professor: ProfessorWithEscola, tipo: "completa" | "resumida") => {
-    const val = (v: string | number | boolean | null | undefined) =>
-      v === true ? "Sim" : v === false ? "Não" : v || "-";
+    const val = (v: string | number | boolean | null | undefined): string =>
+      v === true ? "Sim" : v === false ? "Não" : v != null ? String(v) : "-";
 
     const title = tipo === "completa" ? "FICHA COMPLETA DO AGENTE" : "FICHA RESUMIDA DO AGENTE";
 
