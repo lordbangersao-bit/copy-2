@@ -396,7 +396,7 @@ export function ProfessorForm({
                     )}
                   />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <FormField
                       control={form.control}
                       name="data_nascimento"
@@ -410,6 +410,12 @@ export function ProfessorForm({
                         </FormItem>
                       )}
                     />
+                    <div className="space-y-2">
+                      <FormLabel>Idade (auto)</FormLabel>
+                      <div className="h-10 px-3 py-2 rounded-md border bg-muted/50 text-sm flex items-center text-muted-foreground">
+                        {idadeCalculada !== null ? `${idadeCalculada} anos` : "—"}
+                      </div>
+                    </div>
                     {renderSelectField("genero", "Género", GENERO_OPTIONS, "Selecione")}
                   </div>
 
