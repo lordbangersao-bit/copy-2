@@ -950,12 +950,6 @@ export default function Professores() {
         </>
       )}
 
-      {/* Emitir ID Dialog */}
-      <EmitirIDDialog
-        professor={emitirIDProfessor}
-        open={!!emitirIDProfessor}
-        onOpenChange={(open) => !open && setEmitirIDProfessor(null)}
-      />
 
       {/* Emissão de Documentos Dialog */}
       <EmissaoDocumentosDialog
