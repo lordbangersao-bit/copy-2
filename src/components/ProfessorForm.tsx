@@ -252,9 +252,18 @@ export function ProfessorForm({
     }
   }, [professor, form]);
 
+  // Auto-calculated fields
+  const watchDataNascimento = useWatch({ control: form.control, name: "data_nascimento" });
+  const watchDataAdmissao = useWatch({ control: form.control, name: "data_admissao" });
+  const idadeCalculada = calcularIdade(watchDataNascimento || null);
+  const tempoServicoCalculado = calcularTempoServico(watchDataAdmissao || null);
+
   const handleSubmit = (data: ProfessorInput) => {
     const cleanData = {
       ...data,
+      // Auto-calculated fields
+      idade: calcularIdade(data.data_nascimento || null),
+      tempo_servico: calcularTempoServico(data.data_admissao || null),
       cpf: data.cpf || null,
       email: data.email || null,
       telefone: data.telefone || null,
@@ -271,7 +280,6 @@ export function ProfessorForm({
       formado_em: data.formado_em || null,
       regime_contrato: data.regime_contrato || null,
       inicio_funcao: data.inicio_funcao || null,
-      tempo_servico: data.tempo_servico || null,
       estado_civil: data.estado_civil || null,
       data_nascimento: data.data_nascimento || null,
       provincia: data.provincia || null,
