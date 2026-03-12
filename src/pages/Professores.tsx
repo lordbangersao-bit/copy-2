@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { ProfessorForm } from "@/components/ProfessorForm";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { EmitirIDDialog } from "@/components/EmitirIDDialog";
+
 import { EmissaoDocumentosDialog } from "@/components/EmissaoDocumentosDialog";
 import { ImportAgentesDialog } from "@/components/ImportAgentesDialog";
 import {
