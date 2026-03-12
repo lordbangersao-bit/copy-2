@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { useEscolas } from "@/hooks/useEscolas";
 import { useProfessores } from "@/hooks/useProfessores";
 import { classificarFuncionario } from "@/lib/classificarFuncionario";
+import { getOfficialPrintHTML, openPrintWindow } from "@/lib/printTemplate";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
