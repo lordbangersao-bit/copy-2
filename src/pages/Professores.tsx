@@ -170,89 +170,92 @@ export default function Professores() {
     const val = (v: string | number | boolean | null | undefined) =>
       v === true ? "Sim" : v === false ? "Não" : v || "-";
 
-    let content = "";
     const title = tipo === "completa" ? "FICHA COMPLETA DO AGENTE" : "FICHA RESUMIDA DO AGENTE";
-    const date = new Date().toLocaleDateString("pt-AO");
+
+    const row = (label: string, value: string) =>
+      `<tr><td style="font-weight:600;width:200px;background:#f8f9fa;">${label}</td><td>${value}</td></tr>`;
+
+    const sectionTitle = (name: string) =>
+      `<h2 style="font-size:13pt;font-weight:bold;margin:20px 0 10px;border-left:4px solid #1a365d;padding-left:10px;">${name}</h2>`;
+
+    let tableContent = "";
 
     if (tipo === "completa") {
-      content = `
-${title}
-${"=".repeat(60)}
-Data de emissão: ${date}
+      tableContent = `
+        ${sectionTitle("Identificação")}
+        <table>${[
+          row("Nº de Cadastro", val(professor.numero_cadastro)),
+          row("Nº Agente", val(professor.numero_agente)),
+          row("Nome Completo", val(professor.nome)),
+          row("Data de Nascimento", val(professor.data_nascimento)),
+          row("Idade", calcularIdade(professor.data_nascimento) !== null ? `${calcularIdade(professor.data_nascimento)} anos` : "-"),
+          row("Género", val(professor.genero)),
+          row("Documento (BI)", val(professor.cpf)),
+          row("Estado Civil", val(professor.estado_civil)),
+          row("Telefone", val(professor.telefone)),
+          row("Email", val(professor.email)),
+          row("Condição Física", val(professor.condicao_fisica)),
+          row("Estado de Saúde", val(professor.estado_saude)),
+        ].join("")}</table>
 
-── IDENTIFICAÇÃO ──────────────────────────────────────────
-Nº de Cadastro:      ${val(professor.numero_cadastro)}
-Nº Agente:           ${val(professor.numero_agente)}
-Nome Completo:       ${val(professor.nome)}
-Data de Nascimento:  ${val(professor.data_nascimento)}
-Idade:               ${val(calcularIdade(professor.data_nascimento) !== null ? `${calcularIdade(professor.data_nascimento)} anos` : null)}
-Género:              ${val(professor.genero)}
-Documento (BI):      ${val(professor.cpf)}
-Estado Civil:        ${val(professor.estado_civil)}
-Telefone:            ${val(professor.telefone)}
-Email:               ${val(professor.email)}
-Condição Física:     ${val(professor.condicao_fisica)}
-Estado de Saúde:     ${val(professor.estado_saude)}
+        ${sectionTitle("Dados Profissionais")}
+        <table>${[
+          row("Função", val(professor.funcao)),
+          row("Categoria", val(professor.categoria)),
+          row("Local de Trabalho", val(professor.escolas?.nome)),
+          row("Nível Académico", val(professor.nivel_academico)),
+          row("Formado em", val(professor.formado_em)),
+          row("Disciplina", val(professor.disciplina)),
+          row("Regime de Contrato", val(professor.regime_contrato)),
+          row("Data de Admissão", val(professor.data_admissao)),
+          row("Início de Função", val(professor.inicio_funcao)),
+          row("Tempo de Serviço", val(calcularTempoServico(professor.data_admissao))),
+          row("Proc. Disciplinares", val(professor.qtd_processo_disciplinar)),
+          row("Actividade", val(professor.actividade)),
+          row("Agente Transferido", val(professor.agente_transferido)),
+          row("Arquivo Pessoal", val(professor.arquivo_pessoal)),
+        ].join("")}</table>
 
-── DADOS PROFISSIONAIS ────────────────────────────────────
-Função:              ${val(professor.funcao)}
-Categoria:           ${val(professor.categoria)}
-Local de Trabalho:   ${val(professor.escolas?.nome)}
-Nível Académico:     ${val(professor.nivel_academico)}
-Formado em:          ${val(professor.formado_em)}
-Disciplina:          ${val(professor.disciplina)}
-Regime de Contrato:  ${val(professor.regime_contrato)}
-Data de Admissão:    ${val(professor.data_admissao)}
-Início de Função:    ${val(professor.inicio_funcao)}
-Tempo de Serviço:    ${val(calcularTempoServico(professor.data_admissao))}
-Proc. Disciplinares: ${val(professor.qtd_processo_disciplinar)}
-Actividade:          ${val(professor.actividade)}
-Agente Transferido:  ${val(professor.agente_transferido)}
-Arquivo Pessoal:     ${val(professor.arquivo_pessoal)}
+        ${sectionTitle("Localização")}
+        <table>${[
+          row("Província", val(professor.provincia)),
+          row("Comuna", val(professor.comuna)),
+          row("Bairro / Localidade", val(professor.bairro_localidade)),
+        ].join("")}</table>
 
-── LOCALIZAÇÃO ────────────────────────────────────────────
-Província:           ${val(professor.provincia)}
-Comuna:              ${val(professor.comuna)}
-Bairro / Localidade: ${val(professor.bairro_localidade)}
-
-── DADOS FAMILIARES ───────────────────────────────────────
-Dependentes:         ${val(professor.dependentes)}
-Nº de Dependentes:   ${val(professor.num_dependentes)}
-Nome do(a) Parceiro: ${val(professor.nome_parceira)}
-Tel. Parceiro(a):    ${val(professor.telefone_parceira)}
-Outro Familiar:      ${val(professor.outro_familiar)}
-
-${"=".repeat(60)}
-Documento gerado automaticamente pelo sistema SIGEM
-      `.trim();
+        ${sectionTitle("Dados Familiares")}
+        <table>${[
+          row("Dependentes", val(professor.dependentes)),
+          row("Nº de Dependentes", val(professor.num_dependentes)),
+          row("Nome do(a) Parceiro(a)", val(professor.nome_parceira)),
+          row("Tel. Parceiro(a)", val(professor.telefone_parceira)),
+          row("Outro Familiar", val(professor.outro_familiar)),
+        ].join("")}</table>
+      `;
     } else {
-      content = `
-${title}
-${"=".repeat(45)}
-Data de emissão: ${date}
-
-Nome:             ${val(professor.nome)}
-Nº Agente:        ${val(professor.numero_agente)}
-Nº Cadastro:      ${val(professor.numero_cadastro)}
-Documento (BI):   ${val(professor.cpf)}
-Telefone:         ${val(professor.telefone)}
-Função:           ${val(professor.funcao)}
-Categoria:        ${val(professor.categoria)}
-Local de Trabalho:${val(professor.escolas?.nome)}
-Actividade:       ${val(professor.actividade)}
-
-${"=".repeat(45)}
-Documento gerado automaticamente pelo sistema SIGEM
-      `.trim();
+      tableContent = `
+        <table>${[
+          row("Nome", val(professor.nome)),
+          row("Nº Agente", val(professor.numero_agente)),
+          row("Nº de Cadastro", val(professor.numero_cadastro)),
+          row("Documento (BI)", val(professor.cpf)),
+          row("Telefone", val(professor.telefone)),
+          row("Género", val(professor.genero)),
+          row("Função", val(professor.funcao)),
+          row("Categoria", val(professor.categoria)),
+          row("Local de Trabalho", val(professor.escolas?.nome)),
+          row("Data de Admissão", val(professor.data_admissao)),
+          row("Tempo de Serviço", val(calcularTempoServico(professor.data_admissao))),
+          row("Actividade", val(professor.actividade)),
+        ].join("")}</table>
+      `;
     }
 
-    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `ficha_${tipo}_${professor.nome.replace(/\s+/g, "_")}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const html = getOfficialPrintHTML({
+      title,
+      content: tableContent,
+    });
+    openPrintWindow(html);
   };
 
   const exportToExcel = () => {
