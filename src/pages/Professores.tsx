@@ -1,5 +1,6 @@
 import { useState } from "react";
 import * as XLSX from "xlsx";
+import { getOfficialPrintHTML, openPrintWindow } from "@/lib/printTemplate";
 import { calcularIdade, calcularTempoServico, calcularTempoServicoAnos } from "@/lib/calcularAgente";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/ui/page-header";
