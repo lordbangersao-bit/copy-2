@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { useEscolas } from "@/hooks/useEscolas";
 import { useProfessores } from "@/hooks/useProfessores";
 import { classificarFuncionario, type ClasseFuncionario } from "@/lib/classificarFuncionario";
-import { Link } from "react-router-dom";
+import { PrintableReport } from "@/components/PrintableReport";
+import { Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Building2,
@@ -24,6 +25,7 @@ import {
   HardHat,
   ShieldCheck,
   BookOpen,
+  Printer,
 } from "lucide-react";
 import {
   BarChart,
