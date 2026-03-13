@@ -44,6 +44,7 @@ const App = () => (
             <Route path="/comunicados" element={<ProtectedRoute><Comunicados /></ProtectedRoute>} />
             <Route path="/documentos" element={<ProtectedRoute><Documentos /></ProtectedRoute>} />
             <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
+            <Route path="/utilizadores" element={<ProtectedRoute><GestaoUtilizadores /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <AIAssistant />

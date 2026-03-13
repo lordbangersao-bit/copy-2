@@ -177,6 +177,7 @@ export function AppSidebar({ collapsed, onToggle, mobile = false }: AppSidebarPr
           <NavSection items={mainNavItems} />
           <NavSection title="Gestão" items={managementNavItems} />
           <NavSection title="Sistema" items={systemNavItems} />
+          {isAdmin && <NavSection title="Administração" items={adminNavItems} />}
         </nav>
       </ScrollArea>
 
