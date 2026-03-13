@@ -90,7 +90,7 @@ export const AgentIDCard = forwardRef<HTMLDivElement, AgentIDCardProps>(
             <div>
               <p className="text-[8px] uppercase opacity-70 tracking-wider">Local de Trabalho</p>
               <p className="text-xs font-medium truncate leading-tight">
-                {professor.escolas?.nome || "Não atribuído"}
+                {abreviarEscola(professor.escolas?.nome)}
               </p>
             </div>
             <div className="flex gap-4">
