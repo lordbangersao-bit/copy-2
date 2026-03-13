@@ -4,11 +4,12 @@ import { User } from "lucide-react";
 
 function simplificarFuncao(funcao?: string | null): string {
   if (!funcao) return "-";
-  if (/professor/i.test(funcao)) return "Professor";
-  if (/director|diretor/i.test(funcao)) return "Director";
-  if (/subdirector|subdiretor/i.test(funcao)) return "Subdirector";
-  if (/coordenador/i.test(funcao)) return "Coordenador";
+  if (/prof(\.|essor)/i.test(funcao)) return "Professor";
+  if (/dir(ector|etor|\.)/i.test(funcao)) return "Director";
+  if (/sub\s*dir(ector|etor|\.)/i.test(funcao)) return "Subdirector";
+  if (/coord(enador|\.)/i.test(funcao)) return "Coordenador";
   if (/secret[aá]rio/i.test(funcao)) return "Secretário";
+  if (/cord\./i.test(funcao)) return "Coordenador";
   return funcao;
 }
 
