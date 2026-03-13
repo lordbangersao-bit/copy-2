@@ -409,7 +409,7 @@ export function AIAssistant() {
               <div>
                 <p className="font-semibold text-foreground">Olá! 👋</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Sou o assistente do DMN Gestor. Posso pesquisar, agrupar, filtrar e imprimir dados.
+                  Sou o assistente do DMEN Gestor. Posso pesquisar, agrupar, filtrar e imprimir dados.
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-2 w-full">

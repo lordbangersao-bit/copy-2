@@ -95,8 +95,8 @@ export default function Auth() {
             <GraduationCap className="h-8 w-8 text-white" />
           </div>
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-foreground">DMN Gestor</h1>
-            <p className="text-sm text-muted-foreground">Direção Provincial da Educação</p>
+            <h1 className="text-2xl font-bold text-foreground">DMEN Gestor</h1>
+            <p className="text-sm text-muted-foreground">Direcção Municipal da Educação de Namacunde</p>
           </div>
         </div>
 

@@ -28,7 +28,7 @@ export function getOfficialPrintHTML({ title, content, userName }: PrintTemplate
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <title>${title} - DMN Gestor</title>
+  <title>${title} - DMEN Gestor</title>
   <style>
     @page {
       size: A4;

@@ -5,7 +5,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `Você é o Assistente DMN Gestor, um assistente inteligente e interactivo do sistema de gestão educacional da Direcção Provincial da Educação.
+const SYSTEM_PROMPT = `Você é o Assistente DMEN Gestor, um assistente inteligente e interactivo do sistema de gestão educacional da Direcção Municipal da Educação de Namacunde.
 
 ## CAPACIDADES PRINCIPAIS
 Você tem acesso aos dados reais do sistema que são enviados como contexto em cada mensagem. Use esses dados para responder com precisão.

@@ -51,7 +51,7 @@ export const AgentIDCard = forwardRef<HTMLDivElement, AgentIDCardProps>(
                 República de Angola
               </p>
               <p className="text-[10px] font-semibold text-foreground leading-tight">
-                Direcção Provincial da Educação
+                Direcção Municipal da Educação de Namacunde
               </p>
             </div>
           </div>
