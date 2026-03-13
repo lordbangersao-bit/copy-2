@@ -3,7 +3,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,15 +17,6 @@ import { toast } from "sonner";
 import { Shield, UserPlus, Users, ShieldCheck, ShieldAlert, Eye, Search, RefreshCw, UserCog, Lock } from "lucide-react";
 import { Navigate } from "react-router-dom";
 
-interface UserWithRole {
-  user_id: string;
-  email: string;
-  role: "ADMIN" | "VIEWER";
-  active: boolean;
-  created_at: string;
-  id: string;
-}
-
 export default function GestaoUtilizadores() {
   const { isAdmin, user } = useAuth();
   const queryClient = useQueryClient();
@@ -36,11 +26,6 @@ export default function GestaoUtilizadores() {
   const [newRole, setNewRole] = useState<"ADMIN" | "VIEWER">("VIEWER");
   const [isCreating, setIsCreating] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Redirect non-admins
-  if (!isAdmin) {
-    return <Navigate to="/" replace />;
-  }
 
   // Fetch all user roles
   const { data: users = [], isLoading, refetch } = useQuery({
@@ -52,8 +37,9 @@ export default function GestaoUtilizadores() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as UserWithRole[];
+      return data;
     },
+    enabled: isAdmin,
   });
 
   // Toggle user active status
@@ -105,9 +91,6 @@ export default function GestaoUtilizadores() {
 
     setIsCreating(true);
     try {
-      // Use edge function to create user (admin-only)
-      const { data: { session } } = await supabase.auth.getSession();
-      
       const response = await supabase.functions.invoke("admin-create-user", {
         body: { email: newEmail, password: newPassword, role: newRole },
       });
@@ -129,9 +112,13 @@ export default function GestaoUtilizadores() {
     }
   };
 
+  // Redirect non-admins after all hooks
+  if (!isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+
   const filteredUsers = users.filter((u) =>
-    u.user_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (u as any).email?.toLowerCase().includes(searchQuery.toLowerCase())
+    u.user_id?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const totalUsers = users.length;
@@ -142,11 +129,18 @@ export default function GestaoUtilizadores() {
   return (
     <AppLayout>
       <div className="space-y-6">
-        <PageHeader
-          title="Gestão de Utilizadores"
-          description="Registo de credenciais e gestão de acessos ao sistema"
-          icon={UserCog}
-        />
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+            <UserCog className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Gestão de Utilizadores</h1>
+            <p className="text-sm text-muted-foreground">
+              Registo de credenciais e gestão de acessos ao sistema
+            </p>
+          </div>
+        </div>
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
