@@ -59,6 +59,10 @@ const systemNavItems: NavItem[] = [
   { path: "/relatorios", label: "Relatórios & BI", icon: BarChart3, module: "sistema" },
 ];
 
+const adminNavItems: NavItem[] = [
+  { path: "/utilizadores", label: "Gestão de Utilizadores", icon: Shield, module: "admin" },
+];
+
 interface AppSidebarProps {
   collapsed: boolean;
   onToggle: () => void;
@@ -173,6 +177,7 @@ export function AppSidebar({ collapsed, onToggle, mobile = false }: AppSidebarPr
           <NavSection items={mainNavItems} />
           <NavSection title="Gestão" items={managementNavItems} />
           <NavSection title="Sistema" items={systemNavItems} />
+          {isAdmin && <NavSection title="Administração" items={adminNavItems} />}
         </nav>
       </ScrollArea>
 

@@ -18,6 +18,7 @@ import Comunicados from "./pages/Comunicados";
 import Documentos from "./pages/Documentos";
 import Relatorios from "./pages/Relatorios";
 import NotFound from "./pages/NotFound";
+import GestaoUtilizadores from "./pages/GestaoUtilizadores";
 import { AIAssistant } from "./components/AIAssistant";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/comunicados" element={<ProtectedRoute><Comunicados /></ProtectedRoute>} />
             <Route path="/documentos" element={<ProtectedRoute><Documentos /></ProtectedRoute>} />
             <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
+            <Route path="/utilizadores" element={<ProtectedRoute><GestaoUtilizadores /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <AIAssistant />
