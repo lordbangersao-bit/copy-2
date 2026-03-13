@@ -1,6 +1,21 @@
-import { forwardRef } from "react";
+import { forwardRef, useMemo } from "react";
 import { ProfessorWithEscola } from "@/hooks/useProfessores";
 import { User } from "lucide-react";
+
+function simplificarFuncao(funcao?: string | null): string {
+  if (!funcao) return "-";
+  if (/professor/i.test(funcao)) return "Professor";
+  if (/director|diretor/i.test(funcao)) return "Director";
+  if (/subdirector|subdiretor/i.test(funcao)) return "Subdirector";
+  if (/coordenador/i.test(funcao)) return "Coordenador";
+  if (/secret[aá]rio/i.test(funcao)) return "Secretário";
+  return funcao;
+}
+
+function abreviarEscola(nome?: string | null): string {
+  if (!nome) return "Não atribuído";
+  return nome.replace(/^Complexo Escolar\b/i, "Comp. Esc.");
+}
 
 interface AgentIDCardProps {
   professor: ProfessorWithEscola;
