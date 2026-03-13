@@ -97,7 +97,7 @@ export const AgentIDCard = forwardRef<HTMLDivElement, AgentIDCardProps>(
               <div className="flex-1">
                 <p className="text-[8px] uppercase opacity-70 tracking-wider">Função</p>
                 <p className="text-xs font-medium truncate">
-                  {professor.funcao || "-"}
+                  {simplificarFuncao(professor.funcao)}
                 </p>
               </div>
               <div className="flex-1">
