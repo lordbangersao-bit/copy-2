@@ -59,6 +59,10 @@ const systemNavItems: NavItem[] = [
   { path: "/relatorios", label: "Relatórios & BI", icon: BarChart3, module: "sistema" },
 ];
 
+const adminNavItems: NavItem[] = [
+  { path: "/utilizadores", label: "Gestão de Utilizadores", icon: Shield, module: "admin" },
+];
+
 interface AppSidebarProps {
   collapsed: boolean;
   onToggle: () => void;
