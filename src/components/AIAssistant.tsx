@@ -383,7 +383,7 @@ export function AIAssistant() {
             </div>
             <div>
               <p className="text-sm font-semibold text-foreground">Assistente IA</p>
-              <p className="text-[10px] text-muted-foreground">DMN Gestor • Dados em tempo real</p>
+              <p className="text-[10px] text-muted-foreground">DMEN Gestor • Dados em tempo real</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
