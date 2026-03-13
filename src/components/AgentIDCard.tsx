@@ -1,6 +1,21 @@
-import { forwardRef } from "react";
+import { forwardRef, useMemo } from "react";
 import { ProfessorWithEscola } from "@/hooks/useProfessores";
 import { User } from "lucide-react";
+
+function simplificarFuncao(funcao?: string | null): string {
+  if (!funcao) return "-";
+  if (/professor/i.test(funcao)) return "Professor";
+  if (/director|diretor/i.test(funcao)) return "Director";
+  if (/subdirector|subdiretor/i.test(funcao)) return "Subdirector";
+  if (/coordenador/i.test(funcao)) return "Coordenador";
+  if (/secret[aá]rio/i.test(funcao)) return "Secretário";
+  return funcao;
+}
+
+function abreviarEscola(nome?: string | null): string {
+  if (!nome) return "Não atribuído";
+  return nome.replace(/^Complexo Escolar\b/i, "Comp. Esc.");
+}
 
 interface AgentIDCardProps {
   professor: ProfessorWithEscola;
@@ -75,14 +90,14 @@ export const AgentIDCard = forwardRef<HTMLDivElement, AgentIDCardProps>(
             <div>
               <p className="text-[8px] uppercase opacity-70 tracking-wider">Local de Trabalho</p>
               <p className="text-xs font-medium truncate leading-tight">
-                {professor.escolas?.nome || "Não atribuído"}
+                {abreviarEscola(professor.escolas?.nome)}
               </p>
             </div>
             <div className="flex gap-4">
               <div className="flex-1">
                 <p className="text-[8px] uppercase opacity-70 tracking-wider">Função</p>
                 <p className="text-xs font-medium truncate">
-                  {professor.funcao || "-"}
+                  {simplificarFuncao(professor.funcao)}
                 </p>
               </div>
               <div className="flex-1">
