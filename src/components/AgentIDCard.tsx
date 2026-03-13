@@ -44,7 +44,7 @@ export const AgentIDCard = forwardRef<HTMLDivElement, AgentIDCardProps>(
         <div className="bg-white/95 px-4 py-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <span className="text-white text-xs font-bold">DPE</span>
+              <span className="text-white text-xs font-bold">DMEN</span>
             </div>
             <div>
               <p className="text-[8px] text-muted-foreground uppercase tracking-wide">
