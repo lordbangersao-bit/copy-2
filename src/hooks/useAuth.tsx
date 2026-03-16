@@ -56,10 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             fetchUserRole(session.user.id).then((r) => setRole(r || "ADMIN"));
           }, 0);
         }
-        // Manter ADMIN por padrão quando não há sessão (auth desativado)
-
         if (event === "SIGNED_OUT") {
-          setRole("ADMIN");
+          setRole(null);
         }
       }
     );
