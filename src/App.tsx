@@ -19,6 +19,7 @@ import Documentos from "./pages/Documentos";
 import Relatorios from "./pages/Relatorios";
 import NotFound from "./pages/NotFound";
 import GestaoUtilizadores from "./pages/GestaoUtilizadores";
+import ResetPassword from "./pages/ResetPassword";
 import { AIAssistant } from "./components/AIAssistant";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<Auth />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/escolas" element={<ProtectedRoute><UnidadesOrganicas /></ProtectedRoute>} />
             <Route path="/unidades-organicas" element={<ProtectedRoute><UnidadesOrganicas /></ProtectedRoute>} />

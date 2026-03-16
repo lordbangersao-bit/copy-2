@@ -20,8 +20,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  // Modo admin ativo por padrão enquanto auth está desativado
-  const [role, setRole] = useState<AppRole>("ADMIN");
+  const [role, setRole] = useState<AppRole>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchUserRole = async (userId: string) => {
@@ -57,10 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             fetchUserRole(session.user.id).then((r) => setRole(r || "ADMIN"));
           }, 0);
         }
-        // Manter ADMIN por padrão quando não há sessão (auth desativado)
-
         if (event === "SIGNED_OUT") {
-          setRole("ADMIN");
+          setRole(null);
         }
       }
     );
@@ -76,8 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setIsLoading(false);
         });
       } else {
-        // Sem sessão = modo admin por padrão
-        setRole("ADMIN");
+        setRole(null);
         setIsLoading(false);
       }
     });
