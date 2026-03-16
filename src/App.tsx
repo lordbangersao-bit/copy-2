@@ -19,6 +19,7 @@ import Documentos from "./pages/Documentos";
 import Relatorios from "./pages/Relatorios";
 import NotFound from "./pages/NotFound";
 import GestaoUtilizadores from "./pages/GestaoUtilizadores";
+import ResetPassword from "./pages/ResetPassword";
 import { AIAssistant } from "./components/AIAssistant";
 
 const queryClient = new QueryClient();
