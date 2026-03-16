@@ -73,8 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setIsLoading(false);
         });
       } else {
-        // Sem sessão = modo admin por padrão
-        setRole("ADMIN");
+        setRole(null);
         setIsLoading(false);
       }
     });
