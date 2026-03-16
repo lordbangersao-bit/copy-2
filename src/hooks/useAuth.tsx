@@ -20,8 +20,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  // Modo admin ativo por padrão enquanto auth está desativado
-  const [role, setRole] = useState<AppRole>("ADMIN");
+  const [role, setRole] = useState<AppRole>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchUserRole = async (userId: string) => {
