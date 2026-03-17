@@ -21,21 +21,20 @@ export interface Escola {
   alunos_masculino: number | null;
   alunos_feminino: number | null;
   total_turmas: number | null;
+  municipality_id: string | null;
   created_at: string;
   updated_at: string;
 }
 
 export type EscolaInput = Omit<Escola, "id" | "created_at" | "updated_at">;
 
-export function useEscolas() {
+export function useEscolas(municipalityId?: string) {
   return useQuery({
-    queryKey: ["escolas"],
+    queryKey: ["escolas", municipalityId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("escolas")
-        .select("*")
-        .order("nome");
-      
+      let query = supabase.from("escolas").select("*").order("nome");
+      if (municipalityId) query = query.eq("municipality_id", municipalityId);
+      const { data, error } = await query;
       if (error) throw error;
       return data as Escola[];
     },
@@ -44,63 +43,35 @@ export function useEscolas() {
 
 export function useCreateEscola() {
   const queryClient = useQueryClient();
-  
   return useMutation({
     mutationFn: async (escola: EscolaInput) => {
-      const { data, error } = await supabase
-        .from("escolas")
-        .insert(escola)
-        .select()
-        .single();
-      
+      const { data, error } = await supabase.from("escolas").insert(escola).select().single();
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["escolas"] });
-      toast.success("Escola cadastrada com sucesso!");
-    },
-    onError: (error) => {
-      toast.error("Erro ao cadastrar escola: " + error.message);
-    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["escolas"] }); toast.success("Escola cadastrada com sucesso!"); },
+    onError: (error) => toast.error("Erro ao cadastrar escola: " + error.message),
   });
 }
 
 export function useUpdateEscola() {
   const queryClient = useQueryClient();
-  
   return useMutation({
     mutationFn: async ({ id, ...escola }: Partial<Escola> & { id: string }) => {
-      const { data, error } = await supabase
-        .from("escolas")
-        .update(escola)
-        .eq("id", id)
-        .select()
-        .single();
-      
+      const { data, error } = await supabase.from("escolas").update(escola).eq("id", id).select().single();
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["escolas"] });
-      toast.success("Escola atualizada com sucesso!");
-    },
-    onError: (error) => {
-      toast.error("Erro ao atualizar escola: " + error.message);
-    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["escolas"] }); toast.success("Escola atualizada com sucesso!"); },
+    onError: (error) => toast.error("Erro ao atualizar escola: " + error.message),
   });
 }
 
 export function useDeleteEscola() {
   const queryClient = useQueryClient();
-  
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("escolas")
-        .delete()
-        .eq("id", id);
-      
+      const { error } = await supabase.from("escolas").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -108,8 +79,6 @@ export function useDeleteEscola() {
       queryClient.invalidateQueries({ queryKey: ["professores"] });
       toast.success("Escola excluída com sucesso!");
     },
-    onError: (error) => {
-      toast.error("Erro ao excluir escola: " + error.message);
-    },
+    onError: (error) => toast.error("Erro ao excluir escola: " + error.message),
   });
 }

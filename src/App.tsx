@@ -20,6 +20,8 @@ import Relatorios from "./pages/Relatorios";
 import NotFound from "./pages/NotFound";
 import GestaoUtilizadores from "./pages/GestaoUtilizadores";
 import ResetPassword from "./pages/ResetPassword";
+import Provincias from "./pages/Provincias";
+import Municipios from "./pages/Municipios";
 import { AIAssistant } from "./components/AIAssistant";
 
 const queryClient = new QueryClient();
@@ -35,6 +37,8 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+            <Route path="/provincias" element={<ProtectedRoute><Provincias /></ProtectedRoute>} />
+            <Route path="/municipios" element={<ProtectedRoute><Municipios /></ProtectedRoute>} />
             <Route path="/escolas" element={<ProtectedRoute><UnidadesOrganicas /></ProtectedRoute>} />
             <Route path="/unidades-organicas" element={<ProtectedRoute><UnidadesOrganicas /></ProtectedRoute>} />
             <Route path="/professores" element={<ProtectedRoute><Professores /></ProtectedRoute>} />
