@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth, AppRole } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useProvinces } from "@/hooks/useProvinces";
+import { useMunicipalities } from "@/hooks/useMunicipalities";
+import { useEscolas } from "@/hooks/useEscolas";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,20 +17,44 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Shield, UserPlus, Users, ShieldCheck, ShieldAlert, Eye, Search, RefreshCw, UserCog, Lock } from "lucide-react";
+import { Shield, UserPlus, Users, ShieldCheck, Eye, Search, RefreshCw, UserCog, Lock, Map, MapPin, Building2 } from "lucide-react";
 import { Navigate } from "react-router-dom";
+
+const ALL_ROLES: { value: string; label: string; description: string }[] = [
+  { value: "ADMIN", label: "Administrador", description: "Acesso total ao sistema" },
+  { value: "GESTOR_PROVINCIAL", label: "Gestor Provincial", description: "Gere toda a província" },
+  { value: "GESTOR_MUNICIPAL", label: "Gestor Municipal", description: "Gere o seu município" },
+  { value: "DIRECTOR_ESCOLA", label: "Director de Escola", description: "Gere a sua escola" },
+  { value: "TECNICO", label: "Técnico", description: "Leitura + acções limitadas" },
+  { value: "VIEWER", label: "Visualizador", description: "Apenas leitura" },
+];
+
+const roleColors: Record<string, string> = {
+  ADMIN: "bg-amber-500/10 text-amber-700 border-amber-200",
+  GESTOR_PROVINCIAL: "bg-purple-500/10 text-purple-700 border-purple-200",
+  GESTOR_MUNICIPAL: "bg-blue-500/10 text-blue-700 border-blue-200",
+  DIRECTOR_ESCOLA: "bg-green-500/10 text-green-700 border-green-200",
+  TECNICO: "bg-orange-500/10 text-orange-700 border-orange-200",
+  VIEWER: "bg-gray-500/10 text-gray-700 border-gray-200",
+};
 
 export default function GestaoUtilizadores() {
   const { isAdmin, user } = useAuth();
   const queryClient = useQueryClient();
+  const { data: provinces } = useProvinces();
+  const { data: municipalities } = useMunicipalities();
+  const { data: escolas } = useEscolas();
+
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [newRole, setNewRole] = useState<"ADMIN" | "VIEWER">("VIEWER");
+  const [newRole, setNewRole] = useState<string>("VIEWER");
+  const [newProvinceId, setNewProvinceId] = useState("");
+  const [newMunicipalityId, setNewMunicipalityId] = useState("");
+  const [newSchoolId, setNewSchoolId] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch all user roles
   const { data: users = [], isLoading, refetch } = useQuery({
     queryKey: ["user-roles"],
     queryFn: async () => {
@@ -35,74 +62,53 @@ export default function GestaoUtilizadores() {
         .from("user_roles")
         .select("*")
         .order("created_at", { ascending: false });
-
       if (error) throw error;
       return data;
     },
     enabled: isAdmin,
   });
 
-  // Toggle user active status
   const toggleActiveMutation = useMutation({
     mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
-      const { error } = await supabase
-        .from("user_roles")
-        .update({ active })
-        .eq("id", id);
+      const { error } = await supabase.from("user_roles").update({ active }).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-roles"] });
-      toast.success("Estado do utilizador actualizado");
-    },
-    onError: () => {
-      toast.error("Erro ao actualizar estado do utilizador");
-    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["user-roles"] }); toast.success("Estado actualizado"); },
+    onError: () => toast.error("Erro ao actualizar"),
   });
 
-  // Update user role
   const updateRoleMutation = useMutation({
-    mutationFn: async ({ id, role }: { id: string; role: "ADMIN" | "VIEWER" }) => {
-      const { error } = await supabase
-        .from("user_roles")
-        .update({ role })
-        .eq("id", id);
+    mutationFn: async ({ id, role, province_id, municipality_id, school_id }: {
+      id: string; role: string; province_id?: string | null; municipality_id?: string | null; school_id?: string | null;
+    }) => {
+      const update: Record<string, unknown> = { role };
+      if (province_id !== undefined) update.province_id = province_id || null;
+      if (municipality_id !== undefined) update.municipality_id = municipality_id || null;
+      if (school_id !== undefined) update.school_id = school_id || null;
+      const { error } = await supabase.from("user_roles").update(update).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user-roles"] });
-      toast.success("Papel do utilizador actualizado");
-    },
-    onError: () => {
-      toast.error("Erro ao actualizar papel do utilizador");
-    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["user-roles"] }); toast.success("Papel actualizado"); },
+    onError: () => toast.error("Erro ao actualizar papel"),
   });
 
-  // Create new user
   const handleCreateUser = async () => {
-    if (!newEmail || !newPassword) {
-      toast.error("Preencha todos os campos");
-      return;
-    }
-    if (newPassword.length < 6) {
-      toast.error("A senha deve ter pelo menos 6 caracteres");
-      return;
-    }
+    if (!newEmail || !newPassword) { toast.error("Preencha todos os campos"); return; }
+    if (newPassword.length < 6) { toast.error("Senha mínima de 6 caracteres"); return; }
 
     setIsCreating(true);
     try {
-      const response = await supabase.functions.invoke("admin-create-user", {
-        body: { email: newEmail, password: newPassword, role: newRole },
-      });
+      const body: Record<string, unknown> = { email: newEmail, password: newPassword, role: newRole };
+      if (newProvinceId) body.province_id = newProvinceId;
+      if (newMunicipalityId) body.municipality_id = newMunicipalityId;
+      if (newSchoolId) body.school_id = newSchoolId;
 
-      if (response.error) {
-        throw new Error(response.error.message || "Erro ao criar utilizador");
-      }
+      const response = await supabase.functions.invoke("admin-create-user", { body });
+      if (response.error) throw new Error(response.error.message);
 
-      toast.success(`Utilizador ${newEmail} criado com sucesso`);
-      setNewEmail("");
-      setNewPassword("");
-      setNewRole("VIEWER");
+      toast.success(`Utilizador ${newEmail} criado`);
+      setNewEmail(""); setNewPassword(""); setNewRole("VIEWER");
+      setNewProvinceId(""); setNewMunicipalityId(""); setNewSchoolId("");
       setIsCreateOpen(false);
       queryClient.invalidateQueries({ queryKey: ["user-roles"] });
     } catch (err: any) {
@@ -112,170 +118,108 @@ export default function GestaoUtilizadores() {
     }
   };
 
-  // Redirect non-admins after all hooks
-  if (!isAdmin) {
-    return <Navigate to="/" replace />;
-  }
+  if (!isAdmin) return <Navigate to="/" replace />;
 
-  const filteredUsers = users.filter((u) =>
-    u.user_id?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredUsers = users.filter(u => u.user_id?.toLowerCase().includes(searchQuery.toLowerCase()));
+  const needsProvince = ["GESTOR_PROVINCIAL"].includes(newRole);
+  const needsMunicipality = ["GESTOR_MUNICIPAL"].includes(newRole);
+  const needsSchool = ["DIRECTOR_ESCOLA"].includes(newRole);
+  const filteredMunicipalities = newProvinceId ? municipalities?.filter(m => m.province_id === newProvinceId) : municipalities;
 
-  const totalUsers = users.length;
-  const activeUsers = users.filter((u) => u.active).length;
-  const adminCount = users.filter((u) => u.role === "ADMIN").length;
-  const viewerCount = users.filter((u) => u.role === "VIEWER").length;
+  const getProvinceName = (id: string | null) => id ? provinces?.find(p => p.id === id)?.name : null;
+  const getMunicipalityName = (id: string | null) => id ? municipalities?.find(m => m.id === id)?.name : null;
+  const getSchoolName = (id: string | null) => id ? escolas?.find(e => e.id === id)?.nome : null;
 
   return (
     <AppLayout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
             <UserCog className="h-6 w-6 text-primary" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-foreground">Gestão de Utilizadores</h1>
-            <p className="text-sm text-muted-foreground">
-              Registo de credenciais e gestão de acessos ao sistema
-            </p>
+            <p className="text-sm text-muted-foreground">Registo de credenciais, papéis hierárquicos e gestão de acessos</p>
           </div>
         </div>
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="border-l-4 border-l-primary">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Users className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{totalUsers}</p>
-                <p className="text-xs text-muted-foreground">Total de Utilizadores</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border-l-4 border-l-green-500">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-green-500/10">
-                <ShieldCheck className="h-5 w-5 text-green-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{activeUsers}</p>
-                <p className="text-xs text-muted-foreground">Utilizadores Activos</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border-l-4 border-l-amber-500">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-amber-500/10">
-                <Shield className="h-5 w-5 text-amber-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{adminCount}</p>
-                <p className="text-xs text-muted-foreground">Administradores</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border-l-4 border-l-blue-500">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-500/10">
-                <Eye className="h-5 w-5 text-blue-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{viewerCount}</p>
-                <p className="text-xs text-muted-foreground">Visualizadores</p>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          {ALL_ROLES.map(r => (
+            <Card key={r.value} className="border-l-4" style={{ borderLeftColor: `var(--${r.value === 'ADMIN' ? 'warning' : 'primary'})` }}>
+              <CardContent className="p-4">
+                <p className="text-2xl font-bold">{users.filter(u => u.role === r.value).length}</p>
+                <p className="text-xs text-muted-foreground">{r.label}</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
-        {/* Main Content */}
         <Card>
           <CardHeader className="pb-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Lock className="h-5 w-5 text-primary" />
-                  Credenciais de Acesso
-                </CardTitle>
-                <CardDescription>
-                  Gerir utilizadores, papéis e permissões do sistema
-                </CardDescription>
+                <CardTitle className="flex items-center gap-2"><Lock className="h-5 w-5 text-primary" />Credenciais de Acesso</CardTitle>
+                <CardDescription>Gerir utilizadores com papéis hierárquicos</CardDescription>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => refetch()}>
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Actualizar
-                </Button>
+                <Button variant="outline" size="sm" onClick={() => refetch()}><RefreshCw className="h-4 w-4 mr-2" />Actualizar</Button>
                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                  <DialogTrigger asChild>
-                    <Button size="sm">
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      Novo Utilizador
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
+                  <DialogTrigger asChild><Button size="sm"><UserPlus className="h-4 w-4 mr-2" />Novo Utilizador</Button></DialogTrigger>
+                  <DialogContent className="max-w-lg">
                     <DialogHeader>
-                      <DialogTitle className="flex items-center gap-2">
-                        <UserPlus className="h-5 w-5 text-primary" />
-                        Registar Novo Utilizador
-                      </DialogTitle>
-                      <DialogDescription>
-                        Crie credenciais de acesso ao sistema DMEN Gestor
-                      </DialogDescription>
+                      <DialogTitle><UserPlus className="h-5 w-5 text-primary inline mr-2" />Registar Novo Utilizador</DialogTitle>
+                      <DialogDescription>Crie credenciais com papel hierárquico</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="utilizador@dmen.gov.ao"
-                          value={newEmail}
-                          onChange={(e) => setNewEmail(e.target.value)}
-                        />
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2"><Label>Email</Label><Input type="email" placeholder="email@dmen.gov.ao" value={newEmail} onChange={e => setNewEmail(e.target.value)} /></div>
+                        <div className="space-y-2"><Label>Senha</Label><Input type="password" placeholder="Mín. 6 caracteres" value={newPassword} onChange={e => setNewPassword(e.target.value)} /></div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="password">Senha</Label>
-                        <Input
-                          id="password"
-                          type="password"
-                          placeholder="Mínimo 6 caracteres"
-                          value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="role">Papel no Sistema</Label>
-                        <Select value={newRole} onValueChange={(v) => setNewRole(v as "ADMIN" | "VIEWER")}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
+                        <Label>Papel no Sistema</Label>
+                        <Select value={newRole} onValueChange={v => { setNewRole(v); setNewProvinceId(""); setNewMunicipalityId(""); setNewSchoolId(""); }}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="ADMIN">
-                              <div className="flex items-center gap-2">
-                                <Shield className="h-4 w-4 text-amber-500" />
-                                Administrador — Acesso total
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="VIEWER">
-                              <div className="flex items-center gap-2">
-                                <Eye className="h-4 w-4 text-blue-500" />
-                                Visualizador — Apenas leitura
-                              </div>
-                            </SelectItem>
+                            {ALL_ROLES.map(r => (
+                              <SelectItem key={r.value} value={r.value}>
+                                <span className="font-medium">{r.label}</span>
+                                <span className="text-xs text-muted-foreground ml-2">— {r.description}</span>
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
+                      {(needsProvince || needsMunicipality || needsSchool) && (
+                        <div className="space-y-2">
+                          <Label>Província</Label>
+                          <Select value={newProvinceId} onValueChange={v => { setNewProvinceId(v); setNewMunicipalityId(""); setNewSchoolId(""); }}>
+                            <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                            <SelectContent>{provinces?.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                      {(needsMunicipality || needsSchool) && newProvinceId && (
+                        <div className="space-y-2">
+                          <Label>Município</Label>
+                          <Select value={newMunicipalityId} onValueChange={v => { setNewMunicipalityId(v); setNewSchoolId(""); }}>
+                            <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                            <SelectContent>{filteredMunicipalities?.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                      {needsSchool && newMunicipalityId && (
+                        <div className="space-y-2">
+                          <Label>Escola</Label>
+                          <Select value={newSchoolId} onValueChange={setNewSchoolId}>
+                            <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                            <SelectContent>{escolas?.filter(e => e.municipality_id === newMunicipalityId).map(e => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}</SelectContent>
+                          </Select>
+                        </div>
+                      )}
                     </div>
                     <DialogFooter>
-                      <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
-                        Cancelar
-                      </Button>
-                      <Button onClick={handleCreateUser} disabled={isCreating}>
-                        {isCreating ? "A criar..." : "Criar Utilizador"}
-                      </Button>
+                      <Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancelar</Button>
+                      <Button onClick={handleCreateUser} disabled={isCreating}>{isCreating ? "A criar..." : "Criar Utilizador"}</Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
@@ -284,134 +228,78 @@ export default function GestaoUtilizadores() {
             <Separator className="mt-4" />
             <div className="relative mt-4">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Pesquisar por ID de utilizador..."
-                className="pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+              <Input placeholder="Pesquisar por ID..." className="pl-10" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
             </div>
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
+              <div className="flex items-center justify-center py-12"><RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" /></div>
             ) : filteredUsers.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Users className="h-12 w-12 mx-auto mb-4 opacity-30" />
                 <p className="text-lg font-medium">Nenhum utilizador encontrado</p>
-                <p className="text-sm">Crie o primeiro utilizador do sistema</p>
               </div>
             ) : (
               <div className="rounded-lg border overflow-hidden">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/50">
-                      <TableHead className="font-semibold">ID Utilizador</TableHead>
-                      <TableHead className="font-semibold">Papel</TableHead>
-                      <TableHead className="font-semibold">Estado</TableHead>
-                      <TableHead className="font-semibold">Data de Registo</TableHead>
-                      <TableHead className="font-semibold text-right">Acções</TableHead>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Papel</TableHead>
+                      <TableHead>Âmbito</TableHead>
+                      <TableHead>Estado</TableHead>
+                      <TableHead>Data</TableHead>
+                      <TableHead className="text-right">Acções</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredUsers.map((u) => (
-                      <TableRow key={u.id} className="hover:bg-muted/30">
+                    {filteredUsers.map(u => (
+                      <TableRow key={u.id}>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
-                              u.role === "ADMIN" ? "bg-amber-500/10" : "bg-blue-500/10"
-                            }`}>
-                              {u.role === "ADMIN" ? (
-                                <Shield className="h-4 w-4 text-amber-500" />
-                              ) : (
-                                <Eye className="h-4 w-4 text-blue-500" />
-                              )}
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium font-mono">
-                                {u.user_id.substring(0, 8)}...
-                              </p>
-                              {u.user_id === user?.id && (
-                                <Badge variant="outline" className="text-[10px]">Você</Badge>
-                              )}
-                            </div>
+                            <p className="text-sm font-mono">{u.user_id.substring(0, 8)}...</p>
+                            {u.user_id === user?.id && <Badge variant="outline" className="text-[10px]">Você</Badge>}
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Select
-                            value={u.role}
-                            onValueChange={(v) => updateRoleMutation.mutate({ id: u.id, role: v as "ADMIN" | "VIEWER" })}
-                            disabled={u.user_id === user?.id}
-                          >
-                            <SelectTrigger className="w-[160px] h-8">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="ADMIN">
-                                <div className="flex items-center gap-2">
-                                  <Shield className="h-3 w-3 text-amber-500" />
-                                  Administrador
-                                </div>
-                              </SelectItem>
-                              <SelectItem value="VIEWER">
-                                <div className="flex items-center gap-2">
-                                  <Eye className="h-3 w-3 text-blue-500" />
-                                  Visualizador
-                                </div>
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <Badge className={roleColors[u.role] || ""}>
+                            {ALL_ROLES.find(r => r.value === u.role)?.label || u.role}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {getProvinceName(u.province_id) && <div className="flex items-center gap-1"><Map className="h-3 w-3" />{getProvinceName(u.province_id)}</div>}
+                          {getMunicipalityName(u.municipality_id) && <div className="flex items-center gap-1"><MapPin className="h-3 w-3" />{getMunicipalityName(u.municipality_id)}</div>}
+                          {getSchoolName(u.school_id) && <div className="flex items-center gap-1"><Building2 className="h-3 w-3" />{getSchoolName(u.school_id)}</div>}
+                          {!u.province_id && !u.municipality_id && !u.school_id && <span className="italic">Global</span>}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Switch
                               checked={u.active}
-                              onCheckedChange={(checked) =>
-                                toggleActiveMutation.mutate({ id: u.id, active: checked })
-                              }
+                              onCheckedChange={checked => toggleActiveMutation.mutate({ id: u.id, active: checked })}
                               disabled={u.user_id === user?.id}
                             />
-                            <Badge
-                              variant={u.active ? "default" : "secondary"}
-                              className={u.active ? "bg-green-500/10 text-green-700 border-green-200" : ""}
-                            >
+                            <Badge variant={u.active ? "default" : "secondary"} className={u.active ? "bg-green-500/10 text-green-700 border-green-200" : ""}>
                               {u.active ? "Activo" : "Inactivo"}
                             </Badge>
                           </div>
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">
-                          {new Date(u.created_at).toLocaleDateString("pt-AO", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                          })}
+                          {new Date(u.created_at).toLocaleDateString("pt-AO", { day: "2-digit", month: "2-digit", year: "numeric" })}
                         </TableCell>
                         <TableCell className="text-right">
                           {u.user_id === user?.id ? (
                             <span className="text-xs text-muted-foreground italic">Sessão actual</span>
                           ) : (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                              onClick={() => {
-                                toggleActiveMutation.mutate({ id: u.id, active: !u.active });
-                              }}
+                            <Select
+                              value={u.role}
+                              onValueChange={v => updateRoleMutation.mutate({ id: u.id, role: v })}
                             >
-                              {u.active ? (
-                                <>
-                                  <ShieldAlert className="h-4 w-4 mr-1" />
-                                  Desactivar
-                                </>
-                              ) : (
-                                <>
-                                  <ShieldCheck className="h-4 w-4 mr-1" />
-                                  Activar
-                                </>
-                              )}
-                            </Button>
+                              <SelectTrigger className="w-[160px] h-8"><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                {ALL_ROLES.map(r => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
                           )}
                         </TableCell>
                       </TableRow>
