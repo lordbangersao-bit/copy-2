@@ -580,6 +580,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_access_school: {
+        Args: { _school_id: string; _user_id: string }
+        Returns: boolean
+      }
       get_user_municipality_id: { Args: { _user_id: string }; Returns: string }
       get_user_province_id: { Args: { _user_id: string }; Returns: string }
       get_user_role: {
