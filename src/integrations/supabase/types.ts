@@ -55,6 +55,7 @@ export type Database = {
           email: string | null
           endereco: string | null
           id: string
+          municipality_id: string | null
           nome: string
           prof_feminino: number | null
           prof_masculino: number | null
@@ -133,6 +134,7 @@ export type Database = {
           email?: string | null
           endereco?: string | null
           id?: string
+          municipality_id?: string | null
           nome: string
           prof_feminino?: number | null
           prof_masculino?: number | null
@@ -211,6 +213,7 @@ export type Database = {
           email?: string | null
           endereco?: string | null
           id?: string
+          municipality_id?: string | null
           nome?: string
           prof_feminino?: number | null
           prof_masculino?: number | null
@@ -249,7 +252,15 @@ export type Database = {
           turmas_iniciacao?: number | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "escolas_municipality_id_fkey"
+            columns: ["municipality_id"]
+            isOneToOne: false
+            referencedRelation: "municipalities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       expedientes: {
         Row: {
@@ -309,6 +320,41 @@ export type Database = {
             columns: ["escola_id"]
             isOneToOne: false
             referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      municipalities: {
+        Row: {
+          code: string | null
+          created_at: string
+          id: string
+          name: string
+          province_id: string
+          updated_at: string
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          province_id: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          province_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "municipalities_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "provinces"
             referencedColumns: ["id"]
           },
         ]
@@ -447,12 +493,39 @@ export type Database = {
           },
         ]
       }
+      provinces: {
+        Row: {
+          code: string | null
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           active: boolean
           created_at: string
           id: string
+          municipality_id: string | null
+          province_id: string | null
           role: Database["public"]["Enums"]["app_role"]
+          school_id: string | null
           updated_at: string
           user_id: string
         }
@@ -460,7 +533,10 @@ export type Database = {
           active?: boolean
           created_at?: string
           id?: string
+          municipality_id?: string | null
+          province_id?: string | null
           role?: Database["public"]["Enums"]["app_role"]
+          school_id?: string | null
           updated_at?: string
           user_id: string
         }
@@ -468,21 +544,49 @@ export type Database = {
           active?: boolean
           created_at?: string
           id?: string
+          municipality_id?: string | null
+          province_id?: string | null
           role?: Database["public"]["Enums"]["app_role"]
+          school_id?: string | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_municipality_id_fkey"
+            columns: ["municipality_id"]
+            isOneToOne: false
+            referencedRelation: "municipalities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_roles_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "provinces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_roles_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      get_user_municipality_id: { Args: { _user_id: string }; Returns: string }
+      get_user_province_id: { Args: { _user_id: string }; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      get_user_school_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -493,7 +597,13 @@ export type Database = {
       is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "ADMIN" | "VIEWER"
+      app_role:
+        | "ADMIN"
+        | "VIEWER"
+        | "GESTOR_PROVINCIAL"
+        | "GESTOR_MUNICIPAL"
+        | "DIRECTOR_ESCOLA"
+        | "TECNICO"
       estado_expediente: "SUBMETIDO" | "EM_ANALISE" | "APROVADO" | "REJEITADO"
       tipo_expediente:
         | "MAPA_FALTAS"
@@ -627,7 +737,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["ADMIN", "VIEWER"],
+      app_role: [
+        "ADMIN",
+        "VIEWER",
+        "GESTOR_PROVINCIAL",
+        "GESTOR_MUNICIPAL",
+        "DIRECTOR_ESCOLA",
+        "TECNICO",
+      ],
       estado_expediente: ["SUBMETIDO", "EM_ANALISE", "APROVADO", "REJEITADO"],
       tipo_expediente: [
         "MAPA_FALTAS",
