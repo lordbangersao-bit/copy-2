@@ -14,12 +14,10 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    // Verify the requesting user is an admin
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Não autorizado" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -30,12 +28,10 @@ Deno.serve(async (req) => {
     const { data: { user: requestingUser }, error: authError } = await anonClient.auth.getUser();
     if (authError || !requestingUser) {
       return new Response(JSON.stringify({ error: "Não autorizado" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Check if requesting user is admin
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
     const { data: roleData } = await adminClient
       .from("user_roles")
@@ -46,61 +42,49 @@ Deno.serve(async (req) => {
 
     if (!roleData || roleData.role !== "ADMIN") {
       return new Response(JSON.stringify({ error: "Acesso negado. Apenas administradores." }), {
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Parse request body
-    const { email, password, role } = await req.json();
+    const { email, password, role, province_id, municipality_id, school_id } = await req.json();
 
     if (!email || !password) {
       return new Response(JSON.stringify({ error: "Email e senha são obrigatórios" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Create user with admin client
     const { data: newUser, error: createError } = await adminClient.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
+      email, password, email_confirm: true,
     });
 
     if (createError) {
       return new Response(JSON.stringify({ error: createError.message }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Assign role
     if (newUser.user) {
-      const { error: roleError } = await adminClient
-        .from("user_roles")
-        .insert({
-          user_id: newUser.user.id,
-          role: role || "VIEWER",
-          active: true,
-        });
+      const roleInsert: Record<string, unknown> = {
+        user_id: newUser.user.id,
+        role: role || "VIEWER",
+        active: true,
+      };
+      if (province_id) roleInsert.province_id = province_id;
+      if (municipality_id) roleInsert.municipality_id = municipality_id;
+      if (school_id) roleInsert.school_id = school_id;
 
-      if (roleError) {
-        console.error("Error assigning role:", roleError);
-      }
+      const { error: roleError } = await adminClient.from("user_roles").insert(roleInsert);
+      if (roleError) console.error("Error assigning role:", roleError);
     }
 
     return new Response(
       JSON.stringify({ success: true, user_id: newUser.user?.id }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
     return new Response(JSON.stringify({ error: "Erro interno do servidor" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });

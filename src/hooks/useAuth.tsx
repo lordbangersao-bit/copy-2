@@ -2,50 +2,62 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
-type AppRole = "ADMIN" | "VIEWER" | null;
+export type AppRole = "ADMIN" | "GESTOR_PROVINCIAL" | "GESTOR_MUNICIPAL" | "DIRECTOR_ESCOLA" | "TECNICO" | "VIEWER" | null;
+
+interface UserRoleInfo {
+  role: AppRole;
+  province_id: string | null;
+  municipality_id: string | null;
+  school_id: string | null;
+}
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   role: AppRole;
+  roleInfo: UserRoleInfo;
   isAdmin: boolean;
+  isManager: boolean;
+  canEdit: boolean;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
 
+const defaultRoleInfo: UserRoleInfo = { role: null, province_id: null, municipality_id: null, school_id: null };
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [role, setRole] = useState<AppRole>(null);
+  const [roleInfo, setRoleInfo] = useState<UserRoleInfo>(defaultRoleInfo);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchUserRole = async (userId: string) => {
+  const fetchUserRole = async (userId: string): Promise<UserRoleInfo> => {
     try {
       const { data, error } = await supabase
         .from("user_roles")
-        .select("role, active")
+        .select("role, active, province_id, municipality_id, school_id")
         .eq("user_id", userId)
         .eq("active", true)
         .single();
 
-      if (error) {
-        console.log("No role found for user:", userId);
-        return null;
-      }
+      if (error || !data) return defaultRoleInfo;
 
-      return data?.role as AppRole;
-    } catch (err) {
-      console.error("Error fetching role:", err);
-      return null;
+      return {
+        role: data.role as AppRole,
+        province_id: data.province_id,
+        municipality_id: data.municipality_id,
+        school_id: data.school_id,
+      };
+    } catch {
+      return defaultRoleInfo;
     }
   };
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
@@ -53,27 +65,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (session?.user) {
           setTimeout(() => {
-            fetchUserRole(session.user.id).then((r) => setRole(r || "ADMIN"));
+            fetchUserRole(session.user.id).then((info) =>
+              setRoleInfo(info.role ? info : { ...defaultRoleInfo, role: "ADMIN" })
+            );
           }, 0);
         }
         if (event === "SIGNED_OUT") {
-          setRole(null);
+          setRoleInfo(defaultRoleInfo);
         }
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        fetchUserRole(session.user.id).then((userRole) => {
-          setRole(userRole || "ADMIN");
+        fetchUserRole(session.user.id).then((info) => {
+          setRoleInfo(info.role ? info : { ...defaultRoleInfo, role: "ADMIN" });
           setIsLoading(false);
         });
       } else {
-        setRole(null);
+        setRoleInfo(defaultRoleInfo);
         setIsLoading(false);
       }
     });
@@ -83,17 +96,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        return { error: new Error("Credenciais inválidas") };
-      }
-
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) return { error: new Error("Credenciais inválidas") };
       return { error: null };
-    } catch (err) {
+    } catch {
       return { error: new Error("Credenciais inválidas") };
     }
   };
@@ -101,39 +107,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = async (email: string, password: string) => {
     try {
       const redirectUrl = `${window.location.origin}/`;
-
       const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: redirectUrl,
-        },
+        email, password,
+        options: { emailRedirectTo: redirectUrl },
       });
 
       if (error) {
-        if (error.message.includes("already registered")) {
-          return { error: new Error("Este email já está registado") };
-        }
+        if (error.message.includes("already registered")) return { error: new Error("Este email já está registado") };
         return { error: new Error("Erro ao criar conta") };
       }
 
-      // Create user role as VIEWER by default
       if (data.user) {
-        const { error: roleError } = await supabase
-          .from("user_roles")
-          .insert({
-            user_id: data.user.id,
-            role: "VIEWER",
-            active: true,
-          });
-
-        if (roleError) {
-          console.log("Role creation will be handled by admin:", roleError);
-        }
+        await supabase.from("user_roles").insert({ user_id: data.user.id, role: "VIEWER", active: true });
       }
 
       return { error: null };
-    } catch (err) {
+    } catch {
       return { error: new Error("Erro ao criar conta") };
     }
   };
@@ -142,18 +131,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
-    setRole(null);
+    setRoleInfo(defaultRoleInfo);
   };
 
+  const role = roleInfo.role;
+  const isAdmin = role === "ADMIN";
+  const isManager = ["ADMIN", "GESTOR_PROVINCIAL", "GESTOR_MUNICIPAL"].includes(role || "");
+  const canEdit = ["ADMIN", "GESTOR_PROVINCIAL", "GESTOR_MUNICIPAL", "DIRECTOR_ESCOLA"].includes(role || "");
+
   const value = {
-    user,
-    session,
-    role,
-    isAdmin: role === "ADMIN",
-    isLoading,
-    signIn,
-    signUp,
-    signOut,
+    user, session, role, roleInfo, isAdmin, isManager, canEdit, isLoading,
+    signIn, signUp, signOut,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -161,8 +149,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
+  if (context === undefined) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 }
