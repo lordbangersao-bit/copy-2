@@ -165,7 +165,7 @@ const Index = () => {
         {isProvincial && (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {isAdmin && (
-              <KPICard title="Províncias" value={totalProvincias} icon={<Map className="h-6 w-6" />}
+              <KPICard title="Províncias" value={totalProvincias} icon={<MapIcon className="h-6 w-6" />}
                 variant="info" description="No sistema" onClick={() => navigate("/provincias")} />
             )}
             <KPICard title="Municípios" value={totalMunicipios} icon={<MapPin className="h-6 w-6" />}
