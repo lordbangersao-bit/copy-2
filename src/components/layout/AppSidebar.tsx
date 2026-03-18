@@ -44,6 +44,7 @@ const mainNavItems: NavItem[] = [
 ];
 
 const managementNavItems: NavItem[] = [
+  { path: "/presencas", label: "Presenças", icon: CheckSquare },
   { path: "/expedientes", label: "Expedientes", icon: FileText },
   { path: "/assiduidade", label: "Assiduidade", icon: CheckSquare },
   { path: "/horarios", label: "Colocação e Horários", icon: Calendar },
