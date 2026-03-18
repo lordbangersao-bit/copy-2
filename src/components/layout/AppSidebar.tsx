@@ -40,6 +40,7 @@ const mainNavItems: NavItem[] = [
   { path: "/municipios", label: "Municípios", icon: MapPin, roles: ["ADMIN", "GESTOR_PROVINCIAL"] },
   { path: "/escolas", label: "Unidades Orgânicas", icon: Building2 },
   { path: "/professores", label: "Agentes", icon: Users },
+  { path: "/alunos", label: "Alunos", icon: GraduationCap },
 ];
 
 const managementNavItems: NavItem[] = [
