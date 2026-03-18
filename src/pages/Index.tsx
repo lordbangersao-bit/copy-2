@@ -17,7 +17,7 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Building2, Users, UserCheck, UserX, ArrowRight, GraduationCap,
   ClipboardCheck, FileWarning, AlertTriangle, Briefcase, HardHat, ShieldCheck,
-  BookOpen, MapPin, Map,
+  BookOpen, MapPin, Map as MapIcon,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
