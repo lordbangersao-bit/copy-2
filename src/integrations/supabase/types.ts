@@ -14,6 +14,89 @@ export type Database = {
   }
   public: {
     Tables: {
+      attendance: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          notes: string | null
+          recorded_by: string
+          status: Database["public"]["Enums"]["attendance_status"]
+          student_id: string
+          synced: boolean
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          notes?: string | null
+          recorded_by: string
+          status?: Database["public"]["Enums"]["attendance_status"]
+          student_id: string
+          synced?: boolean
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          notes?: string | null
+          recorded_by?: string
+          status?: Database["public"]["Enums"]["attendance_status"]
+          student_id?: string
+          synced?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_logs: {
+        Row: {
+          action_type: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          new_data: Json | null
+          old_data: Json | null
+          reason: string | null
+          record_id: string | null
+          table_name: string
+          user_id: string | null
+          user_role: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          new_data?: Json | null
+          old_data?: Json | null
+          reason?: string | null
+          record_id?: string | null
+          table_name: string
+          user_id?: string | null
+          user_role?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          new_data?: Json | null
+          old_data?: Json | null
+          reason?: string | null
+          record_id?: string | null
+          table_name?: string
+          user_id?: string | null
+          user_role?: string | null
+        }
+        Relationships: []
+      }
       escolas: {
         Row: {
           alunos_fem_1_classe: number | null
@@ -324,6 +407,94 @@ export type Database = {
           },
         ]
       }
+      grades: {
+        Row: {
+          approved: boolean
+          created_at: string
+          grade: number
+          id: string
+          period: string
+          reason: string | null
+          recorded_by: string
+          student_id: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          approved?: boolean
+          created_at?: string
+          grade: number
+          id?: string
+          period: string
+          reason?: string | null
+          recorded_by: string
+          student_id: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          approved?: boolean
+          created_at?: string
+          grade?: number
+          id?: string
+          period?: string
+          reason?: string | null
+          recorded_by?: string
+          student_id?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grades_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      infrastructure: {
+        Row: {
+          condition: string
+          created_at: string
+          description: string | null
+          id: string
+          quantity: number
+          school_id: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          condition?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          quantity?: number
+          school_id: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          condition?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          quantity?: number
+          school_id?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "infrastructure_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       municipalities: {
         Row: {
           code: string | null
@@ -517,6 +688,59 @@ export type Database = {
         }
         Relationships: []
       }
+      students: {
+        Row: {
+          active: boolean
+          birthdate: string | null
+          class: string
+          created_at: string
+          enrollment_number: string | null
+          gender: string | null
+          guardian_name: string | null
+          guardian_phone: string | null
+          id: string
+          name: string
+          school_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          birthdate?: string | null
+          class: string
+          created_at?: string
+          enrollment_number?: string | null
+          gender?: string | null
+          guardian_name?: string | null
+          guardian_phone?: string | null
+          id?: string
+          name: string
+          school_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          birthdate?: string | null
+          class?: string
+          created_at?: string
+          enrollment_number?: string | null
+          gender?: string | null
+          guardian_name?: string | null
+          guardian_phone?: string | null
+          id?: string
+          name?: string
+          school_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "students_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           active: boolean
@@ -608,6 +832,7 @@ export type Database = {
         | "GESTOR_MUNICIPAL"
         | "DIRECTOR_ESCOLA"
         | "TECNICO"
+      attendance_status: "present" | "absent" | "late"
       estado_expediente: "SUBMETIDO" | "EM_ANALISE" | "APROVADO" | "REJEITADO"
       tipo_expediente:
         | "MAPA_FALTAS"
@@ -749,6 +974,7 @@ export const Constants = {
         "DIRECTOR_ESCOLA",
         "TECNICO",
       ],
+      attendance_status: ["present", "absent", "late"],
       estado_expediente: ["SUBMETIDO", "EM_ANALISE", "APROVADO", "REJEITADO"],
       tipo_expediente: [
         "MAPA_FALTAS",
