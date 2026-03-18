@@ -22,6 +22,9 @@ import GestaoUtilizadores from "./pages/GestaoUtilizadores";
 import ResetPassword from "./pages/ResetPassword";
 import Provincias from "./pages/Provincias";
 import Municipios from "./pages/Municipios";
+import Alunos from "./pages/Alunos";
+import PresencaOffline from "./pages/PresencaOffline";
+import AuditHistory from "./pages/AuditHistory";
 import { AIAssistant } from "./components/AIAssistant";
 
 const queryClient = new QueryClient();
@@ -42,6 +45,8 @@ const App = () => (
             <Route path="/escolas" element={<ProtectedRoute><UnidadesOrganicas /></ProtectedRoute>} />
             <Route path="/unidades-organicas" element={<ProtectedRoute><UnidadesOrganicas /></ProtectedRoute>} />
             <Route path="/professores" element={<ProtectedRoute><Professores /></ProtectedRoute>} />
+            <Route path="/alunos" element={<ProtectedRoute><Alunos /></ProtectedRoute>} />
+            <Route path="/presencas" element={<ProtectedRoute><PresencaOffline /></ProtectedRoute>} />
             <Route path="/expedientes" element={<ProtectedRoute><Expedientes /></ProtectedRoute>} />
             <Route path="/assiduidade" element={<ProtectedRoute><Assiduidade /></ProtectedRoute>} />
             <Route path="/horarios" element={<ProtectedRoute><Horarios /></ProtectedRoute>} />
@@ -51,6 +56,7 @@ const App = () => (
             <Route path="/documentos" element={<ProtectedRoute><Documentos /></ProtectedRoute>} />
             <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
             <Route path="/utilizadores" element={<ProtectedRoute><GestaoUtilizadores /></ProtectedRoute>} />
+            <Route path="/auditoria" element={<ProtectedRoute><AuditHistory /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <AIAssistant />

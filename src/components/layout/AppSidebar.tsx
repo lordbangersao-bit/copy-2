@@ -11,7 +11,7 @@ import {
 import {
   LayoutDashboard, Building2, Users, Calendar, FileText, BarChart3, Settings, LogOut,
   Shield, ChevronLeft, ChevronRight, GraduationCap, ClipboardList, Bell, FolderOpen,
-  CheckSquare, MapPin, Map,
+  CheckSquare, MapPin, Map, History,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -40,9 +40,11 @@ const mainNavItems: NavItem[] = [
   { path: "/municipios", label: "Municípios", icon: MapPin, roles: ["ADMIN", "GESTOR_PROVINCIAL"] },
   { path: "/escolas", label: "Unidades Orgânicas", icon: Building2 },
   { path: "/professores", label: "Agentes", icon: Users },
+  { path: "/alunos", label: "Alunos", icon: GraduationCap },
 ];
 
 const managementNavItems: NavItem[] = [
+  { path: "/presencas", label: "Presenças", icon: CheckSquare },
   { path: "/expedientes", label: "Expedientes", icon: FileText },
   { path: "/assiduidade", label: "Assiduidade", icon: CheckSquare },
   { path: "/horarios", label: "Colocação e Horários", icon: Calendar },
@@ -58,6 +60,7 @@ const systemNavItems: NavItem[] = [
 
 const adminNavItems: NavItem[] = [
   { path: "/utilizadores", label: "Gestão de Utilizadores", icon: Shield, roles: ["ADMIN"] },
+  { path: "/auditoria", label: "Auditoria", icon: History, roles: ["ADMIN", "GESTOR_PROVINCIAL"] },
 ];
 
 interface AppSidebarProps {
