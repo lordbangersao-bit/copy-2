@@ -22,6 +22,9 @@ import GestaoUtilizadores from "./pages/GestaoUtilizadores";
 import ResetPassword from "./pages/ResetPassword";
 import Provincias from "./pages/Provincias";
 import Municipios from "./pages/Municipios";
+import Alunos from "./pages/Alunos";
+import PresencaOffline from "./pages/PresencaOffline";
+import AuditHistory from "./pages/AuditHistory";
 import { AIAssistant } from "./components/AIAssistant";
 
 const queryClient = new QueryClient();
