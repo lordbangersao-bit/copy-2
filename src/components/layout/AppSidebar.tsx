@@ -60,6 +60,7 @@ const systemNavItems: NavItem[] = [
 
 const adminNavItems: NavItem[] = [
   { path: "/utilizadores", label: "Gestão de Utilizadores", icon: Shield, roles: ["ADMIN"] },
+  { path: "/auditoria", label: "Auditoria", icon: History, roles: ["ADMIN", "GESTOR_PROVINCIAL"] },
 ];
 
 interface AppSidebarProps {
