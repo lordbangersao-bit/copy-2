@@ -37,7 +37,7 @@ const roleLabels: Record<string, string> = {
 const mainNavItems: NavItem[] = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
   { path: "/provincias", label: "Províncias", icon: Map, roles: ["ADMIN"] },
-  { path: "/municipios", label: "Municípios", icon: MapPin, roles: ["ADMIN", "GESTOR_PROVINCIAL"] },
+  { path: "/municipios", label: "Municípios (Direcções)", icon: MapPin, roles: ["ADMIN", "GESTOR_PROVINCIAL"] },
   { path: "/escolas", label: "Unidades Orgânicas", icon: Building2 },
   { path: "/professores", label: "Agentes", icon: Users },
   // { path: "/alunos", label: "Alunos", icon: GraduationCap }, // Oculto por enquanto
