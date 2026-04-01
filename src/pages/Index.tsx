@@ -172,8 +172,8 @@ const Index = () => {
               variant="primary" description="Na província" onClick={() => navigate("/municipios")} />
             <KPICard title="Unidades Orgânicas" value={totalEscolas} icon={<Building2 className="h-6 w-6" />}
               variant="secondary" onClick={() => navigate("/escolas")} />
-            <KPICard title="Total de Alunos" value={totalAlunos || totalStudents} icon={<GraduationCap className="h-6 w-6" />}
-              description="Matriculados" onClick={() => navigate("/alunos")} />
+            <KPICard title="Total de Agentes" value={totalProfessores} icon={<Users className="h-6 w-6" />}
+              description="Pessoal docente e não docente" onClick={() => navigate("/professores")} />
           </div>
         )}
 
