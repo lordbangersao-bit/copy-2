@@ -114,7 +114,7 @@ const Index = () => {
 
   const totalEscolas = escolas?.length || 0;
   const totalProfessores = professores?.length || 0;
-  const totalStudents = students?.length || 0;
+  const totalStudents = 0; // Oculto por enquanto
   const professoresAtivos = professores?.filter((p) => p.status === "ativo" || p.actividade?.toLowerCase() === "activo").length || 0;
   const professoresAfastados = professores?.filter((p) => p.status !== "ativo" && p.actividade?.toLowerCase() !== "activo").length || 0;
   const totalAlunos = escolas?.reduce((acc, e) => acc + (e.total_alunos || 0), 0) || 0;
