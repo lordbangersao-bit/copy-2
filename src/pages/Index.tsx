@@ -90,7 +90,7 @@ const Index = () => {
   const { data: provinces } = useProvinces();
   const { data: municipalities } = useMunicipalities(roleInfo.province_id || undefined);
 
-  const isLoading = escolasLoading || professoresLoading || studentsLoading;
+  const isLoading = escolasLoading || professoresLoading;
 
   const { classificacao, subclasses, classificacaoChartData } = useMemo(() => {
     const counts: Record<ClasseFuncionario, number> = { docente: 0, direccao_chefia: 0, administrativo: 0, operario_apoio: 0 };
