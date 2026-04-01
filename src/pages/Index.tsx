@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useEscolas } from "@/hooks/useEscolas";
 import { useProfessores } from "@/hooks/useProfessores";
-import { useStudents } from "@/hooks/useStudents";
+// import { useStudents } from "@/hooks/useStudents"; // Oculto por enquanto
 import { useProvinces } from "@/hooks/useProvinces";
 import { useMunicipalities } from "@/hooks/useMunicipalities";
 import { useAuth } from "@/hooks/useAuth";
@@ -86,11 +86,11 @@ const Index = () => {
   const { role, roleInfo, isAdmin } = useAuth();
   const { data: escolas, isLoading: escolasLoading } = useEscolas();
   const { data: professores, isLoading: professoresLoading } = useProfessores();
-  const { data: students, isLoading: studentsLoading } = useStudents();
+  // const { data: students, isLoading: studentsLoading } = useStudents(); // Oculto
   const { data: provinces } = useProvinces();
   const { data: municipalities } = useMunicipalities(roleInfo.province_id || undefined);
 
-  const isLoading = escolasLoading || professoresLoading || studentsLoading;
+  const isLoading = escolasLoading || professoresLoading;
 
   const { classificacao, subclasses, classificacaoChartData } = useMemo(() => {
     const counts: Record<ClasseFuncionario, number> = { docente: 0, direccao_chefia: 0, administrativo: 0, operario_apoio: 0 };
@@ -114,7 +114,7 @@ const Index = () => {
 
   const totalEscolas = escolas?.length || 0;
   const totalProfessores = professores?.length || 0;
-  const totalStudents = students?.length || 0;
+  const totalStudents = 0; // Oculto por enquanto
   const professoresAtivos = professores?.filter((p) => p.status === "ativo" || p.actividade?.toLowerCase() === "activo").length || 0;
   const professoresAfastados = professores?.filter((p) => p.status !== "ativo" && p.actividade?.toLowerCase() !== "activo").length || 0;
   const totalAlunos = escolas?.reduce((acc, e) => acc + (e.total_alunos || 0), 0) || 0;
@@ -156,7 +156,7 @@ const Index = () => {
             <div className="stats-grid">
               <div className="stat-box"><div className="value">{totalEscolas}</div><div className="label">Unidades Orgânicas</div></div>
               <div className="stat-box"><div className="value">{totalProfessores}</div><div className="label">Total de Agentes</div></div>
-              <div className="stat-box"><div className="value">{totalStudents}</div><div className="label">Alunos Registados</div></div>
+              <div className="stat-box"><div className="value">{totalMunicipios}</div><div className="label">Municípios</div></div>
             </div>
           </PrintableReport>
         </div>
@@ -172,8 +172,8 @@ const Index = () => {
               variant="primary" description="Na província" onClick={() => navigate("/municipios")} />
             <KPICard title="Unidades Orgânicas" value={totalEscolas} icon={<Building2 className="h-6 w-6" />}
               variant="secondary" onClick={() => navigate("/escolas")} />
-            <KPICard title="Total de Alunos" value={totalAlunos || totalStudents} icon={<GraduationCap className="h-6 w-6" />}
-              description="Matriculados" onClick={() => navigate("/alunos")} />
+            <KPICard title="Total de Agentes" value={totalProfessores} icon={<Users className="h-6 w-6" />}
+              description="Pessoal docente e não docente" onClick={() => navigate("/professores")} />
           </div>
         )}
 
@@ -182,20 +182,18 @@ const Index = () => {
           <div className="grid gap-4 md:grid-cols-3">
             <KPICard title="Escolas no Município" value={totalEscolas} icon={<Building2 className="h-6 w-6" />}
               variant="primary" onClick={() => navigate("/escolas")} />
-            <KPICard title="Alunos" value={totalAlunos || totalStudents} icon={<GraduationCap className="h-6 w-6" />}
-              variant="secondary" onClick={() => navigate("/alunos")} />
             <KPICard title="Agentes" value={totalProfessores} icon={<Users className="h-6 w-6" />}
-              onClick={() => navigate("/professores")} />
+              variant="secondary" onClick={() => navigate("/professores")} />
+            <KPICard title="Agentes Activos" value={professoresAtivos} icon={<UserCheck className="h-6 w-6" />}
+              description={`${totalProfessores > 0 ? ((professoresAtivos / totalProfessores) * 100).toFixed(0) : 0}%`} />
           </div>
         )}
 
         {/* School director level KPIs */}
         {role === "DIRECTOR_ESCOLA" && (
-          <div className="grid gap-4 md:grid-cols-4">
-            <KPICard title="Alunos" value={totalStudents} icon={<GraduationCap className="h-6 w-6" />}
-              variant="primary" onClick={() => navigate("/alunos")} />
+          <div className="grid gap-4 md:grid-cols-3">
             <KPICard title="Agentes" value={totalProfessores} icon={<Users className="h-6 w-6" />}
-              variant="secondary" onClick={() => navigate("/professores")} />
+              variant="primary" onClick={() => navigate("/professores")} />
             <KPICard title="Agentes Activos" value={professoresAtivos} icon={<UserCheck className="h-6 w-6" />}
               description={`${totalProfessores > 0 ? ((professoresAtivos / totalProfessores) * 100).toFixed(0) : 0}%`} />
             <KPICard title="Agentes Afastados" value={professoresAfastados} icon={<UserX className="h-6 w-6" />}
@@ -205,10 +203,9 @@ const Index = () => {
 
         {/* Technician/Viewer - simplified KPIs */}
         {(role === "TECNICO" || role === "VIEWER") && (
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2">
             <KPICard title="Escolas" value={totalEscolas} icon={<Building2 className="h-6 w-6" />} variant="primary" />
             <KPICard title="Agentes" value={totalProfessores} icon={<Users className="h-6 w-6" />} variant="secondary" />
-            <KPICard title="Alunos" value={totalStudents} icon={<GraduationCap className="h-6 w-6" />} />
           </div>
         )}
 
@@ -219,9 +216,7 @@ const Index = () => {
         </div>
 
         {/* Secondary KPIs */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <KPICard title="Alunos Registados" value={totalStudents} icon={<GraduationCap className="h-6 w-6" />}
-            description="No sistema de alunos" onClick={() => navigate("/alunos")} />
+        <div className="grid gap-4 md:grid-cols-2">
           <KPICard title="Total de Docentes" value={totalDocentes} icon={<ClipboardCheck className="h-6 w-6" />}
             description="Registados nas unidades" onClick={() => navigate("/professores")} />
           <KPICard title="Processos Abertos" value={0} icon={<FileWarning className="h-6 w-6" />}
