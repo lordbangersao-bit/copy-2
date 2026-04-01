@@ -182,20 +182,18 @@ const Index = () => {
           <div className="grid gap-4 md:grid-cols-3">
             <KPICard title="Escolas no Município" value={totalEscolas} icon={<Building2 className="h-6 w-6" />}
               variant="primary" onClick={() => navigate("/escolas")} />
-            <KPICard title="Alunos" value={totalAlunos || totalStudents} icon={<GraduationCap className="h-6 w-6" />}
-              variant="secondary" onClick={() => navigate("/alunos")} />
             <KPICard title="Agentes" value={totalProfessores} icon={<Users className="h-6 w-6" />}
-              onClick={() => navigate("/professores")} />
+              variant="secondary" onClick={() => navigate("/professores")} />
+            <KPICard title="Agentes Activos" value={professoresAtivos} icon={<UserCheck className="h-6 w-6" />}
+              description={`${totalProfessores > 0 ? ((professoresAtivos / totalProfessores) * 100).toFixed(0) : 0}%`} />
           </div>
         )}
 
         {/* School director level KPIs */}
         {role === "DIRECTOR_ESCOLA" && (
-          <div className="grid gap-4 md:grid-cols-4">
-            <KPICard title="Alunos" value={totalStudents} icon={<GraduationCap className="h-6 w-6" />}
-              variant="primary" onClick={() => navigate("/alunos")} />
+          <div className="grid gap-4 md:grid-cols-3">
             <KPICard title="Agentes" value={totalProfessores} icon={<Users className="h-6 w-6" />}
-              variant="secondary" onClick={() => navigate("/professores")} />
+              variant="primary" onClick={() => navigate("/professores")} />
             <KPICard title="Agentes Activos" value={professoresAtivos} icon={<UserCheck className="h-6 w-6" />}
               description={`${totalProfessores > 0 ? ((professoresAtivos / totalProfessores) * 100).toFixed(0) : 0}%`} />
             <KPICard title="Agentes Afastados" value={professoresAfastados} icon={<UserX className="h-6 w-6" />}
@@ -205,10 +203,9 @@ const Index = () => {
 
         {/* Technician/Viewer - simplified KPIs */}
         {(role === "TECNICO" || role === "VIEWER") && (
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2">
             <KPICard title="Escolas" value={totalEscolas} icon={<Building2 className="h-6 w-6" />} variant="primary" />
             <KPICard title="Agentes" value={totalProfessores} icon={<Users className="h-6 w-6" />} variant="secondary" />
-            <KPICard title="Alunos" value={totalStudents} icon={<GraduationCap className="h-6 w-6" />} />
           </div>
         )}
 
