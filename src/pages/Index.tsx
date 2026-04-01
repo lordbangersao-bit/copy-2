@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useEscolas } from "@/hooks/useEscolas";
 import { useProfessores } from "@/hooks/useProfessores";
-import { useStudents } from "@/hooks/useStudents";
+// import { useStudents } from "@/hooks/useStudents"; // Oculto por enquanto
 import { useProvinces } from "@/hooks/useProvinces";
 import { useMunicipalities } from "@/hooks/useMunicipalities";
 import { useAuth } from "@/hooks/useAuth";
