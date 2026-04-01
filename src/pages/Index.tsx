@@ -216,9 +216,7 @@ const Index = () => {
         </div>
 
         {/* Secondary KPIs */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <KPICard title="Alunos Registados" value={totalStudents} icon={<GraduationCap className="h-6 w-6" />}
-            description="No sistema de alunos" onClick={() => navigate("/alunos")} />
+        <div className="grid gap-4 md:grid-cols-2">
           <KPICard title="Total de Docentes" value={totalDocentes} icon={<ClipboardCheck className="h-6 w-6" />}
             description="Registados nas unidades" onClick={() => navigate("/professores")} />
           <KPICard title="Processos Abertos" value={0} icon={<FileWarning className="h-6 w-6" />}
