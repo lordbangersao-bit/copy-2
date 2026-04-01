@@ -86,7 +86,7 @@ const Index = () => {
   const { role, roleInfo, isAdmin } = useAuth();
   const { data: escolas, isLoading: escolasLoading } = useEscolas();
   const { data: professores, isLoading: professoresLoading } = useProfessores();
-  const { data: students, isLoading: studentsLoading } = useStudents();
+  // const { data: students, isLoading: studentsLoading } = useStudents(); // Oculto
   const { data: provinces } = useProvinces();
   const { data: municipalities } = useMunicipalities(roleInfo.province_id || undefined);
 
