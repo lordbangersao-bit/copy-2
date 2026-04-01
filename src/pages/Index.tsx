@@ -156,7 +156,7 @@ const Index = () => {
             <div className="stats-grid">
               <div className="stat-box"><div className="value">{totalEscolas}</div><div className="label">Unidades Orgânicas</div></div>
               <div className="stat-box"><div className="value">{totalProfessores}</div><div className="label">Total de Agentes</div></div>
-              <div className="stat-box"><div className="value">{totalStudents}</div><div className="label">Alunos Registados</div></div>
+              <div className="stat-box"><div className="value">{totalMunicipios}</div><div className="label">Municípios</div></div>
             </div>
           </PrintableReport>
         </div>
