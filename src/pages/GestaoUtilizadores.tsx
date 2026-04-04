@@ -207,7 +207,7 @@ export default function GestaoUtilizadores() {
       )}
       {roleNeedsSchool(role) && municipalityId && (
         <div className="space-y-2">
-          <Label className="flex items-center gap-1"><Building2 className="h-3.5 w-3.5" />Escola</Label>
+          <Label className="flex items-center gap-1"><Building2 className="h-3.5 w-3.5" />Escola <span className="text-destructive">*</span></Label>
           <Select value={schoolId} onValueChange={setSchool}>
             <SelectTrigger><SelectValue placeholder="Selecione a escola..." /></SelectTrigger>
             <SelectContent>{filteredSchls?.map(e => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}</SelectContent>
