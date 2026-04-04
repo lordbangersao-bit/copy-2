@@ -189,7 +189,7 @@ export default function GestaoUtilizadores() {
     <>
       {roleNeedsProvince(role) && (
         <div className="space-y-2">
-          <Label className="flex items-center gap-1"><Map className="h-3.5 w-3.5" />Província</Label>
+          <Label className="flex items-center gap-1"><Map className="h-3.5 w-3.5" />Província <span className="text-destructive">*</span></Label>
           <Select value={provinceId} onValueChange={v => { setProvince(v); setMunicipality(""); setSchool(""); }}>
             <SelectTrigger><SelectValue placeholder="Selecione a província..." /></SelectTrigger>
             <SelectContent>{provinces?.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
