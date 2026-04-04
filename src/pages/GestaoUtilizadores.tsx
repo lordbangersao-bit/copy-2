@@ -114,6 +114,9 @@ export default function GestaoUtilizadores() {
   const handleCreateUser = async () => {
     if (!newEmail || !newPassword) { toast.error("Preencha todos os campos"); return; }
     if (newPassword.length < 6) { toast.error("Senha mínima de 6 caracteres"); return; }
+    if (roleNeedsProvince(newRole) && !newProvinceId) { toast.error("Selecione a província para este papel"); return; }
+    if (roleNeedsMunicipality(newRole) && !newMunicipalityId) { toast.error("Selecione o município ao qual o utilizador ficará vinculado"); return; }
+    if (roleNeedsSchool(newRole) && !newSchoolId) { toast.error("Selecione a escola para este papel"); return; }
 
     setIsCreating(true);
     try {
