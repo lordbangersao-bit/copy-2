@@ -198,7 +198,7 @@ export default function GestaoUtilizadores() {
       )}
       {roleNeedsMunicipality(role) && provinceId && (
         <div className="space-y-2">
-          <Label className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />Município</Label>
+          <Label className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />Município (Vínculo Obrigatório) <span className="text-destructive">*</span></Label>
           <Select value={municipalityId} onValueChange={v => { setMunicipality(v); setSchool(""); }}>
             <SelectTrigger><SelectValue placeholder="Selecione o município..." /></SelectTrigger>
             <SelectContent>{filteredMuns?.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent>
