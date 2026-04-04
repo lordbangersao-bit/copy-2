@@ -114,6 +114,9 @@ export default function GestaoUtilizadores() {
   const handleCreateUser = async () => {
     if (!newEmail || !newPassword) { toast.error("Preencha todos os campos"); return; }
     if (newPassword.length < 6) { toast.error("Senha mínima de 6 caracteres"); return; }
+    if (roleNeedsProvince(newRole) && !newProvinceId) { toast.error("Selecione a província para este papel"); return; }
+    if (roleNeedsMunicipality(newRole) && !newMunicipalityId) { toast.error("Selecione o município ao qual o utilizador ficará vinculado"); return; }
+    if (roleNeedsSchool(newRole) && !newSchoolId) { toast.error("Selecione a escola para este papel"); return; }
 
     setIsCreating(true);
     try {
@@ -147,6 +150,9 @@ export default function GestaoUtilizadores() {
 
   const handleSaveEdit = () => {
     if (!editUser) return;
+    if (roleNeedsProvince(editRole) && !editProvinceId) { toast.error("Selecione a província"); return; }
+    if (roleNeedsMunicipality(editRole) && !editMunicipalityId) { toast.error("Selecione o município"); return; }
+    if (roleNeedsSchool(editRole) && !editSchoolId) { toast.error("Selecione a escola"); return; }
     updateRoleMutation.mutate({
       id: editUser.id,
       role: editRole,
@@ -183,7 +189,7 @@ export default function GestaoUtilizadores() {
     <>
       {roleNeedsProvince(role) && (
         <div className="space-y-2">
-          <Label className="flex items-center gap-1"><Map className="h-3.5 w-3.5" />Província</Label>
+          <Label className="flex items-center gap-1"><Map className="h-3.5 w-3.5" />Província <span className="text-destructive">*</span></Label>
           <Select value={provinceId} onValueChange={v => { setProvince(v); setMunicipality(""); setSchool(""); }}>
             <SelectTrigger><SelectValue placeholder="Selecione a província..." /></SelectTrigger>
             <SelectContent>{provinces?.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
@@ -192,7 +198,7 @@ export default function GestaoUtilizadores() {
       )}
       {roleNeedsMunicipality(role) && provinceId && (
         <div className="space-y-2">
-          <Label className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />Município</Label>
+          <Label className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />Município (Vínculo Obrigatório) <span className="text-destructive">*</span></Label>
           <Select value={municipalityId} onValueChange={v => { setMunicipality(v); setSchool(""); }}>
             <SelectTrigger><SelectValue placeholder="Selecione o município..." /></SelectTrigger>
             <SelectContent>{filteredMuns?.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}</SelectContent>
@@ -201,7 +207,7 @@ export default function GestaoUtilizadores() {
       )}
       {roleNeedsSchool(role) && municipalityId && (
         <div className="space-y-2">
-          <Label className="flex items-center gap-1"><Building2 className="h-3.5 w-3.5" />Escola</Label>
+          <Label className="flex items-center gap-1"><Building2 className="h-3.5 w-3.5" />Escola <span className="text-destructive">*</span></Label>
           <Select value={schoolId} onValueChange={setSchool}>
             <SelectTrigger><SelectValue placeholder="Selecione a escola..." /></SelectTrigger>
             <SelectContent>{filteredSchls?.map(e => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}</SelectContent>
