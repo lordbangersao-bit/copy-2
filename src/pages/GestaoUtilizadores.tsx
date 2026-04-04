@@ -150,6 +150,9 @@ export default function GestaoUtilizadores() {
 
   const handleSaveEdit = () => {
     if (!editUser) return;
+    if (roleNeedsProvince(editRole) && !editProvinceId) { toast.error("Selecione a província"); return; }
+    if (roleNeedsMunicipality(editRole) && !editMunicipalityId) { toast.error("Selecione o município"); return; }
+    if (roleNeedsSchool(editRole) && !editSchoolId) { toast.error("Selecione a escola"); return; }
     updateRoleMutation.mutate({
       id: editUser.id,
       role: editRole,
