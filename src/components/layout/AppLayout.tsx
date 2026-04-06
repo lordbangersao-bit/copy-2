@@ -11,6 +11,7 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => window.innerWidth < 1024);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  useInactivityTimeout();
 
   // Close mobile menu on route change or screen resize, auto-collapse on small screens
   useEffect(() => {
