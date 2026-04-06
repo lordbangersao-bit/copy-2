@@ -136,7 +136,8 @@ export default function Professores() {
       !search ||
       professor.nome.toLowerCase().includes(search.toLowerCase()) ||
       professor.funcao?.toLowerCase().includes(search.toLowerCase()) ||
-      professor.numero_agente?.toLowerCase().includes(search.toLowerCase());
+      professor.numero_agente?.toLowerCase().includes(search.toLowerCase()) ||
+      professor.cpf?.toLowerCase().includes(search.toLowerCase());
     const matchesCategoria = !categoriaFilter || categoriaFilter === "all" || professor.categoria === categoriaFilter;
     const matchesFuncao = !funcaoFilter || funcaoFilter === "all" || professor.funcao === funcaoFilter;
     const matchesGenero = !generoFilter || generoFilter === "all" || professor.genero === generoFilter;
@@ -486,7 +487,7 @@ export default function Professores() {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="Pesquisar por nome, função ou nº agente..."
+                  placeholder="Pesquisar por nome, nº agente ou nº BI..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-10"

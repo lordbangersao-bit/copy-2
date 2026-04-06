@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useProvinces } from "@/hooks/useProvinces";
-import { useMunicipalities, useCreateMunicipality } from "@/hooks/useMunicipalities";
+import { useMunicipalities, useCreateMunicipality, useDeleteMunicipality } from "@/hooks/useMunicipalities";
 import { useEscolas } from "@/hooks/useEscolas";
 import { useProfessores } from "@/hooks/useProfessores";
 import { useAuth } from "@/hooks/useAuth";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { MapPin, Plus, Building2, Search, Users, ChevronDown, ChevronRight } from "lucide-react";
+import { MapPin, Plus, Building2, Search, Users, ChevronDown, ChevronRight, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 
@@ -26,6 +27,7 @@ export default function Municipios() {
   const { data: escolas } = useEscolas();
   const { data: professores } = useProfessores();
   const createMunicipality = useCreateMunicipality();
+  const deleteMunicipality = useDeleteMunicipality();
 
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -33,13 +35,31 @@ export default function Municipios() {
   const [provinceId, setProvinceId] = useState("");
   const [search, setSearch] = useState("");
   const [expandedMun, setExpandedMun] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
   const canCreate = isAdmin || role === "GESTOR_PROVINCIAL";
+  const canDelete = isAdmin || role === "GESTOR_PROVINCIAL";
 
-  const filtered = municipalities?.filter(m => m.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = municipalities?.filter(m =>
+    m.name.toLowerCase().includes(search.toLowerCase()) ||
+    m.code?.toLowerCase().includes(search.toLowerCase())
+  );
   const getSchools = (munId: string) => escolas?.filter(e => e.municipality_id === munId) || [];
   const getTeachers = (schoolId: string) => professores?.filter(p => p.escola_id === schoolId) || [];
   const getProvinceName = (provId: string) => provinces?.find(p => p.id === provId)?.name || "-";
+
+  // Search agents within expanded municipality by numero_agente or cpf
+  const [agentSearch, setAgentSearch] = useState("");
+  const filterAgents = (schoolId: string) => {
+    const teachers = getTeachers(schoolId);
+    if (!agentSearch) return teachers;
+    const q = agentSearch.toLowerCase();
+    return teachers.filter(t =>
+      t.nome.toLowerCase().includes(q) ||
+      t.numero_agente?.toLowerCase().includes(q) ||
+      t.cpf?.toLowerCase().includes(q)
+    );
+  };
 
   const totalSchools = escolas?.length || 0;
   const totalTeachers = professores?.length || 0;
@@ -48,6 +68,13 @@ export default function Municipios() {
     if (!name.trim() || !provinceId) return;
     createMunicipality.mutate({ name, province_id: provinceId, code: code || undefined }, {
       onSuccess: () => { setOpen(false); setName(""); setCode(""); setProvinceId(""); },
+    });
+  };
+
+  const handleDelete = () => {
+    if (!deleteTarget) return;
+    deleteMunicipality.mutate(deleteTarget.id, {
+      onSuccess: () => setDeleteTarget(null),
     });
   };
 
@@ -118,7 +145,7 @@ export default function Municipios() {
 
               return (
                 <Card key={mun.id} className="overflow-hidden">
-                  <Collapsible open={isExpanded} onOpenChange={() => setExpandedMun(isExpanded ? null : mun.id)}>
+                  <Collapsible open={isExpanded} onOpenChange={() => { setExpandedMun(isExpanded ? null : mun.id); setAgentSearch(""); }}>
                     <CollapsibleTrigger asChild>
                       <CardContent className="p-4 cursor-pointer hover:bg-muted/30 transition-colors">
                         <div className="flex items-center justify-between">
@@ -137,33 +164,69 @@ export default function Municipios() {
                               <span className="flex items-center gap-1"><Building2 className="h-4 w-4" />{munSchools.length} escolas</span>
                               <span className="flex items-center gap-1"><Users className="h-4 w-4" />{munTeachers.length} agentes</span>
                             </div>
+                            {canDelete && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                onClick={(e) => { e.stopPropagation(); setDeleteTarget({ id: mun.id, name: mun.name }); }}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
                             {isExpanded ? <ChevronDown className="h-5 w-5 text-muted-foreground" /> : <ChevronRight className="h-5 w-5 text-muted-foreground" />}
                           </div>
                         </div>
                       </CardContent>
                     </CollapsibleTrigger>
                     <CollapsibleContent>
-                      <div className="border-t px-4 py-3 space-y-2 bg-muted/10">
+                      <div className="border-t px-4 py-3 space-y-3 bg-muted/10">
+                        {/* Agent search within municipality */}
+                        <div className="relative max-w-sm">
+                          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                          <Input
+                            placeholder="Pesquisar por nome, nº agente ou nº BI..."
+                            value={agentSearch}
+                            onChange={e => setAgentSearch(e.target.value)}
+                            className="pl-10 h-9 text-sm"
+                          />
+                        </div>
                         {munSchools.length === 0 ? (
                           <p className="text-sm text-muted-foreground py-2">Nenhuma escola associada a este município</p>
                         ) : (
                           munSchools.map(school => {
-                            const teachers = getTeachers(school.id);
+                            const teachers = filterAgents(school.id);
                             return (
-                              <div key={school.id} className="flex items-center justify-between rounded-lg border bg-card px-4 py-3">
-                                <div className="flex items-center gap-3">
-                                  <Building2 className="h-4 w-4 text-primary" />
-                                  <div>
-                                    <p className="font-medium text-sm">{school.nome}</p>
-                                    {school.diretor && <p className="text-xs text-muted-foreground">Dir: {school.diretor}</p>}
+                              <div key={school.id} className="space-y-1">
+                                <div className="flex items-center justify-between rounded-lg border bg-card px-4 py-3">
+                                  <div className="flex items-center gap-3">
+                                    <Building2 className="h-4 w-4 text-primary" />
+                                    <div>
+                                      <p className="font-medium text-sm">{school.nome}</p>
+                                      {school.diretor && <p className="text-xs text-muted-foreground">Dir: {school.diretor}</p>}
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    <Badge variant="secondary" className="text-xs font-mono">{teachers.length} agentes</Badge>
+                                    {school.total_alunos ? (
+                                      <Badge variant="outline" className="text-xs font-mono">{school.total_alunos} alunos</Badge>
+                                    ) : null}
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                  <Badge variant="secondary" className="text-xs font-mono">{teachers.length} agentes</Badge>
-                                  {school.total_alunos ? (
-                                    <Badge variant="outline" className="text-xs font-mono">{school.total_alunos} alunos</Badge>
-                                  ) : null}
-                                </div>
+                                {/* Show matching agents when searching */}
+                                {agentSearch && teachers.length > 0 && (
+                                  <div className="ml-8 space-y-1">
+                                    {teachers.map(t => (
+                                      <div key={t.id} className="flex items-center justify-between rounded bg-background px-3 py-2 text-sm border">
+                                        <span className="font-medium">{t.nome}</span>
+                                        <div className="flex gap-2 text-xs text-muted-foreground">
+                                          {t.numero_agente && <span>Ag: {t.numero_agente}</span>}
+                                          {t.cpf && <span>BI: {t.cpf}</span>}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
                             );
                           })
@@ -179,6 +242,16 @@ export default function Municipios() {
           <Card><CardContent className="py-12 text-center text-muted-foreground">Nenhum município encontrado</CardContent></Card>
         )}
       </div>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(v) => !v && setDeleteTarget(null)}
+        title="Remover Município"
+        description={`Tem a certeza que deseja remover o município "${deleteTarget?.name}"? Esta ação não pode ser desfeita. Escolas vinculadas perderão a associação.`}
+        onConfirm={handleDelete}
+        confirmText="Remover"
+        variant="destructive"
+      />
     </AppLayout>
   );
 }
