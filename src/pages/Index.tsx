@@ -67,11 +67,11 @@ function StaffSubclassBreakdown({ subclasses, isLoading }: { subclasses: { subcl
 }
 
 // --- Role-specific dashboard header ---
-function RoleBanner({ role, roleInfo }: { role: string | null; roleInfo: any }) {
+function RoleBanner({ role, roleInfo, municipalityName }: { role: string | null; roleInfo: any; municipalityName?: string }) {
   const labels: Record<string, { title: string; desc: string }> = {
     ADMIN: { title: "Painel Administrativo", desc: "Visão geral completa do sistema" },
     GESTOR_PROVINCIAL: { title: "Dashboard Provincial", desc: "Dados agregados da província" },
-    GESTOR_MUNICIPAL: { title: "Dashboard Municipal", desc: "Dados do município sob sua gestão" },
+    GESTOR_MUNICIPAL: { title: `Dashboard — ${municipalityName || "Município"}`, desc: "Dados do município sob sua gestão" },
     DIRECTOR_ESCOLA: { title: "Dashboard da Escola", desc: "Dados internos da unidade orgânica" },
     TECNICO: { title: "Painel do Técnico", desc: "Visualização de dados (somente leitura)" },
     VIEWER: { title: "Dashboard", desc: "Visão geral do sistema" },
