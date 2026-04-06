@@ -147,11 +147,22 @@ const Index = () => {
   const isProvincial = role === "GESTOR_PROVINCIAL" || isAdmin;
   const isMunicipal = role === "GESTOR_MUNICIPAL";
 
-  return (
-    <AppLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <RoleBanner role={role} roleInfo={roleInfo} />
+  // Get municipality name for municipal user
+  const municipalityName = isMunicipal
+    ? municipalities?.find(m => m.id === roleInfo.municipality_id)?.name
+    : undefined;
+
+  // Municipality breakdown data for provincial/admin view
+  const municipalityBreakdown = useMemo(() => {
+    if (!isProvincial || !municipalities || !escolas || !professores) return [];
+    return municipalities.map(mun => {
+      const munSchools = escolas.filter(e => e.municipality_id === mun.id);
+      const munSchoolIds = new Set(munSchools.map(s => s.id));
+      const munAgents = professores.filter(p => p.escola_id && munSchoolIds.has(p.escola_id));
+      const activos = munAgents.filter(p => p.actividade?.toLowerCase() === "activo" || p.status === "ativo").length;
+      return { id: mun.id, name: mun.name, schools: munSchools.length, agents: munAgents.length, activos };
+    }).sort((a, b) => b.agents - a.agents);
+  }, [isProvincial, municipalities, escolas, professores]);
           <PrintableReport title="Relatório Geral — Dashboard">
             <div className="stats-grid">
               <div className="stat-box"><div className="value">{totalEscolas}</div><div className="label">Unidades Orgânicas</div></div>
