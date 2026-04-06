@@ -226,6 +226,39 @@ const Index = () => {
           </div>
         )}
 
+        {/* Municipality Breakdown - Provincial/Admin only */}
+        {isProvincial && municipalityBreakdown.length > 0 && (
+          <div>
+            <h2 className="text-lg font-semibold mb-3 text-foreground">Dados por Município</h2>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {municipalityBreakdown.map(mun => (
+                <Card key={mun.id} className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => navigate("/municipios")}>
+                  <CardContent className="p-4 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-primary" />
+                      <h3 className="font-semibold text-sm">{mun.name}</h3>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div>
+                        <p className="text-lg font-bold">{mun.schools}</p>
+                        <p className="text-xs text-muted-foreground">Escolas</p>
+                      </div>
+                      <div>
+                        <p className="text-lg font-bold">{mun.agents}</p>
+                        <p className="text-xs text-muted-foreground">Agentes</p>
+                      </div>
+                      <div>
+                        <p className="text-lg font-bold text-success">{mun.activos}</p>
+                        <p className="text-xs text-muted-foreground">Activos</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Staff Classification (all roles) */}
         <div>
           <h2 className="text-lg font-semibold mb-3 text-foreground">Classificação do Pessoal</h2>
