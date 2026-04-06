@@ -2,6 +2,7 @@ import { ReactNode, useState, useEffect } from "react";
 import { AppSidebar } from "./AppSidebar";
 import { Header } from "./Header";
 import { cn } from "@/lib/utils";
+import { useInactivityTimeout } from "@/hooks/useInactivityTimeout";
 
 interface AppLayoutProps {
   children: ReactNode;
