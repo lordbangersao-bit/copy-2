@@ -36,3 +36,15 @@ export function useCreateMunicipality() {
     onError: (e) => toast.error("Erro: " + e.message),
   });
 }
+
+export function useDeleteMunicipality() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("municipalities").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["municipalities"] }); toast.success("Município removido"); },
+    onError: (e) => toast.error("Erro ao remover: " + e.message),
+  });
+}

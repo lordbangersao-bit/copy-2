@@ -136,7 +136,8 @@ export default function Professores() {
       !search ||
       professor.nome.toLowerCase().includes(search.toLowerCase()) ||
       professor.funcao?.toLowerCase().includes(search.toLowerCase()) ||
-      professor.numero_agente?.toLowerCase().includes(search.toLowerCase());
+      professor.numero_agente?.toLowerCase().includes(search.toLowerCase()) ||
+      professor.cpf?.toLowerCase().includes(search.toLowerCase());
     const matchesCategoria = !categoriaFilter || categoriaFilter === "all" || professor.categoria === categoriaFilter;
     const matchesFuncao = !funcaoFilter || funcaoFilter === "all" || professor.funcao === funcaoFilter;
     const matchesGenero = !generoFilter || generoFilter === "all" || professor.genero === generoFilter;
