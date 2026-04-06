@@ -163,6 +163,12 @@ const Index = () => {
       return { id: mun.id, name: mun.name, schools: munSchools.length, agents: munAgents.length, activos };
     }).sort((a, b) => b.agents - a.agents);
   }, [isProvincial, municipalities, escolas, professores]);
+
+  return (
+    <AppLayout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <RoleBanner role={role} roleInfo={roleInfo} municipalityName={municipalityName} />
           <PrintableReport title="Relatório Geral — Dashboard">
             <div className="stats-grid">
               <div className="stat-box"><div className="value">{totalEscolas}</div><div className="label">Unidades Orgânicas</div></div>
