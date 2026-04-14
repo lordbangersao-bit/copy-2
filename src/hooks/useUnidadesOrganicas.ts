@@ -100,15 +100,20 @@ export interface UnidadeOrganica {
 
 export type UnidadeOrganicaInput = Omit<UnidadeOrganica, "id" | "created_at" | "updated_at">;
 
-export function useUnidadesOrganicas() {
+export function useUnidadesOrganicas(municipalityId?: string) {
   return useQuery({
-    queryKey: ["escolas"],
+    queryKey: ["escolas", municipalityId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("escolas")
         .select("*")
         .order("nome");
       
+      if (municipalityId) {
+        query = query.eq("municipality_id", municipalityId);
+      }
+      
+      const { data, error } = await query;
       if (error) throw error;
       return data as UnidadeOrganica[];
     },
