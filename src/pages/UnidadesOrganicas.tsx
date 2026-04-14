@@ -80,7 +80,11 @@ interface EfectivosStats {
 export default function UnidadesOrganicas() {
   const { isAdmin, role, roleInfo } = useAuth();
   const [searchParams] = useSearchParams();
-  const municipioId = searchParams.get("municipio") || undefined;
+  const paramMunicipioId = searchParams.get("municipio") || undefined;
+  
+  // Auto-filter: municipal managers see only their municipality
+  const municipioId = paramMunicipioId || 
+    (role === "GESTOR_MUNICIPAL" && roleInfo.municipality_id ? roleInfo.municipality_id : undefined);
   
   const { data: municipalities } = useMunicipalities(roleInfo.province_id || undefined);
   const municipioNome = municipioId
