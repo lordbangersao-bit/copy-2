@@ -20,6 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default function Municipios() {
+  const navigate = useNavigate();
   const { role, roleInfo, isAdmin } = useAuth();
   const { data: provinces } = useProvinces();
   const { data: municipalities, isLoading } = useMunicipalities(
