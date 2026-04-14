@@ -162,6 +162,16 @@ export default function Municipios() {
                             {mun.code && <Badge variant="outline" className="text-xs">{mun.code}</Badge>}
                           </div>
                           <div className="flex items-center gap-4">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs gap-1"
+                              onClick={(e) => { e.stopPropagation(); navigate(`/escolas?municipio=${mun.id}`); }}
+                            >
+                              <Building2 className="h-3 w-3" />
+                              Gerir Escolas
+                              <ArrowRight className="h-3 w-3" />
+                            </Button>
                             <div className="flex gap-4 text-sm text-muted-foreground">
                               <span className="flex items-center gap-1"><Building2 className="h-4 w-4" />{munSchools.length} escolas</span>
                               <span className="flex items-center gap-1"><Users className="h-4 w-4" />{munTeachers.length} agentes</span>
