@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useSearchParams, Link } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -23,6 +24,7 @@ import {
   UnidadeOrganicaInput,
 } from "@/hooks/useUnidadesOrganicas";
 import { useProfessores } from "@/hooks/useProfessores";
+import { useMunicipalities } from "@/hooks/useMunicipalities";
 import { useAuth } from "@/hooks/useAuth";
 import {
   classificarFuncionario,
@@ -76,8 +78,16 @@ interface EfectivosStats {
 }
 
 export default function UnidadesOrganicas() {
-  const { isAdmin } = useAuth();
-  const { data: unidades, isLoading, error } = useUnidadesOrganicas();
+  const { isAdmin, role, roleInfo } = useAuth();
+  const [searchParams] = useSearchParams();
+  const municipioId = searchParams.get("municipio") || undefined;
+  
+  const { data: municipalities } = useMunicipalities(roleInfo.province_id || undefined);
+  const municipioNome = municipioId
+    ? municipalities?.find(m => m.id === municipioId)?.name
+    : undefined;
+
+  const { data: unidades, isLoading, error } = useUnidadesOrganicas(municipioId);
   const { data: professores, isLoading: professoresLoading } = useProfessores();
   const createUnidade = useCreateUnidadeOrganica();
   const updateUnidade = useUpdateUnidadeOrganica();
@@ -162,7 +172,8 @@ export default function UnidadesOrganicas() {
   );
 
   const handleCreate = (data: UnidadeOrganicaInput) => {
-    createUnidade.mutate(data);
+    const payload = municipioId ? { ...data, municipality_id: municipioId } : data;
+    createUnidade.mutate(payload as any);
   };
 
   const handleUpdate = (data: UnidadeOrganicaInput) => {
@@ -217,16 +228,25 @@ export default function UnidadesOrganicas() {
       <div className="space-y-6">
         {/* Page Header */}
         <PageHeader
-          title="Unidades Orgânicas"
-          description="Gestão das escolas e unidades educacionais do município"
+          title={municipioNome ? `Unidades Orgânicas — ${municipioNome}` : "Unidades Orgânicas"}
+          description={municipioNome ? `Gestão das escolas do município de ${municipioNome}` : "Gestão das escolas e unidades educacionais"}
           icon={<Building2 className="h-6 w-6" />}
           badge={
-            !isAdmin ? (
-              <Badge variant="secondary" className="gap-1">
-                <Lock className="h-3 w-3" />
-                Visualização
-              </Badge>
-            ) : null
+            <>
+              {municipioId && (
+                <Link to="/escolas">
+                  <Badge variant="outline" className="gap-1 cursor-pointer hover:bg-muted">
+                    ✕ Limpar filtro
+                  </Badge>
+                </Link>
+              )}
+              {!isAdmin ? (
+                <Badge variant="secondary" className="gap-1">
+                  <Lock className="h-3 w-3" />
+                  Visualização
+                </Badge>
+              ) : null}
+            </>
           }
           actions={
             isAdmin ? (

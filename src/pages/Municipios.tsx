@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useProvinces } from "@/hooks/useProvinces";
 import { useMunicipalities, useCreateMunicipality, useDeleteMunicipality } from "@/hooks/useMunicipalities";
@@ -14,11 +15,12 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { MapPin, Plus, Building2, Search, Users, ChevronDown, ChevronRight, Trash2 } from "lucide-react";
+import { MapPin, Plus, Building2, Search, Users, ChevronDown, ChevronRight, Trash2, ArrowRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 
 export default function Municipios() {
+  const navigate = useNavigate();
   const { role, roleInfo, isAdmin } = useAuth();
   const { data: provinces } = useProvinces();
   const { data: municipalities, isLoading } = useMunicipalities(
@@ -160,6 +162,16 @@ export default function Municipios() {
                             {mun.code && <Badge variant="outline" className="text-xs">{mun.code}</Badge>}
                           </div>
                           <div className="flex items-center gap-4">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs gap-1"
+                              onClick={(e) => { e.stopPropagation(); navigate(`/escolas?municipio=${mun.id}`); }}
+                            >
+                              <Building2 className="h-3 w-3" />
+                              Gerir Escolas
+                              <ArrowRight className="h-3 w-3" />
+                            </Button>
                             <div className="flex gap-4 text-sm text-muted-foreground">
                               <span className="flex items-center gap-1"><Building2 className="h-4 w-4" />{munSchools.length} escolas</span>
                               <span className="flex items-center gap-1"><Users className="h-4 w-4" />{munTeachers.length} agentes</span>
