@@ -233,7 +233,7 @@ const Index = () => {
             <h2 className="text-lg font-semibold mb-3 text-foreground">Dados por Município</h2>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {municipalityBreakdown.map(mun => (
-                <Card key={mun.id} className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => navigate("/municipios")}>
+                <Card key={mun.id} className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => navigate(`/escolas?municipio=${mun.id}`)}>
                   <CardContent className="p-4 space-y-2">
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-primary" />
