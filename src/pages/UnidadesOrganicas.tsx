@@ -247,13 +247,6 @@ export default function UnidadesOrganicas() {
               ) : null}
             </>
           }
-            !isAdmin ? (
-              <Badge variant="secondary" className="gap-1">
-                <Lock className="h-3 w-3" />
-                Visualização
-              </Badge>
-            ) : null
-          }
           actions={
             isAdmin ? (
               <div className="flex items-center gap-2">
