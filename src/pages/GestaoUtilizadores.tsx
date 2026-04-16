@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth, AppRole } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,6 +6,7 @@ import { useProvinces } from "@/hooks/useProvinces";
 import { useMunicipalities } from "@/hooks/useMunicipalities";
 import { useEscolas } from "@/hooks/useEscolas";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,8 +17,15 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-import { Shield, UserPlus, Users, ShieldCheck, Eye, Search, RefreshCw, UserCog, Lock, Map, MapPin, Building2, Pencil } from "lucide-react";
+import { Shield, UserPlus, Users, ShieldCheck, Eye, Search, RefreshCw, UserCog, Lock, Map, MapPin, Building2, Pencil, Trash2, KeyRound, MoreHorizontal, Ban, Copy, UserX } from "lucide-react";
 import { Navigate } from "react-router-dom";
 
 const ALL_ROLES: { value: string; label: string; description: string }[] = [
@@ -48,6 +56,22 @@ function roleNeedsSchool(role: string) {
   return ["DIRECTOR_ESCOLA", "TECNICO"].includes(role);
 }
 
+function generatePassword(length = 10) {
+  const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const lower = "abcdefghjkmnpqrstuvwxyz";
+  const digits = "23456789";
+  const special = "!@#$%&*";
+  const all = upper + lower + digits + special;
+  let pw = upper[Math.floor(Math.random() * upper.length)]
+    + lower[Math.floor(Math.random() * lower.length)]
+    + digits[Math.floor(Math.random() * digits.length)]
+    + special[Math.floor(Math.random() * special.length)];
+  for (let i = pw.length; i < length; i++) {
+    pw += all[Math.floor(Math.random() * all.length)];
+  }
+  return pw.split("").sort(() => Math.random() - 0.5).join("");
+}
+
 export default function GestaoUtilizadores() {
   const { isAdmin, user } = useAuth();
   const queryClient = useQueryClient();
@@ -72,6 +96,16 @@ export default function GestaoUtilizadores() {
   const [editMunicipalityId, setEditMunicipalityId] = useState("");
   const [editSchoolId, setEditSchoolId] = useState("");
 
+  // Delete user
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; user_id: string } | null>(null);
+
+  // Reset password
+  const [resetTarget, setResetTarget] = useState<{ id: string; user_id: string; email?: string } | null>(null);
+  const [resetPassword, setResetPassword] = useState("");
+
+  // Email map
+  const [emailMap, setEmailMap] = useState<Record<string, string>>({});
+
   const { data: users = [], isLoading, refetch } = useQuery({
     queryKey: ["user-roles"],
     queryFn: async () => {
@@ -84,6 +118,22 @@ export default function GestaoUtilizadores() {
     },
     enabled: isAdmin,
   });
+
+  // Fetch emails for all users
+  useEffect(() => {
+    if (!isAdmin || users.length === 0) return;
+    const fetchEmails = async () => {
+      try {
+        const response = await supabase.functions.invoke("admin-create-user", {
+          body: { action: "list_users" },
+        });
+        if (response.data?.emailMap) {
+          setEmailMap(response.data.emailMap);
+        }
+      } catch { /* ignore */ }
+    };
+    fetchEmails();
+  }, [isAdmin, users]);
 
   const toggleActiveMutation = useMutation({
     mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
@@ -98,7 +148,7 @@ export default function GestaoUtilizadores() {
     mutationFn: async ({ id, role, province_id, municipality_id, school_id }: {
       id: string; role: string; province_id?: string | null; municipality_id?: string | null; school_id?: string | null;
     }) => {
-      const update: Record<string, unknown> = { 
+      const update: Record<string, unknown> = {
         role,
         province_id: province_id || null,
         municipality_id: municipality_id || null,
@@ -109,6 +159,36 @@ export default function GestaoUtilizadores() {
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["user-roles"] }); toast.success("Papel e âmbito actualizados"); },
     onError: () => toast.error("Erro ao actualizar"),
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const response = await supabase.functions.invoke("admin-create-user", {
+        body: { action: "delete", user_id: userId },
+      });
+      if (response.error) throw new Error(response.error.message);
+      if (response.data?.error) throw new Error(response.data.error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-roles"] });
+      toast.success("Utilizador eliminado com sucesso");
+      setDeleteTarget(null);
+    },
+    onError: (err: Error) => toast.error(err.message || "Erro ao eliminar utilizador"),
+  });
+
+  const resetPasswordMutation = useMutation({
+    mutationFn: async ({ userId, newPassword }: { userId: string; newPassword: string }) => {
+      const response = await supabase.functions.invoke("admin-create-user", {
+        body: { action: "reset_password", user_id: userId, new_password: newPassword },
+      });
+      if (response.error) throw new Error(response.error.message);
+      if (response.data?.error) throw new Error(response.data.error);
+    },
+    onSuccess: () => {
+      toast.success("Senha redefinida com sucesso");
+    },
+    onError: (err: Error) => toast.error(err.message || "Erro ao redefinir senha"),
   });
 
   const handleCreateUser = async () => {
@@ -127,6 +207,7 @@ export default function GestaoUtilizadores() {
 
       const response = await supabase.functions.invoke("admin-create-user", { body });
       if (response.error) throw new Error(response.error.message);
+      if (response.data?.error) throw new Error(response.data.error);
 
       toast.success(`Utilizador ${newEmail} criado`);
       setNewEmail(""); setNewPassword(""); setNewRole("VIEWER");
@@ -162,10 +243,31 @@ export default function GestaoUtilizadores() {
     }, { onSuccess: () => setEditUser(null) });
   };
 
+  const handleResetPassword = () => {
+    if (!resetTarget || !resetPassword) return;
+    resetPasswordMutation.mutate(
+      { userId: resetTarget.user_id, newPassword: resetPassword },
+      {
+        onSuccess: () => {
+          // Keep dialog open to let admin copy password
+        },
+      }
+    );
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Copiado para a área de transferência");
+  };
+
   if (!isAdmin) return <Navigate to="/" replace />;
 
-  const filteredUsers = users.filter(u => u.user_id?.toLowerCase().includes(searchQuery.toLowerCase()));
-  
+  const filteredUsers = users.filter(u => {
+    const email = emailMap[u.user_id] || "";
+    return u.user_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      email.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+
   // Create dialog filters
   const createFilteredMunicipalities = newProvinceId ? allMunicipalities?.filter(m => m.province_id === newProvinceId) : allMunicipalities;
   const createFilteredSchools = newMunicipalityId ? escolas?.filter(e => e.municipality_id === newMunicipalityId) : [];
@@ -177,6 +279,9 @@ export default function GestaoUtilizadores() {
   const getProvinceName = (id: string | null) => id ? provinces?.find(p => p.id === id)?.name : null;
   const getMunicipalityName = (id: string | null) => id ? allMunicipalities?.find(m => m.id === id)?.name : null;
   const getSchoolName = (id: string | null) => id ? escolas?.find(e => e.id === id)?.nome : null;
+
+  const activeUsers = users.filter(u => u.active).length;
+  const suspendedUsers = users.filter(u => !u.active).length;
 
   const renderHierarchySelects = (
     role: string,
@@ -230,6 +335,35 @@ export default function GestaoUtilizadores() {
           </div>
         </div>
 
+        {/* Summary cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-2xl font-bold">{users.length}</p>
+              <p className="text-xs text-muted-foreground">Total de Utilizadores</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-2xl font-bold text-green-600">{activeUsers}</p>
+              <p className="text-xs text-muted-foreground">Activos</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-2xl font-bold text-orange-600">{suspendedUsers}</p>
+              <p className="text-xs text-muted-foreground">Suspensos</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-2xl font-bold text-amber-600">{users.filter(u => u.role === "ADMIN").length}</p>
+              <p className="text-xs text-muted-foreground">Administradores</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Role breakdown */}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           {ALL_ROLES.map(r => (
             <Card key={r.value} className="border-l-4" style={{ borderLeftColor: `var(--${r.value === 'ADMIN' ? 'warning' : 'primary'})` }}>
@@ -258,9 +392,26 @@ export default function GestaoUtilizadores() {
                       <DialogDescription>Crie credenciais com papel hierárquico</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2"><Label>Email</Label><Input type="email" placeholder="email@dmen.gov.ao" value={newEmail} onChange={e => setNewEmail(e.target.value)} /></div>
-                        <div className="space-y-2"><Label>Senha</Label><Input type="password" placeholder="Mín. 6 caracteres" value={newPassword} onChange={e => setNewPassword(e.target.value)} /></div>
+                      <div className="space-y-2">
+                        <Label>Email</Label>
+                        <Input type="email" placeholder="email@dmen.gov.ao" value={newEmail} onChange={e => setNewEmail(e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Senha</Label>
+                        <div className="flex gap-2">
+                          <Input type="text" placeholder="Mín. 6 caracteres" value={newPassword} onChange={e => setNewPassword(e.target.value)} className="flex-1" />
+                          <Button type="button" variant="outline" size="sm" onClick={() => setNewPassword(generatePassword())}>
+                            <KeyRound className="h-4 w-4 mr-1" />Gerar
+                          </Button>
+                        </div>
+                        {newPassword && (
+                          <div className="flex items-center gap-2 p-2 rounded bg-muted">
+                            <code className="text-sm font-mono flex-1">{newPassword}</code>
+                            <Button type="button" variant="ghost" size="sm" onClick={() => copyToClipboard(newPassword)}>
+                              <Copy className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        )}
                       </div>
                       <div className="space-y-2">
                         <Label>Papel no Sistema</Label>
@@ -296,7 +447,7 @@ export default function GestaoUtilizadores() {
             <Separator className="mt-4" />
             <div className="relative mt-4">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Pesquisar por ID..." className="pl-10" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+              <Input placeholder="Pesquisar por email ou ID..." className="pl-10" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
             </div>
           </CardHeader>
           <CardContent>
@@ -312,7 +463,7 @@ export default function GestaoUtilizadores() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/50">
-                      <TableHead>ID</TableHead>
+                      <TableHead>Utilizador</TableHead>
                       <TableHead>Papel</TableHead>
                       <TableHead>Âmbito Hierárquico</TableHead>
                       <TableHead>Estado</TableHead>
@@ -321,51 +472,88 @@ export default function GestaoUtilizadores() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredUsers.map(u => (
-                      <TableRow key={u.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm font-mono">{u.user_id.substring(0, 8)}...</p>
-                            {u.user_id === user?.id && <Badge variant="outline" className="text-[10px]">Você</Badge>}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={roleColors[u.role] || ""}>
-                            {ALL_ROLES.find(r => r.value === u.role)?.label || u.role}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-xs text-muted-foreground">
-                          {getProvinceName(u.province_id) && <div className="flex items-center gap-1"><Map className="h-3 w-3" />{getProvinceName(u.province_id)}</div>}
-                          {getMunicipalityName(u.municipality_id) && <div className="flex items-center gap-1"><MapPin className="h-3 w-3" />{getMunicipalityName(u.municipality_id)}</div>}
-                          {getSchoolName(u.school_id) && <div className="flex items-center gap-1"><Building2 className="h-3 w-3" />{getSchoolName(u.school_id)}</div>}
-                          {!u.province_id && !u.municipality_id && !u.school_id && <span className="italic">Global</span>}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <Switch
-                              checked={u.active}
-                              onCheckedChange={checked => toggleActiveMutation.mutate({ id: u.id, active: checked })}
-                              disabled={u.user_id === user?.id}
-                            />
-                            <Badge variant={u.active ? "default" : "secondary"} className={u.active ? "bg-green-500/10 text-green-700 border-green-200" : ""}>
-                              {u.active ? "Activo" : "Inactivo"}
+                    {filteredUsers.map(u => {
+                      const email = emailMap[u.user_id] || "";
+                      const isSelf = u.user_id === user?.id;
+                      return (
+                        <TableRow key={u.id} className={!u.active ? "opacity-60" : ""}>
+                          <TableCell>
+                            <div>
+                              <p className="text-sm font-medium">{email || <span className="text-muted-foreground italic">Sem email</span>}</p>
+                              <p className="text-xs text-muted-foreground font-mono">{u.user_id.substring(0, 8)}...</p>
+                              {isSelf && <Badge variant="outline" className="text-[10px] mt-1">Você</Badge>}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={roleColors[u.role] || ""}>
+                              {ALL_ROLES.find(r => r.value === u.role)?.label || u.role}
                             </Badge>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {new Date(u.created_at).toLocaleDateString("pt-AO", { day: "2-digit", month: "2-digit", year: "numeric" })}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {u.user_id === user?.id ? (
-                            <span className="text-xs text-muted-foreground italic">Sessão actual</span>
-                          ) : (
-                            <Button variant="outline" size="sm" onClick={() => openEditDialog(u)}>
-                              <Pencil className="h-3.5 w-3.5 mr-1" />Editar
-                            </Button>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                          </TableCell>
+                          <TableCell className="text-xs text-muted-foreground">
+                            {getProvinceName(u.province_id) && <div className="flex items-center gap-1"><Map className="h-3 w-3" />{getProvinceName(u.province_id)}</div>}
+                            {getMunicipalityName(u.municipality_id) && <div className="flex items-center gap-1"><MapPin className="h-3 w-3" />{getMunicipalityName(u.municipality_id)}</div>}
+                            {getSchoolName(u.school_id) && <div className="flex items-center gap-1"><Building2 className="h-3 w-3" />{getSchoolName(u.school_id)}</div>}
+                            {!u.province_id && !u.municipality_id && !u.school_id && <span className="italic">Global</span>}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Switch
+                                checked={u.active}
+                                onCheckedChange={checked => toggleActiveMutation.mutate({ id: u.id, active: checked })}
+                                disabled={isSelf}
+                              />
+                              <Badge variant={u.active ? "default" : "secondary"} className={u.active ? "bg-green-500/10 text-green-700 border-green-200" : "bg-red-500/10 text-red-700 border-red-200"}>
+                                {u.active ? "Activo" : "Suspenso"}
+                              </Badge>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {new Date(u.created_at).toLocaleDateString("pt-AO", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {isSelf ? (
+                              <span className="text-xs text-muted-foreground italic">Sessão actual</span>
+                            ) : (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="outline" size="sm">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => openEditDialog(u)}>
+                                    <Pencil className="h-4 w-4 mr-2" />
+                                    Editar Papel / Âmbito
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => {
+                                    setResetTarget({ id: u.id, user_id: u.user_id, email });
+                                    setResetPassword("");
+                                  }}>
+                                    <KeyRound className="h-4 w-4 mr-2" />
+                                    Redefinir Senha
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onClick={() => toggleActiveMutation.mutate({ id: u.id, active: !u.active })}
+                                  >
+                                    <Ban className="h-4 w-4 mr-2" />
+                                    {u.active ? "Suspender Acesso" : "Reactivar Acesso"}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    className="text-destructive focus:text-destructive"
+                                    onClick={() => setDeleteTarget({ id: u.id, user_id: u.user_id })}
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Eliminar Utilizador
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
@@ -379,7 +567,9 @@ export default function GestaoUtilizadores() {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2"><Pencil className="h-5 w-5 text-primary" />Editar Papel e Âmbito</DialogTitle>
               <DialogDescription>
-                Utilizador: <span className="font-mono">{editUser?.user_id?.substring(0, 12)}...</span>
+                {editUser && emailMap[editUser.user_id]
+                  ? <span>{emailMap[editUser.user_id]}</span>
+                  : <span className="font-mono">{editUser?.user_id?.substring(0, 12)}...</span>}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -414,6 +604,60 @@ export default function GestaoUtilizadores() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Reset Password Dialog */}
+        <Dialog open={!!resetTarget} onOpenChange={open => { if (!open) { setResetTarget(null); setResetPassword(""); } }}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2"><KeyRound className="h-5 w-5 text-primary" />Redefinir Senha</DialogTitle>
+              <DialogDescription>
+                {resetTarget?.email || <span className="font-mono">{resetTarget?.user_id?.substring(0, 12)}...</span>}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Nova Senha</Label>
+                <div className="flex gap-2">
+                  <Input type="text" placeholder="Mín. 6 caracteres" value={resetPassword} onChange={e => setResetPassword(e.target.value)} className="flex-1" />
+                  <Button type="button" variant="outline" size="sm" onClick={() => setResetPassword(generatePassword())}>
+                    <KeyRound className="h-4 w-4 mr-1" />Gerar
+                  </Button>
+                </div>
+                {resetPassword && (
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-muted border">
+                    <code className="text-sm font-mono flex-1 select-all">{resetPassword}</code>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => copyToClipboard(resetPassword)}>
+                      <Copy className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Gere ou insira uma nova senha. Copie-a antes de guardar — não será possível visualizá-la depois.
+                </p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => { setResetTarget(null); setResetPassword(""); }}>Cancelar</Button>
+              <Button
+                onClick={handleResetPassword}
+                disabled={!resetPassword || resetPassword.length < 6 || resetPasswordMutation.isPending}
+              >
+                {resetPasswordMutation.isPending ? "A redefinir..." : "Redefinir Senha"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation */}
+        <ConfirmDialog
+          open={!!deleteTarget}
+          onOpenChange={open => { if (!open) setDeleteTarget(null); }}
+          title="Eliminar Utilizador"
+          description="Tem certeza que deseja eliminar este utilizador permanentemente? Esta acção não pode ser desfeita e todos os dados de acesso serão removidos."
+          onConfirm={() => deleteTarget && deleteUserMutation.mutate(deleteTarget.user_id)}
+          confirmText="Eliminar"
+          variant="destructive"
+        />
       </div>
     </AppLayout>
   );
