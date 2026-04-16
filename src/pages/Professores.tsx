@@ -170,7 +170,7 @@ export default function Professores() {
   };
 
   const openEdit = (professor: Professor) => {
-    if (!isAdmin) return;
+    if (!canEdit) return;
     setEditingProfessor(professor);
     setFormOpen(true);
   };
@@ -336,11 +336,11 @@ export default function Professores() {
       <div className="space-y-6">
         {/* Page Header */}
         <PageHeader
-          title="Agentes"
-          description="Gestão dos agentes da educação do município"
+          title={municipalityName ? `Agentes — ${municipalityName}` : "Agentes"}
+          description={municipalityName ? `Gestão dos agentes do município de ${municipalityName}` : "Gestão dos agentes da educação"}
           icon={<Users className="h-6 w-6" />}
           badge={
-            !isAdmin ? (
+            !canEdit ? (
               <Badge variant="secondary" className="gap-1">
                 <Lock className="h-3 w-3" />
                 Visualização
@@ -348,7 +348,7 @@ export default function Professores() {
             ) : null
           }
           actions={
-            isAdmin ? (
+            canEdit ? (
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
                   <Upload className="h-4 w-4 mr-2" />
@@ -368,11 +368,11 @@ export default function Professores() {
         />
 
         {/* View Mode Alert */}
-        {!isAdmin && (
+        {!canEdit && (
           <Alert className="border-warning/50 bg-warning/5">
             <Lock className="h-4 w-4 text-warning" />
             <AlertDescription>
-              Você está em modo de visualização. Apenas administradores podem
+              Você está em modo de visualização. Apenas gestores podem
               criar, editar ou excluir registos.
             </AlertDescription>
           </Alert>
@@ -714,7 +714,7 @@ export default function Professores() {
                             <FileDown className="h-4 w-4 mr-2" />
                             Ficha Resumida
                           </DropdownMenuItem>
-                          {isAdmin && (
+                          {canEdit && (
                             <>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem onClick={() => openEdit(professor)}>
@@ -751,7 +751,7 @@ export default function Professores() {
                   : "Comece adicionando o primeiro agente ao sistema"
               }
               action={
-                !search && !escolaFilter && isAdmin
+                !search && !escolaFilter && canEdit
                   ? {
                       label: "Cadastrar Agente",
                       onClick: () => setFormOpen(true),
@@ -931,7 +931,7 @@ export default function Professores() {
       </Dialog>
 
       {/* Forms - Only for Admin */}
-      {isAdmin && (
+      {canEdit && (
         <>
           <ProfessorForm
             open={formOpen}
