@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useMunicipalities } from "@/hooks/useMunicipalities";
 import * as XLSX from "xlsx";
 import { getOfficialPrintHTML, openPrintWindow } from "@/lib/printTemplate";
 import { calcularIdade, calcularTempoServico, calcularTempoServicoAnos } from "@/lib/calcularAgente";
