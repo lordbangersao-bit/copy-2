@@ -77,7 +77,11 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function Professores() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, canEdit, role, roleInfo } = useAuth();
+  const { data: municipalities } = useMunicipalities(roleInfo.province_id || undefined);
+  const municipalityName = role === "GESTOR_MUNICIPAL" && roleInfo.municipality_id
+    ? municipalities?.find(m => m.id === roleInfo.municipality_id)?.name
+    : undefined;
   const { data: escolas } = useEscolas();
   const [escolaFilter, setEscolaFilter] = useState<string>("");
   const [categoriaFilter, setCategoriaFilter] = useState<string>("");
