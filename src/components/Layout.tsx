@@ -43,7 +43,7 @@ export function Layout({ children }: LayoutProps) {
               <Building2 className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-foreground">DMEN Gestor</h1>
+              <h1 className="text-lg font-bold text-foreground">SGRH</h1>
               <p className="text-xs text-muted-foreground">Direcção Municipal da Educação de Namacunde</p>
             </div>
           </div>

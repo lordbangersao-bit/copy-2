@@ -74,7 +74,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         <footer className="border-t px-4 lg:px-6 py-4 text-center text-sm text-muted-foreground">
           <p>
             © {new Date().getFullYear()} Direcção Municipal da Educação de Namacunde •
-            Sistema de Gestão Educacional v2.0
+            Sistema de Gestão de Recursos Humanos v2.0
           </p>
         </footer>
       </div>

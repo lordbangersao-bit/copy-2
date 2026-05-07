@@ -533,7 +533,7 @@ export function EmissaoDocumentosDialog({
                         <SelectTrigger id="banco">
                           <SelectValue placeholder="Seleccione o banco..." />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="max-h-64 overflow-y-auto">
                           {BANCOS_ANGOLA.map((banco) => (
                             <SelectItem key={banco} value={banco}>
                               {banco}
