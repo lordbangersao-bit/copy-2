@@ -73,17 +73,18 @@ export function Header({ onMobileMenuToggle, sidebarCollapsed }: HeaderProps) {
 
         {/* Right section */}
         <div className="flex items-center gap-2">
-          {/* Global Search */}
-          <div className="relative hidden md:block">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Pesquisar..."
-              className="w-64 pl-9 bg-muted/50 border-0 focus:bg-background focus:ring-1"
-            />
-            <kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-50 sm:flex">
+          {/* Global Search - opens Command Palette */}
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
+            className="relative hidden md:flex items-center w-64 h-9 pl-9 pr-3 rounded-md bg-muted/50 border border-transparent hover:bg-background hover:border-border text-sm text-muted-foreground text-left transition"
+          >
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
+            Pesquisar...
+            <kbd className="ml-auto pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-70 sm:flex">
               ⌘K
             </kbd>
-          </div>
+          </button>
 
           {/* Mobile search toggle */}
           <Button
