@@ -156,12 +156,27 @@ export function useUpdateExpedienteEstado() {
       if (error) throw error;
       return data;
     },
+    onMutate: async ({ id, estado, observacoes_revisao }) => {
+      await queryClient.cancelQueries({ queryKey: ["expedientes"] });
+      const previous = queryClient.getQueryData<Expediente[]>(["expedientes"]);
+      queryClient.setQueryData<Expediente[]>(["expedientes"], (old) =>
+        (old || []).map((e) =>
+          e.id === id
+            ? { ...e, estado, observacoes_revisao: observacoes_revisao ?? e.observacoes_revisao }
+            : e
+        )
+      );
+      return { previous };
+    },
+    onError: (error: any, _vars, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(["expedientes"], ctx.previous);
+      toast.error("Erro ao atualizar expediente: " + error.message);
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["expedientes"] });
       toast.success("Estado do expediente atualizado");
     },
-    onError: (error: any) => {
-      toast.error("Erro ao atualizar expediente: " + error.message);
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["expedientes"] });
     },
   });
 }
