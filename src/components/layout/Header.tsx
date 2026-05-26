@@ -91,7 +91,7 @@ export function Header({ onMobileMenuToggle, sidebarCollapsed }: HeaderProps) {
             variant="ghost"
             size="icon"
             className="md:hidden"
-            onClick={() => setSearchOpen(!searchOpen)}
+            onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
           >
             <Search className="h-5 w-5" />
           </Button>
