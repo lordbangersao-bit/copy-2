@@ -53,6 +53,31 @@ export const getTipoLabel = (tipo: TipoExpediente) => TIPO_LABELS[tipo] || tipo;
 export const getEstadoLabel = (estado: EstadoExpediente) => ESTADO_LABELS[estado] || estado;
 
 export function useExpedientes() {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("expedientes-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "expedientes" },
+        (payload) => {
+          queryClient.invalidateQueries({ queryKey: ["expedientes"] });
+          if (payload.eventType === "INSERT") {
+            toast.info("Novo expediente submetido");
+          } else if (payload.eventType === "UPDATE") {
+            const novo = payload.new as any;
+            if (novo?.estado === "APROVADO") toast.success(`Expediente aprovado: ${novo.titulo}`);
+            if (novo?.estado === "REJEITADO") toast.error(`Expediente rejeitado: ${novo.titulo}`);
+          }
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
   return useQuery({
     queryKey: ["expedientes"],
     queryFn: async () => {
