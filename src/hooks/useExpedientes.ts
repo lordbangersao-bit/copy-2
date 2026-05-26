@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -52,6 +53,31 @@ export const getTipoLabel = (tipo: TipoExpediente) => TIPO_LABELS[tipo] || tipo;
 export const getEstadoLabel = (estado: EstadoExpediente) => ESTADO_LABELS[estado] || estado;
 
 export function useExpedientes() {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("expedientes-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "expedientes" },
+        (payload) => {
+          queryClient.invalidateQueries({ queryKey: ["expedientes"] });
+          if (payload.eventType === "INSERT") {
+            toast.info("Novo expediente submetido");
+          } else if (payload.eventType === "UPDATE") {
+            const novo = payload.new as any;
+            if (novo?.estado === "APROVADO") toast.success(`Expediente aprovado: ${novo.titulo}`);
+            if (novo?.estado === "REJEITADO") toast.error(`Expediente rejeitado: ${novo.titulo}`);
+          }
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
   return useQuery({
     queryKey: ["expedientes"],
     queryFn: async () => {
@@ -130,12 +156,27 @@ export function useUpdateExpedienteEstado() {
       if (error) throw error;
       return data;
     },
+    onMutate: async ({ id, estado, observacoes_revisao }) => {
+      await queryClient.cancelQueries({ queryKey: ["expedientes"] });
+      const previous = queryClient.getQueryData<Expediente[]>(["expedientes"]);
+      queryClient.setQueryData<Expediente[]>(["expedientes"], (old) =>
+        (old || []).map((e) =>
+          e.id === id
+            ? { ...e, estado, observacoes_revisao: observacoes_revisao ?? e.observacoes_revisao }
+            : e
+        )
+      );
+      return { previous };
+    },
+    onError: (error: any, _vars, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(["expedientes"], ctx.previous);
+      toast.error("Erro ao atualizar expediente: " + error.message);
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["expedientes"] });
       toast.success("Estado do expediente atualizado");
     },
-    onError: (error: any) => {
-      toast.error("Erro ao atualizar expediente: " + error.message);
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["expedientes"] });
     },
   });
 }

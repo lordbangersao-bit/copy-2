@@ -3,6 +3,7 @@ import { AppSidebar } from "./AppSidebar";
 import { Header } from "./Header";
 import { cn } from "@/lib/utils";
 import { useInactivityTimeout } from "@/hooks/useInactivityTimeout";
+import { toast } from "sonner";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -23,7 +24,20 @@ export function AppLayout({ children }: AppLayoutProps) {
     };
 
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+
+    const handleOffline = () =>
+      toast.warning("Sem conexão à internet", {
+        description: "Algumas acções poderão estar indisponíveis.",
+      });
+    const handleOnline = () => toast.success("Conexão restabelecida");
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
+    };
   }, []);
 
   return (
