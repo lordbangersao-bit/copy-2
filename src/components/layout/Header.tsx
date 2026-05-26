@@ -30,18 +30,18 @@ export function Header({ onMobileMenuToggle, sidebarCollapsed }: HeaderProps) {
   const [isDark, setIsDark] = useState(false);
 
   // Monitor online status
-  useState(() => {
+  useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
-    
+
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
-    
+
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
-  });
+  }, []);
 
   const toggleTheme = () => {
     setIsDark(!isDark);
