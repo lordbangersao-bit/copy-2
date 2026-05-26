@@ -24,7 +24,20 @@ export function AppLayout({ children }: AppLayoutProps) {
     };
 
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+
+    const handleOffline = () =>
+      toast.warning("Sem conexão à internet", {
+        description: "Algumas acções poderão estar indisponíveis.",
+      });
+    const handleOnline = () => toast.success("Conexão restabelecida");
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
+    };
   }, []);
 
   return (
