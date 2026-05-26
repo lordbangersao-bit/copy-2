@@ -26,6 +26,7 @@ import Alunos from "./pages/Alunos";
 import PresencaOffline from "./pages/PresencaOffline";
 import AuditHistory from "./pages/AuditHistory";
 import { AIAssistant } from "./components/AIAssistant";
+import { CommandPalette } from "./components/CommandPalette";
 
 const queryClient = new QueryClient();
 
