@@ -3,6 +3,7 @@ import { AppSidebar } from "./AppSidebar";
 import { Header } from "./Header";
 import { cn } from "@/lib/utils";
 import { useInactivityTimeout } from "@/hooks/useInactivityTimeout";
+import { toast } from "sonner";
 
 interface AppLayoutProps {
   children: ReactNode;
