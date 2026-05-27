@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
-export type AppRole = "ADMIN" | "GESTOR_PROVINCIAL" | "GESTOR_MUNICIPAL" | "DIRECTOR_ESCOLA" | "TECNICO" | "VIEWER" | null;
+export type AppRole = "ADMIN" | "GESTOR_PROVINCIAL" | "VALIDADOR_PROVINCIAL" | "GESTOR_MUNICIPAL" | "DIRECTOR_ESCOLA" | "TECNICO" | "VIEWER" | "AUDITOR" | null;
 
 interface UserRoleInfo {
   role: AppRole;
@@ -19,6 +19,8 @@ interface AuthContextType {
   isAdmin: boolean;
   isManager: boolean;
   canEdit: boolean;
+  canValidate: boolean;
+  isAuditor: boolean;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
@@ -138,9 +140,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAdmin = role === "ADMIN";
   const isManager = ["ADMIN", "GESTOR_PROVINCIAL", "GESTOR_MUNICIPAL"].includes(role || "");
   const canEdit = ["ADMIN", "GESTOR_PROVINCIAL", "GESTOR_MUNICIPAL", "DIRECTOR_ESCOLA"].includes(role || "");
+  const canValidate = ["ADMIN", "GESTOR_PROVINCIAL", "VALIDADOR_PROVINCIAL"].includes(role || "");
+  const isAuditor = role === "AUDITOR";
 
   const value = {
-    user, session, role, roleInfo, isAdmin, isManager, canEdit, isLoading,
+    user, session, role, roleInfo, isAdmin, isManager, canEdit, canValidate, isAuditor, isLoading,
     signIn, signUp, signOut,
   };
 

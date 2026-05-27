@@ -31,23 +31,27 @@ import { Navigate } from "react-router-dom";
 const ALL_ROLES: { value: string; label: string; description: string }[] = [
   { value: "ADMIN", label: "Administrador", description: "Acesso total ao sistema" },
   { value: "GESTOR_PROVINCIAL", label: "Gestor Provincial", description: "Gere toda a província" },
-  { value: "GESTOR_MUNICIPAL", label: "Gestor Municipal", description: "Gere o seu município" },
-  { value: "DIRECTOR_ESCOLA", label: "Director de Escola", description: "Gere a sua escola" },
+  { value: "VALIDADOR_PROVINCIAL", label: "Validador Provincial", description: "Aprova/rejeita propostas na província (sem editar)" },
+  { value: "GESTOR_MUNICIPAL", label: "Gestor Municipal", description: "Gere o seu município (propostas sujeitas a validação)" },
+  { value: "DIRECTOR_ESCOLA", label: "Director de Escola", description: "Gere a sua escola (propostas sujeitas a validação)" },
   { value: "TECNICO", label: "Técnico", description: "Leitura + acções limitadas" },
   { value: "VIEWER", label: "Visualizador", description: "Apenas leitura" },
+  { value: "AUDITOR", label: "Auditor", description: "Leitura global de auditoria (sem editar)" },
 ];
 
 const roleColors: Record<string, string> = {
   ADMIN: "bg-amber-500/10 text-amber-700 border-amber-200",
   GESTOR_PROVINCIAL: "bg-purple-500/10 text-purple-700 border-purple-200",
+  VALIDADOR_PROVINCIAL: "bg-indigo-500/10 text-indigo-700 border-indigo-200",
   GESTOR_MUNICIPAL: "bg-blue-500/10 text-blue-700 border-blue-200",
   DIRECTOR_ESCOLA: "bg-green-500/10 text-green-700 border-green-200",
   TECNICO: "bg-orange-500/10 text-orange-700 border-orange-200",
   VIEWER: "bg-gray-500/10 text-gray-700 border-gray-200",
+  AUDITOR: "bg-rose-500/10 text-rose-700 border-rose-200",
 };
 
 function roleNeedsProvince(role: string) {
-  return ["GESTOR_PROVINCIAL", "GESTOR_MUNICIPAL", "DIRECTOR_ESCOLA", "TECNICO"].includes(role);
+  return ["GESTOR_PROVINCIAL", "VALIDADOR_PROVINCIAL", "GESTOR_MUNICIPAL", "DIRECTOR_ESCOLA", "TECNICO"].includes(role);
 }
 function roleNeedsMunicipality(role: string) {
   return ["GESTOR_MUNICIPAL", "DIRECTOR_ESCOLA", "TECNICO"].includes(role);
