@@ -132,6 +132,7 @@ export type Database = {
           codigo_organico: string | null
           construcao: string | null
           created_at: string
+          created_by: string | null
           decreto_criacao: string | null
           diretor: string | null
           distancia_sede: string | null
@@ -176,6 +177,7 @@ export type Database = {
           turmas_9_classe: number | null
           turmas_iniciacao: number | null
           updated_at: string
+          updated_by: string | null
         }
         Insert: {
           alunos_fem_1_classe?: number | null
@@ -211,6 +213,7 @@ export type Database = {
           codigo_organico?: string | null
           construcao?: string | null
           created_at?: string
+          created_by?: string | null
           decreto_criacao?: string | null
           diretor?: string | null
           distancia_sede?: string | null
@@ -255,6 +258,7 @@ export type Database = {
           turmas_9_classe?: number | null
           turmas_iniciacao?: number | null
           updated_at?: string
+          updated_by?: string | null
         }
         Update: {
           alunos_fem_1_classe?: number | null
@@ -290,6 +294,7 @@ export type Database = {
           codigo_organico?: string | null
           construcao?: string | null
           created_at?: string
+          created_by?: string | null
           decreto_criacao?: string | null
           diretor?: string | null
           distancia_sede?: string | null
@@ -334,6 +339,7 @@ export type Database = {
           turmas_9_classe?: number | null
           turmas_iniciacao?: number | null
           updated_at?: string
+          updated_by?: string | null
         }
         Relationships: [
           {
@@ -349,6 +355,7 @@ export type Database = {
         Row: {
           analisado_por: string | null
           created_at: string
+          created_by: string | null
           dados: Json | null
           data_analise: string | null
           data_submissao: string
@@ -362,10 +369,12 @@ export type Database = {
           tipo: Database["public"]["Enums"]["tipo_expediente"]
           titulo: string
           updated_at: string
+          updated_by: string | null
         }
         Insert: {
           analisado_por?: string | null
           created_at?: string
+          created_by?: string | null
           dados?: Json | null
           data_analise?: string | null
           data_submissao?: string
@@ -379,10 +388,12 @@ export type Database = {
           tipo: Database["public"]["Enums"]["tipo_expediente"]
           titulo: string
           updated_at?: string
+          updated_by?: string | null
         }
         Update: {
           analisado_por?: string | null
           created_at?: string
+          created_by?: string | null
           dados?: Json | null
           data_analise?: string | null
           data_submissao?: string
@@ -396,6 +407,7 @@ export type Database = {
           tipo?: Database["public"]["Enums"]["tipo_expediente"]
           titulo?: string
           updated_at?: string
+          updated_by?: string | null
         }
         Relationships: [
           {
@@ -458,32 +470,38 @@ export type Database = {
         Row: {
           condition: string
           created_at: string
+          created_by: string | null
           description: string | null
           id: string
           quantity: number
           school_id: string
           type: string
           updated_at: string
+          updated_by: string | null
         }
         Insert: {
           condition?: string
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           quantity?: number
           school_id: string
           type: string
           updated_at?: string
+          updated_by?: string | null
         }
         Update: {
           condition?: string
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           quantity?: number
           school_id?: string
           type?: string
           updated_at?: string
+          updated_by?: string | null
         }
         Relationships: [
           {
@@ -541,6 +559,7 @@ export type Database = {
           condicao_fisica: string | null
           cpf: string | null
           created_at: string
+          created_by: string | null
           data_admissao: string | null
           data_nascimento: string | null
           dependentes: string | null
@@ -571,6 +590,7 @@ export type Database = {
           telefone_parceira: string | null
           tempo_servico: string | null
           updated_at: string
+          updated_by: string | null
         }
         Insert: {
           actividade?: string | null
@@ -582,6 +602,7 @@ export type Database = {
           condicao_fisica?: string | null
           cpf?: string | null
           created_at?: string
+          created_by?: string | null
           data_admissao?: string | null
           data_nascimento?: string | null
           dependentes?: string | null
@@ -612,6 +633,7 @@ export type Database = {
           telefone_parceira?: string | null
           tempo_servico?: string | null
           updated_at?: string
+          updated_by?: string | null
         }
         Update: {
           actividade?: string | null
@@ -623,6 +645,7 @@ export type Database = {
           condicao_fisica?: string | null
           cpf?: string | null
           created_at?: string
+          created_by?: string | null
           data_admissao?: string | null
           data_nascimento?: string | null
           dependentes?: string | null
@@ -653,6 +676,7 @@ export type Database = {
           telefone_parceira?: string | null
           tempo_servico?: string | null
           updated_at?: string
+          updated_by?: string | null
         }
         Relationships: [
           {
@@ -832,6 +856,8 @@ export type Database = {
         | "GESTOR_MUNICIPAL"
         | "DIRECTOR_ESCOLA"
         | "TECNICO"
+        | "VALIDADOR_PROVINCIAL"
+        | "AUDITOR"
       attendance_status: "present" | "absent" | "late"
       estado_expediente: "SUBMETIDO" | "EM_ANALISE" | "APROVADO" | "REJEITADO"
       tipo_expediente:
@@ -973,6 +999,8 @@ export const Constants = {
         "GESTOR_MUNICIPAL",
         "DIRECTOR_ESCOLA",
         "TECNICO",
+        "VALIDADOR_PROVINCIAL",
+        "AUDITOR",
       ],
       attendance_status: ["present", "absent", "late"],
       estado_expediente: ["SUBMETIDO", "EM_ANALISE", "APROVADO", "REJEITADO"],
