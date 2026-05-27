@@ -548,6 +548,66 @@ export type Database = {
           },
         ]
       }
+      pending_changes: {
+        Row: {
+          created_at: string
+          current_data: Json | null
+          id: string
+          municipality_id: string | null
+          operation: string
+          proposed_data: Json
+          province_id: string | null
+          record_id: string | null
+          review_comment: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          school_id: string | null
+          status: string
+          submitted_at: string
+          submitted_by: string
+          table_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_data?: Json | null
+          id?: string
+          municipality_id?: string | null
+          operation: string
+          proposed_data?: Json
+          province_id?: string | null
+          record_id?: string | null
+          review_comment?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          school_id?: string | null
+          status?: string
+          submitted_at?: string
+          submitted_by?: string
+          table_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_data?: Json | null
+          id?: string
+          municipality_id?: string | null
+          operation?: string
+          proposed_data?: Json
+          province_id?: string | null
+          record_id?: string | null
+          review_comment?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          school_id?: string | null
+          status?: string
+          submitted_at?: string
+          submitted_by?: string
+          table_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       professores: {
         Row: {
           actividade: string | null
@@ -828,8 +888,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_pending_change: { Args: { _pending_id: string }; Returns: Json }
       can_access_school: {
         Args: { _school_id: string; _user_id: string }
+        Returns: boolean
+      }
+      can_validate_change: {
+        Args: {
+          _municipality: string
+          _province: string
+          _school: string
+          _user_id: string
+        }
         Returns: boolean
       }
       get_user_municipality_id: { Args: { _user_id: string }; Returns: string }
