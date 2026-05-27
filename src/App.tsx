@@ -5,30 +5,41 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { Suspense, lazy } from "react";
+import { Loader2 } from "lucide-react";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import UnidadesOrganicas from "./pages/UnidadesOrganicas";
 import Professores from "./pages/Professores";
 import Expedientes from "./pages/Expedientes";
-import Assiduidade from "./pages/Assiduidade";
-import Horarios from "./pages/Horarios";
-import Avaliacoes from "./pages/Avaliacoes";
-import Processos from "./pages/Processos";
-import Comunicados from "./pages/Comunicados";
-import Documentos from "./pages/Documentos";
-import Relatorios from "./pages/Relatorios";
 import NotFound from "./pages/NotFound";
-import GestaoUtilizadores from "./pages/GestaoUtilizadores";
 import ResetPassword from "./pages/ResetPassword";
-import Provincias from "./pages/Provincias";
-import Municipios from "./pages/Municipios";
-import Alunos from "./pages/Alunos";
-import PresencaOffline from "./pages/PresencaOffline";
-import AuditHistory from "./pages/AuditHistory";
 import { AIAssistant } from "./components/AIAssistant";
 import { CommandPalette } from "./components/CommandPalette";
 
+// Lazy-loaded heavy / less-frequent pages
+const Assiduidade = lazy(() => import("./pages/Assiduidade"));
+const Horarios = lazy(() => import("./pages/Horarios"));
+const Avaliacoes = lazy(() => import("./pages/Avaliacoes"));
+const Processos = lazy(() => import("./pages/Processos"));
+const Comunicados = lazy(() => import("./pages/Comunicados"));
+const Documentos = lazy(() => import("./pages/Documentos"));
+const Relatorios = lazy(() => import("./pages/Relatorios"));
+const GestaoUtilizadores = lazy(() => import("./pages/GestaoUtilizadores"));
+const Provincias = lazy(() => import("./pages/Provincias"));
+const Municipios = lazy(() => import("./pages/Municipios"));
+const Alunos = lazy(() => import("./pages/Alunos"));
+const PresencaOffline = lazy(() => import("./pages/PresencaOffline"));
+const AuditHistory = lazy(() => import("./pages/AuditHistory"));
+const Aprovacoes = lazy(() => import("./pages/Aprovacoes"));
+
 const queryClient = new QueryClient();
+
+const PageFallback = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+  </div>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -37,29 +48,32 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-            <Route path="/provincias" element={<ProtectedRoute><Provincias /></ProtectedRoute>} />
-            <Route path="/municipios" element={<ProtectedRoute><Municipios /></ProtectedRoute>} />
-            <Route path="/escolas" element={<ProtectedRoute><UnidadesOrganicas /></ProtectedRoute>} />
-            <Route path="/unidades-organicas" element={<ProtectedRoute><UnidadesOrganicas /></ProtectedRoute>} />
-            <Route path="/professores" element={<ProtectedRoute><Professores /></ProtectedRoute>} />
-            <Route path="/alunos" element={<ProtectedRoute><Alunos /></ProtectedRoute>} />
-            <Route path="/presencas" element={<ProtectedRoute><PresencaOffline /></ProtectedRoute>} />
-            <Route path="/expedientes" element={<ProtectedRoute><Expedientes /></ProtectedRoute>} />
-            <Route path="/assiduidade" element={<ProtectedRoute><Assiduidade /></ProtectedRoute>} />
-            <Route path="/horarios" element={<ProtectedRoute><Horarios /></ProtectedRoute>} />
-            <Route path="/avaliacoes" element={<ProtectedRoute><Avaliacoes /></ProtectedRoute>} />
-            <Route path="/processos" element={<ProtectedRoute><Processos /></ProtectedRoute>} />
-            <Route path="/comunicados" element={<ProtectedRoute><Comunicados /></ProtectedRoute>} />
-            <Route path="/documentos" element={<ProtectedRoute><Documentos /></ProtectedRoute>} />
-            <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
-            <Route path="/utilizadores" element={<ProtectedRoute><GestaoUtilizadores /></ProtectedRoute>} />
-            <Route path="/auditoria" element={<ProtectedRoute><AuditHistory /></ProtectedRoute>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Suspense fallback={<PageFallback />}>
+            <Routes>
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+              <Route path="/provincias" element={<ProtectedRoute><Provincias /></ProtectedRoute>} />
+              <Route path="/municipios" element={<ProtectedRoute><Municipios /></ProtectedRoute>} />
+              <Route path="/escolas" element={<ProtectedRoute><UnidadesOrganicas /></ProtectedRoute>} />
+              <Route path="/unidades-organicas" element={<ProtectedRoute><UnidadesOrganicas /></ProtectedRoute>} />
+              <Route path="/professores" element={<ProtectedRoute><Professores /></ProtectedRoute>} />
+              <Route path="/alunos" element={<ProtectedRoute><Alunos /></ProtectedRoute>} />
+              <Route path="/presencas" element={<ProtectedRoute><PresencaOffline /></ProtectedRoute>} />
+              <Route path="/expedientes" element={<ProtectedRoute><Expedientes /></ProtectedRoute>} />
+              <Route path="/aprovacoes" element={<ProtectedRoute><Aprovacoes /></ProtectedRoute>} />
+              <Route path="/assiduidade" element={<ProtectedRoute><Assiduidade /></ProtectedRoute>} />
+              <Route path="/horarios" element={<ProtectedRoute><Horarios /></ProtectedRoute>} />
+              <Route path="/avaliacoes" element={<ProtectedRoute><Avaliacoes /></ProtectedRoute>} />
+              <Route path="/processos" element={<ProtectedRoute><Processos /></ProtectedRoute>} />
+              <Route path="/comunicados" element={<ProtectedRoute><Comunicados /></ProtectedRoute>} />
+              <Route path="/documentos" element={<ProtectedRoute><Documentos /></ProtectedRoute>} />
+              <Route path="/relatorios" element={<ProtectedRoute><Relatorios /></ProtectedRoute>} />
+              <Route path="/utilizadores" element={<ProtectedRoute><GestaoUtilizadores /></ProtectedRoute>} />
+              <Route path="/auditoria" element={<ProtectedRoute><AuditHistory /></ProtectedRoute>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
           <AIAssistant />
           <CommandPalette />
         </BrowserRouter>

@@ -11,7 +11,7 @@ import {
 import {
   LayoutDashboard, Building2, Users, Calendar, FileText, BarChart3, Settings, LogOut,
   Shield, ChevronLeft, ChevronRight, GraduationCap, ClipboardList, Bell, FolderOpen,
-  CheckSquare, MapPin, Map, History,
+  CheckSquare, MapPin, Map, History, GitCompare,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -28,10 +28,12 @@ interface NavItem {
 const roleLabels: Record<string, string> = {
   ADMIN: "Administrador",
   GESTOR_PROVINCIAL: "Gestor Provincial",
+  VALIDADOR_PROVINCIAL: "Validador Provincial",
   GESTOR_MUNICIPAL: "Gestor Municipal",
   DIRECTOR_ESCOLA: "Director de Escola",
   TECNICO: "Técnico",
   VIEWER: "Visualizador",
+  AUDITOR: "Auditor",
 };
 
 const mainNavItems: NavItem[] = [
@@ -46,6 +48,7 @@ const mainNavItems: NavItem[] = [
 const managementNavItems: NavItem[] = [
   { path: "/presencas", label: "Presenças", icon: CheckSquare },
   { path: "/expedientes", label: "Expedientes", icon: FileText },
+  { path: "/aprovacoes", label: "Fila de Aprovações", icon: GitCompare, roles: ["ADMIN", "GESTOR_PROVINCIAL", "VALIDADOR_PROVINCIAL"] },
   { path: "/assiduidade", label: "Assiduidade", icon: CheckSquare },
   { path: "/horarios", label: "Colocação e Horários", icon: Calendar },
   { path: "/avaliacoes", label: "Avaliação Desempenho", icon: ClipboardList },
@@ -60,7 +63,7 @@ const systemNavItems: NavItem[] = [
 
 const adminNavItems: NavItem[] = [
   { path: "/utilizadores", label: "Gestão de Utilizadores", icon: Shield, roles: ["ADMIN"] },
-  { path: "/auditoria", label: "Auditoria", icon: History, roles: ["ADMIN", "GESTOR_PROVINCIAL"] },
+  { path: "/auditoria", label: "Auditoria", icon: History, roles: ["ADMIN", "GESTOR_PROVINCIAL", "AUDITOR"] },
 ];
 
 interface AppSidebarProps {
