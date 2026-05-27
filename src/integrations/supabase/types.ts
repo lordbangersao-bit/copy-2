@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_documents: {
+        Row: {
+          created_at: string
+          doc_type: string
+          file_name: string
+          file_path: string
+          file_size: number
+          id: string
+          mime_type: string
+          professor_id: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          doc_type: string
+          file_name: string
+          file_path: string
+          file_size: number
+          id?: string
+          mime_type: string
+          professor_id: string
+          uploaded_by?: string
+        }
+        Update: {
+          created_at?: string
+          doc_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          id?: string
+          mime_type?: string
+          professor_id?: string
+          uploaded_by?: string
+        }
+        Relationships: []
+      }
       attendance: {
         Row: {
           created_at: string
@@ -132,6 +168,7 @@ export type Database = {
           codigo_organico: string | null
           construcao: string | null
           created_at: string
+          created_by: string | null
           decreto_criacao: string | null
           diretor: string | null
           distancia_sede: string | null
@@ -176,6 +213,7 @@ export type Database = {
           turmas_9_classe: number | null
           turmas_iniciacao: number | null
           updated_at: string
+          updated_by: string | null
         }
         Insert: {
           alunos_fem_1_classe?: number | null
@@ -211,6 +249,7 @@ export type Database = {
           codigo_organico?: string | null
           construcao?: string | null
           created_at?: string
+          created_by?: string | null
           decreto_criacao?: string | null
           diretor?: string | null
           distancia_sede?: string | null
@@ -255,6 +294,7 @@ export type Database = {
           turmas_9_classe?: number | null
           turmas_iniciacao?: number | null
           updated_at?: string
+          updated_by?: string | null
         }
         Update: {
           alunos_fem_1_classe?: number | null
@@ -290,6 +330,7 @@ export type Database = {
           codigo_organico?: string | null
           construcao?: string | null
           created_at?: string
+          created_by?: string | null
           decreto_criacao?: string | null
           diretor?: string | null
           distancia_sede?: string | null
@@ -334,6 +375,7 @@ export type Database = {
           turmas_9_classe?: number | null
           turmas_iniciacao?: number | null
           updated_at?: string
+          updated_by?: string | null
         }
         Relationships: [
           {
@@ -349,6 +391,7 @@ export type Database = {
         Row: {
           analisado_por: string | null
           created_at: string
+          created_by: string | null
           dados: Json | null
           data_analise: string | null
           data_submissao: string
@@ -362,10 +405,12 @@ export type Database = {
           tipo: Database["public"]["Enums"]["tipo_expediente"]
           titulo: string
           updated_at: string
+          updated_by: string | null
         }
         Insert: {
           analisado_por?: string | null
           created_at?: string
+          created_by?: string | null
           dados?: Json | null
           data_analise?: string | null
           data_submissao?: string
@@ -379,10 +424,12 @@ export type Database = {
           tipo: Database["public"]["Enums"]["tipo_expediente"]
           titulo: string
           updated_at?: string
+          updated_by?: string | null
         }
         Update: {
           analisado_por?: string | null
           created_at?: string
+          created_by?: string | null
           dados?: Json | null
           data_analise?: string | null
           data_submissao?: string
@@ -396,6 +443,7 @@ export type Database = {
           tipo?: Database["public"]["Enums"]["tipo_expediente"]
           titulo?: string
           updated_at?: string
+          updated_by?: string | null
         }
         Relationships: [
           {
@@ -458,32 +506,38 @@ export type Database = {
         Row: {
           condition: string
           created_at: string
+          created_by: string | null
           description: string | null
           id: string
           quantity: number
           school_id: string
           type: string
           updated_at: string
+          updated_by: string | null
         }
         Insert: {
           condition?: string
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           quantity?: number
           school_id: string
           type: string
           updated_at?: string
+          updated_by?: string | null
         }
         Update: {
           condition?: string
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           quantity?: number
           school_id?: string
           type?: string
           updated_at?: string
+          updated_by?: string | null
         }
         Relationships: [
           {
@@ -530,6 +584,66 @@ export type Database = {
           },
         ]
       }
+      pending_changes: {
+        Row: {
+          created_at: string
+          current_data: Json | null
+          id: string
+          municipality_id: string | null
+          operation: string
+          proposed_data: Json
+          province_id: string | null
+          record_id: string | null
+          review_comment: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          school_id: string | null
+          status: string
+          submitted_at: string
+          submitted_by: string
+          table_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_data?: Json | null
+          id?: string
+          municipality_id?: string | null
+          operation: string
+          proposed_data?: Json
+          province_id?: string | null
+          record_id?: string | null
+          review_comment?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          school_id?: string | null
+          status?: string
+          submitted_at?: string
+          submitted_by?: string
+          table_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_data?: Json | null
+          id?: string
+          municipality_id?: string | null
+          operation?: string
+          proposed_data?: Json
+          province_id?: string | null
+          record_id?: string | null
+          review_comment?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          school_id?: string | null
+          status?: string
+          submitted_at?: string
+          submitted_by?: string
+          table_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       professores: {
         Row: {
           actividade: string | null
@@ -541,6 +655,7 @@ export type Database = {
           condicao_fisica: string | null
           cpf: string | null
           created_at: string
+          created_by: string | null
           data_admissao: string | null
           data_nascimento: string | null
           dependentes: string | null
@@ -571,6 +686,7 @@ export type Database = {
           telefone_parceira: string | null
           tempo_servico: string | null
           updated_at: string
+          updated_by: string | null
         }
         Insert: {
           actividade?: string | null
@@ -582,6 +698,7 @@ export type Database = {
           condicao_fisica?: string | null
           cpf?: string | null
           created_at?: string
+          created_by?: string | null
           data_admissao?: string | null
           data_nascimento?: string | null
           dependentes?: string | null
@@ -612,6 +729,7 @@ export type Database = {
           telefone_parceira?: string | null
           tempo_servico?: string | null
           updated_at?: string
+          updated_by?: string | null
         }
         Update: {
           actividade?: string | null
@@ -623,6 +741,7 @@ export type Database = {
           condicao_fisica?: string | null
           cpf?: string | null
           created_at?: string
+          created_by?: string | null
           data_admissao?: string | null
           data_nascimento?: string | null
           dependentes?: string | null
@@ -653,6 +772,7 @@ export type Database = {
           telefone_parceira?: string | null
           tempo_servico?: string | null
           updated_at?: string
+          updated_by?: string | null
         }
         Relationships: [
           {
@@ -804,8 +924,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_pending_change: { Args: { _pending_id: string }; Returns: Json }
       can_access_school: {
         Args: { _school_id: string; _user_id: string }
+        Returns: boolean
+      }
+      can_validate_change: {
+        Args: {
+          _municipality: string
+          _province: string
+          _school: string
+          _user_id: string
+        }
         Returns: boolean
       }
       get_user_municipality_id: { Args: { _user_id: string }; Returns: string }
@@ -823,6 +953,8 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
       app_role:
@@ -832,6 +964,8 @@ export type Database = {
         | "GESTOR_MUNICIPAL"
         | "DIRECTOR_ESCOLA"
         | "TECNICO"
+        | "VALIDADOR_PROVINCIAL"
+        | "AUDITOR"
       attendance_status: "present" | "absent" | "late"
       estado_expediente: "SUBMETIDO" | "EM_ANALISE" | "APROVADO" | "REJEITADO"
       tipo_expediente:
@@ -973,6 +1107,8 @@ export const Constants = {
         "GESTOR_MUNICIPAL",
         "DIRECTOR_ESCOLA",
         "TECNICO",
+        "VALIDADOR_PROVINCIAL",
+        "AUDITOR",
       ],
       attendance_status: ["present", "absent", "late"],
       estado_expediente: ["SUBMETIDO", "EM_ANALISE", "APROVADO", "REJEITADO"],
