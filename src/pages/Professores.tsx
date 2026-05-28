@@ -157,13 +157,42 @@ export default function Professores() {
     return matchesSearch && matchesCategoria && matchesFuncao && matchesGenero && matchesCondicao && matchesDisciplina;
   });
 
+  const tenantScope = (escolaId?: string | null) => {
+    const esc = escolas?.find(e => e.id === escolaId);
+    return {
+      province_id: roleInfo.province_id,
+      municipality_id: esc?.municipality_id ?? roleInfo.municipality_id,
+      school_id: escolaId ?? roleInfo.school_id ?? null,
+    };
+  };
+
   const handleCreate = (data: ProfessorInput) => {
-    createProfessor.mutate(data);
+    if (requiresApproval) {
+      submitPending.mutate({
+        table_name: "professores",
+        operation: "INSERT",
+        proposed_data: data as unknown as Record<string, any>,
+        ...tenantScope(data.escola_id),
+      });
+    } else {
+      createProfessor.mutate(data);
+    }
   };
 
   const handleUpdate = (data: ProfessorInput) => {
     if (editingProfessor) {
-      updateProfessor.mutate({ id: editingProfessor.id, ...data });
+      if (requiresApproval) {
+        submitPending.mutate({
+          table_name: "professores",
+          operation: "UPDATE",
+          record_id: editingProfessor.id,
+          proposed_data: data as unknown as Record<string, any>,
+          current_data: editingProfessor as unknown as Record<string, any>,
+          ...tenantScope(data.escola_id ?? editingProfessor.escola_id),
+        });
+      } else {
+        updateProfessor.mutate({ id: editingProfessor.id, ...data });
+      }
       setEditingProfessor(null);
     }
   };
