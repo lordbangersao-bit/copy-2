@@ -413,6 +413,16 @@ export default function Professores() {
           </Alert>
         )}
 
+        {/* Approval Workflow Notice */}
+        {requiresApproval && (
+          <Alert className="border-primary/40 bg-primary/5">
+            <AlertTriangle className="h-4 w-4 text-primary" />
+            <AlertDescription>
+              As suas alterações serão enviadas para a <strong>Fila de Aprovações</strong> e só serão aplicadas após validação por um Gestor Provincial.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Stats Summary */}
         <div className="grid gap-4 sm:grid-cols-4">
           <Card>
