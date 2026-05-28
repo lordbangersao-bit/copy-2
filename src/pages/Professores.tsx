@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { ProfessorForm } from "@/components/ProfessorForm";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { AgentDocumentsManager } from "@/components/AgentDocumentsManager";
 
 import { EmissaoDocumentosDialog } from "@/components/EmissaoDocumentosDialog";
 import { ImportAgentesDialog } from "@/components/ImportAgentesDialog";
@@ -40,6 +41,7 @@ import {
 } from "@/hooks/useProfessores";
 import { useEscolas } from "@/hooks/useEscolas";
 import { useAuth } from "@/hooks/useAuth";
+import { useSubmitPendingChange } from "@/hooks/usePendingChanges";
 import {
   Plus,
   Search,
