@@ -959,6 +959,17 @@ export default function Professores() {
                     />
                   </div>
                 </div>
+
+                {/* Documentos privados */}
+                <div>
+                  <h3 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
+                    <div className="h-1 w-4 bg-primary rounded" />
+                    Documentos do Agente
+                  </h3>
+                  <div className="p-4 bg-muted/30 rounded-lg">
+                    <AgentDocumentsManager professorId={viewingProfessor.id} />
+                  </div>
+                </div>
               </div>
             </ScrollArea>
           )}
