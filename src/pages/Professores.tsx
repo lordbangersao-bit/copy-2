@@ -100,6 +100,10 @@ export default function Professores() {
   const createProfessor = useCreateProfessor();
   const updateProfessor = useUpdateProfessor();
   const deleteProfessor = useDeleteProfessor();
+  const submitPending = useSubmitPendingChange();
+
+  // Workflow: DIRECTOR_ESCOLA and GESTOR_MUNICIPAL go through approval queue
+  const requiresApproval = role === "DIRECTOR_ESCOLA" || role === "GESTOR_MUNICIPAL";
 
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
