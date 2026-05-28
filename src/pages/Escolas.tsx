@@ -20,14 +20,21 @@ import {
   Escola,
   EscolaInput,
 } from "@/hooks/useEscolas";
-import { Plus, Search, Pencil, Trash2, School } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useSubmitPendingChange } from "@/hooks/usePendingChanges";
+import { Plus, Search, Pencil, Trash2, School, AlertTriangle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function Escolas() {
+  const { role, roleInfo, canEdit } = useAuth();
   const { data: escolas, isLoading } = useEscolas();
   const createEscola = useCreateEscola();
   const updateEscola = useUpdateEscola();
   const deleteEscola = useDeleteEscola();
+  const submitPending = useSubmitPendingChange();
+
+  const requiresApproval = role === "DIRECTOR_ESCOLA" || role === "GESTOR_MUNICIPAL";
 
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
@@ -38,13 +45,39 @@ export default function Escolas() {
     escola.nome.toLowerCase().includes(search.toLowerCase())
   );
 
+  const tenantScope = (escola?: Partial<Escola> | null) => ({
+    province_id: roleInfo.province_id,
+    municipality_id: escola?.municipality_id ?? roleInfo.municipality_id,
+    school_id: escola?.id ?? roleInfo.school_id ?? null,
+  });
+
   const handleCreate = (data: EscolaInput) => {
-    createEscola.mutate(data);
+    if (requiresApproval) {
+      submitPending.mutate({
+        table_name: "escolas",
+        operation: "INSERT",
+        proposed_data: data as unknown as Record<string, any>,
+        ...tenantScope(data as Partial<Escola>),
+      });
+    } else {
+      createEscola.mutate(data);
+    }
   };
 
   const handleUpdate = (data: EscolaInput) => {
     if (editingEscola) {
-      updateEscola.mutate({ id: editingEscola.id, ...data });
+      if (requiresApproval) {
+        submitPending.mutate({
+          table_name: "escolas",
+          operation: "UPDATE",
+          record_id: editingEscola.id,
+          proposed_data: data as unknown as Record<string, any>,
+          current_data: editingEscola as unknown as Record<string, any>,
+          ...tenantScope(editingEscola),
+        });
+      } else {
+        updateEscola.mutate({ id: editingEscola.id, ...data });
+      }
       setEditingEscola(null);
     }
   };
@@ -57,6 +90,7 @@ export default function Escolas() {
   };
 
   const openEdit = (escola: Escola) => {
+    if (!canEdit) return;
     setEditingEscola(escola);
     setFormOpen(true);
   };
@@ -72,11 +106,22 @@ export default function Escolas() {
               Gerencie as escolas do município
             </p>
           </div>
-          <Button onClick={() => setFormOpen(true)} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Nova Escola
-          </Button>
+          {canEdit && (
+            <Button onClick={() => setFormOpen(true)} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Nova Escola
+            </Button>
+          )}
         </div>
+
+        {requiresApproval && (
+          <Alert className="border-primary/40 bg-primary/5">
+            <AlertTriangle className="h-4 w-4 text-primary" />
+            <AlertDescription>
+              As suas alterações em escolas serão enviadas para a <strong>Fila de Aprovações</strong> e só aplicadas após validação.
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Search */}
         <div className="relative max-w-md">
@@ -140,22 +185,26 @@ export default function Escolas() {
                       {escola.email || "-"}
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openEdit(escola)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeleteId(escola.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
+                      {canEdit && (
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openEdit(escola)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          {!requiresApproval && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setDeleteId(escola.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          )}
+                        </div>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))
@@ -169,7 +218,7 @@ export default function Escolas() {
                           ? "Nenhuma escola encontrada"
                           : "Nenhuma escola cadastrada ainda"}
                       </p>
-                      {!search && (
+                      {!search && canEdit && (
                         <Button
                           variant="outline"
                           size="sm"
@@ -188,16 +237,18 @@ export default function Escolas() {
       </div>
 
       {/* Forms */}
-      <EscolaForm
-        open={formOpen}
-        onOpenChange={(open) => {
-          setFormOpen(open);
-          if (!open) setEditingEscola(null);
-        }}
-        escola={editingEscola}
-        onSubmit={editingEscola ? handleUpdate : handleCreate}
-        isLoading={createEscola.isPending || updateEscola.isPending}
-      />
+      {canEdit && (
+        <EscolaForm
+          open={formOpen}
+          onOpenChange={(open) => {
+            setFormOpen(open);
+            if (!open) setEditingEscola(null);
+          }}
+          escola={editingEscola}
+          onSubmit={editingEscola ? handleUpdate : handleCreate}
+          isLoading={createEscola.isPending || updateEscola.isPending}
+        />
+      )}
 
       <ConfirmDialog
         open={!!deleteId}

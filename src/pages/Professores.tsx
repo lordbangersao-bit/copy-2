@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { ProfessorForm } from "@/components/ProfessorForm";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { AgentDocumentsManager } from "@/components/AgentDocumentsManager";
 
 import { EmissaoDocumentosDialog } from "@/components/EmissaoDocumentosDialog";
 import { ImportAgentesDialog } from "@/components/ImportAgentesDialog";
@@ -40,6 +41,7 @@ import {
 } from "@/hooks/useProfessores";
 import { useEscolas } from "@/hooks/useEscolas";
 import { useAuth } from "@/hooks/useAuth";
+import { useSubmitPendingChange } from "@/hooks/usePendingChanges";
 import {
   Plus,
   Search,
@@ -98,6 +100,10 @@ export default function Professores() {
   const createProfessor = useCreateProfessor();
   const updateProfessor = useUpdateProfessor();
   const deleteProfessor = useDeleteProfessor();
+  const submitPending = useSubmitPendingChange();
+
+  // Workflow: DIRECTOR_ESCOLA and GESTOR_MUNICIPAL go through approval queue
+  const requiresApproval = role === "DIRECTOR_ESCOLA" || role === "GESTOR_MUNICIPAL";
 
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
@@ -151,13 +157,42 @@ export default function Professores() {
     return matchesSearch && matchesCategoria && matchesFuncao && matchesGenero && matchesCondicao && matchesDisciplina;
   });
 
+  const tenantScope = (escolaId?: string | null) => {
+    const esc = escolas?.find(e => e.id === escolaId);
+    return {
+      province_id: roleInfo.province_id,
+      municipality_id: esc?.municipality_id ?? roleInfo.municipality_id,
+      school_id: escolaId ?? roleInfo.school_id ?? null,
+    };
+  };
+
   const handleCreate = (data: ProfessorInput) => {
-    createProfessor.mutate(data);
+    if (requiresApproval) {
+      submitPending.mutate({
+        table_name: "professores",
+        operation: "INSERT",
+        proposed_data: data as unknown as Record<string, any>,
+        ...tenantScope(data.escola_id),
+      });
+    } else {
+      createProfessor.mutate(data);
+    }
   };
 
   const handleUpdate = (data: ProfessorInput) => {
     if (editingProfessor) {
-      updateProfessor.mutate({ id: editingProfessor.id, ...data });
+      if (requiresApproval) {
+        submitPending.mutate({
+          table_name: "professores",
+          operation: "UPDATE",
+          record_id: editingProfessor.id,
+          proposed_data: data as unknown as Record<string, any>,
+          current_data: editingProfessor as unknown as Record<string, any>,
+          ...tenantScope(data.escola_id ?? editingProfessor.escola_id),
+        });
+      } else {
+        updateProfessor.mutate({ id: editingProfessor.id, ...data });
+      }
       setEditingProfessor(null);
     }
   };
@@ -374,6 +409,16 @@ export default function Professores() {
             <AlertDescription>
               Você está em modo de visualização. Apenas gestores podem
               criar, editar ou excluir registos.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Approval Workflow Notice */}
+        {requiresApproval && (
+          <Alert className="border-primary/40 bg-primary/5">
+            <AlertTriangle className="h-4 w-4 text-primary" />
+            <AlertDescription>
+              As suas alterações serão enviadas para a <strong>Fila de Aprovações</strong> e só serão aplicadas após validação por um Gestor Provincial.
             </AlertDescription>
           </Alert>
         )}
@@ -922,6 +967,17 @@ export default function Professores() {
                       label="Outro Familiar"
                       value={viewingProfessor.outro_familiar}
                     />
+                  </div>
+                </div>
+
+                {/* Documentos privados */}
+                <div>
+                  <h3 className="text-sm font-semibold text-primary mb-3 flex items-center gap-2">
+                    <div className="h-1 w-4 bg-primary rounded" />
+                    Documentos do Agente
+                  </h3>
+                  <div className="p-4 bg-muted/30 rounded-lg">
+                    <AgentDocumentsManager professorId={viewingProfessor.id} />
                   </div>
                 </div>
               </div>
