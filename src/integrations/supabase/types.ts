@@ -382,6 +382,13 @@ export type Database = {
             foreignKeyName: "escolas_municipality_id_fkey"
             columns: ["municipality_id"]
             isOneToOne: false
+            referencedRelation: "deficit_by_municipality"
+            referencedColumns: ["municipality_id"]
+          },
+          {
+            foreignKeyName: "escolas_municipality_id_fkey"
+            columns: ["municipality_id"]
+            isOneToOne: false
             referencedRelation: "municipalities"
             referencedColumns: ["id"]
           },
@@ -808,6 +815,66 @@ export type Database = {
         }
         Relationships: []
       }
+      statistics_snapshots: {
+        Row: {
+          generated_at: string
+          generated_by: string
+          id: string
+          locked: boolean
+          payload: Json
+          period_key: string
+          period_type: string
+          scope_id: string
+          scope_name: string | null
+          scope_type: string
+          teachers_by_category: Json
+          teachers_female: number
+          teachers_male: number
+          total_classes: number
+          total_schools: number
+          total_students: number
+          total_teachers: number
+        }
+        Insert: {
+          generated_at?: string
+          generated_by?: string
+          id?: string
+          locked?: boolean
+          payload?: Json
+          period_key: string
+          period_type: string
+          scope_id: string
+          scope_name?: string | null
+          scope_type: string
+          teachers_by_category?: Json
+          teachers_female?: number
+          teachers_male?: number
+          total_classes?: number
+          total_schools?: number
+          total_students?: number
+          total_teachers?: number
+        }
+        Update: {
+          generated_at?: string
+          generated_by?: string
+          id?: string
+          locked?: boolean
+          payload?: Json
+          period_key?: string
+          period_type?: string
+          scope_id?: string
+          scope_name?: string | null
+          scope_type?: string
+          teachers_by_category?: Json
+          teachers_female?: number
+          teachers_male?: number
+          total_classes?: number
+          total_schools?: number
+          total_students?: number
+          total_teachers?: number
+        }
+        Relationships: []
+      }
       students: {
         Row: {
           active: boolean
@@ -861,6 +928,131 @@ export type Database = {
           },
         ]
       }
+      teacher_requirements: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          required_teachers: number
+          school_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          required_teachers: number
+          school_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          required_teachers?: number
+          school_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      transfer_history: {
+        Row: {
+          executed_at: string
+          executed_by: string
+          from_school_id: string | null
+          id: string
+          professor_id: string
+          snapshot: Json
+          to_school_id: string
+          transfer_request_id: string | null
+        }
+        Insert: {
+          executed_at?: string
+          executed_by: string
+          from_school_id?: string | null
+          id?: string
+          professor_id: string
+          snapshot?: Json
+          to_school_id: string
+          transfer_request_id?: string | null
+        }
+        Update: {
+          executed_at?: string
+          executed_by?: string
+          from_school_id?: string | null
+          id?: string
+          professor_id?: string
+          snapshot?: Json
+          to_school_id?: string
+          transfer_request_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfer_history_transfer_request_id_fkey"
+            columns: ["transfer_request_id"]
+            isOneToOne: false
+            referencedRelation: "transfer_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transfer_requests: {
+        Row: {
+          created_at: string
+          executed_at: string | null
+          executed_by: string | null
+          from_school_id: string
+          id: string
+          professor_id: string
+          reason: string | null
+          requested_at: string
+          requested_by: string
+          review_comment: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          to_school_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          executed_at?: string | null
+          executed_by?: string | null
+          from_school_id: string
+          id?: string
+          professor_id: string
+          reason?: string | null
+          requested_at?: string
+          requested_by?: string
+          review_comment?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          to_school_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          executed_at?: string | null
+          executed_by?: string | null
+          from_school_id?: string
+          id?: string
+          professor_id?: string
+          reason?: string | null
+          requested_at?: string
+          requested_by?: string
+          review_comment?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          to_school_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           active: boolean
@@ -900,6 +1092,13 @@ export type Database = {
             foreignKeyName: "user_roles_municipality_id_fkey"
             columns: ["municipality_id"]
             isOneToOne: false
+            referencedRelation: "deficit_by_municipality"
+            referencedColumns: ["municipality_id"]
+          },
+          {
+            foreignKeyName: "user_roles_municipality_id_fkey"
+            columns: ["municipality_id"]
+            isOneToOne: false
             referencedRelation: "municipalities"
             referencedColumns: ["id"]
           },
@@ -921,7 +1120,35 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      deficit_by_municipality: {
+        Row: {
+          current_teachers: number | null
+          deficit: number | null
+          municipality_id: string | null
+          municipality_name: string | null
+          province_id: string | null
+          required_teachers: number | null
+          severity: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "municipalities_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "provinces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizational_units: {
+        Row: {
+          id: string | null
+          name: string | null
+          parent_id: string | null
+          type: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       apply_pending_change: { Args: { _pending_id: string }; Returns: Json }
@@ -938,6 +1165,21 @@ export type Database = {
         }
         Returns: boolean
       }
+      execute_transfer: { Args: { _request_id: string }; Returns: Json }
+      generate_snapshot: {
+        Args: {
+          _period_key: string
+          _period_type: string
+          _scope_id: string
+          _scope_type: string
+        }
+        Returns: string
+      }
+      get_accessible_school_ids: {
+        Args: { _user_id: string }
+        Returns: string[]
+      }
+      get_accessible_uos: { Args: { _uo_id: string }; Returns: string[] }
       get_user_municipality_id: { Args: { _user_id: string }; Returns: string }
       get_user_province_id: { Args: { _user_id: string }; Returns: string }
       get_user_role: {
@@ -945,6 +1187,7 @@ export type Database = {
         Returns: Database["public"]["Enums"]["app_role"]
       }
       get_user_school_id: { Args: { _user_id: string }; Returns: string }
+      get_user_uo: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
