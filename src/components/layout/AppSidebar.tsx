@@ -11,7 +11,7 @@ import {
 import {
   LayoutDashboard, Building2, Users, Calendar, FileText, BarChart3, Settings, LogOut,
   Shield, ChevronLeft, ChevronRight, GraduationCap, ClipboardList, Bell, FolderOpen,
-  CheckSquare, MapPin, Map, History, GitCompare,
+  CheckSquare, MapPin, Map, History, GitCompare, ArrowLeftRight, FileBarChart, Users2,
 } from "lucide-react";
 import { useState } from "react";
 
