@@ -861,6 +861,101 @@ export type Database = {
           },
         ]
       }
+      transfer_history: {
+        Row: {
+          executed_at: string
+          executed_by: string
+          from_school_id: string | null
+          id: string
+          professor_id: string
+          snapshot: Json
+          to_school_id: string
+          transfer_request_id: string | null
+        }
+        Insert: {
+          executed_at?: string
+          executed_by: string
+          from_school_id?: string | null
+          id?: string
+          professor_id: string
+          snapshot?: Json
+          to_school_id: string
+          transfer_request_id?: string | null
+        }
+        Update: {
+          executed_at?: string
+          executed_by?: string
+          from_school_id?: string | null
+          id?: string
+          professor_id?: string
+          snapshot?: Json
+          to_school_id?: string
+          transfer_request_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfer_history_transfer_request_id_fkey"
+            columns: ["transfer_request_id"]
+            isOneToOne: false
+            referencedRelation: "transfer_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transfer_requests: {
+        Row: {
+          created_at: string
+          executed_at: string | null
+          executed_by: string | null
+          from_school_id: string
+          id: string
+          professor_id: string
+          reason: string | null
+          requested_at: string
+          requested_by: string
+          review_comment: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          to_school_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          executed_at?: string | null
+          executed_by?: string | null
+          from_school_id: string
+          id?: string
+          professor_id: string
+          reason?: string | null
+          requested_at?: string
+          requested_by?: string
+          review_comment?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          to_school_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          executed_at?: string | null
+          executed_by?: string | null
+          from_school_id?: string
+          id?: string
+          professor_id?: string
+          reason?: string | null
+          requested_at?: string
+          requested_by?: string
+          review_comment?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          to_school_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           active: boolean
@@ -946,6 +1041,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      execute_transfer: { Args: { _request_id: string }; Returns: Json }
       get_accessible_school_ids: {
         Args: { _user_id: string }
         Returns: string[]
