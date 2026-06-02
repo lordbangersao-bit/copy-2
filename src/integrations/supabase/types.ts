@@ -921,7 +921,15 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      organizational_units: {
+        Row: {
+          id: string | null
+          name: string | null
+          parent_id: string | null
+          type: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       apply_pending_change: { Args: { _pending_id: string }; Returns: Json }
@@ -938,6 +946,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      get_accessible_school_ids: {
+        Args: { _user_id: string }
+        Returns: string[]
+      }
+      get_accessible_uos: { Args: { _uo_id: string }; Returns: string[] }
       get_user_municipality_id: { Args: { _user_id: string }; Returns: string }
       get_user_province_id: { Args: { _user_id: string }; Returns: string }
       get_user_role: {
@@ -945,6 +958,7 @@ export type Database = {
         Returns: Database["public"]["Enums"]["app_role"]
       }
       get_user_school_id: { Args: { _user_id: string }; Returns: string }
+      get_user_uo: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
