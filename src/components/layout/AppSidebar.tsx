@@ -49,6 +49,7 @@ const managementNavItems: NavItem[] = [
   { path: "/presencas", label: "Presenças", icon: CheckSquare },
   { path: "/expedientes", label: "Expedientes", icon: FileText },
   { path: "/aprovacoes", label: "Fila de Aprovações", icon: GitCompare, roles: ["ADMIN", "GESTOR_PROVINCIAL", "VALIDADOR_PROVINCIAL"] },
+  { path: "/transferencias", label: "Transferências", icon: ArrowLeftRight, roles: ["ADMIN", "GESTOR_PROVINCIAL", "GESTOR_MUNICIPAL", "DIRECTOR_ESCOLA"] },
   { path: "/assiduidade", label: "Assiduidade", icon: CheckSquare },
   { path: "/horarios", label: "Colocação e Horários", icon: Calendar },
   { path: "/avaliacoes", label: "Avaliação Desempenho", icon: ClipboardList },
@@ -59,6 +60,8 @@ const systemNavItems: NavItem[] = [
   { path: "/comunicados", label: "Comunicação", icon: Bell },
   { path: "/documentos", label: "Documentos", icon: FolderOpen },
   { path: "/relatorios", label: "Relatórios & BI", icon: BarChart3 },
+  { path: "/relatorios-oficiais", label: "Relatórios Oficiais", icon: FileBarChart, roles: ["ADMIN", "GESTOR_PROVINCIAL", "GESTOR_MUNICIPAL", "AUDITOR"] },
+  { path: "/deficit", label: "Défice Docente", icon: Users2, roles: ["ADMIN", "GESTOR_PROVINCIAL", "GESTOR_MUNICIPAL"] },
 ];
 
 const adminNavItems: NavItem[] = [
