@@ -32,6 +32,9 @@ const Alunos = lazy(() => import("./pages/Alunos"));
 const PresencaOffline = lazy(() => import("./pages/PresencaOffline"));
 const AuditHistory = lazy(() => import("./pages/AuditHistory"));
 const Aprovacoes = lazy(() => import("./pages/Aprovacoes"));
+const Transferencias = lazy(() => import("./pages/Transferencias"));
+const RelatoriosOficiais = lazy(() => import("./pages/RelatoriosOficiais"));
+const DeficitDocente = lazy(() => import("./pages/DeficitDocente"));
 
 const queryClient = new QueryClient();
 
