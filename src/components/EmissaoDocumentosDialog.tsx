@@ -135,7 +135,7 @@ export function EmissaoDocumentosDialog({
         row("Outro Familiar", val(professor.outro_familiar)),
       ].join("")}</table>
     `;
-    openPrintWindow(getOfficialPrintHTML({ title: "FICHA COMPLETA DO AGENTE", content }));
+    await printOfficialDocument({ title: "FICHA COMPLETA DO AGENTE", content, recordId: professor.id, documentType: "ficha_completa" });
   };
 
   // ===== FICHA RESUMIDA =====
