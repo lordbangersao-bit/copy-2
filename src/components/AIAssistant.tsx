@@ -247,7 +247,7 @@ export function AIAssistant() {
             return `<table><thead><tr>${headers}</tr></thead><tbody>${body}</tbody></table>`;
           });
 
-        await printOfficialDocument({
+        void printOfficialDocument({
           title: action.param,
           content: formattedContent,
           documentType: "ai_generated",
