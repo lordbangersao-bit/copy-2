@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { getOfficialPrintHTML, openPrintWindow } from "@/lib/printTemplate";
+import { printOfficialDocument } from "@/lib/printTemplate";
 import { calcularIdade, calcularTempoServico } from "@/lib/calcularAgente";
 import { ProfessorWithEscola } from "@/hooks/useProfessores";
 import { useUpdateProfessor } from "@/hooks/useProfessores";
