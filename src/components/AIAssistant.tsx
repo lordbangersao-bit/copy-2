@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { useEscolas } from "@/hooks/useEscolas";
 import { useProfessores } from "@/hooks/useProfessores";
 import { classificarFuncionario } from "@/lib/classificarFuncionario";
-import { getOfficialPrintHTML, openPrintWindow } from "@/lib/printTemplate";
+import { printOfficialDocument } from "@/lib/printTemplate";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -247,11 +247,11 @@ export function AIAssistant() {
             return `<table><thead><tr>${headers}</tr></thead><tbody>${body}</tbody></table>`;
           });
 
-        const html = getOfficialPrintHTML({
+        void printOfficialDocument({
           title: action.param,
           content: formattedContent,
+          documentType: "ai_generated",
         });
-        openPrintWindow(html);
         toast.success("Documento preparado para impressão");
         break;
       }

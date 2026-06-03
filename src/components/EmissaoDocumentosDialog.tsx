@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { getOfficialPrintHTML, openPrintWindow } from "@/lib/printTemplate";
+import { printOfficialDocument } from "@/lib/printTemplate";
 import { calcularIdade, calcularTempoServico } from "@/lib/calcularAgente";
 import { ProfessorWithEscola } from "@/hooks/useProfessores";
 import { useUpdateProfessor } from "@/hooks/useProfessores";
@@ -135,7 +135,7 @@ export function EmissaoDocumentosDialog({
         row("Outro Familiar", val(professor.outro_familiar)),
       ].join("")}</table>
     `;
-    openPrintWindow(getOfficialPrintHTML({ title: "FICHA COMPLETA DO AGENTE", content }));
+    void printOfficialDocument({ title: "FICHA COMPLETA DO AGENTE", content, recordId: professor.id, documentType: "ficha_completa" });
   };
 
   // ===== FICHA RESUMIDA =====
@@ -156,7 +156,7 @@ export function EmissaoDocumentosDialog({
         row("Actividade", val(professor.actividade)),
       ].join("")}</table>
     `;
-    openPrintWindow(getOfficialPrintHTML({ title: "FICHA RESUMIDA DO AGENTE", content }));
+    void printOfficialDocument({ title: "FICHA RESUMIDA DO AGENTE", content, recordId: professor.id, documentType: "ficha_resumida" });
   };
 
   // ===== DECLARAÇÃO DE SERVIÇO =====
@@ -183,7 +183,7 @@ export function EmissaoDocumentosDialog({
         A presente declaração é passada a pedido do(a) interessado(a), para os fins que entender convenientes.
       </p>
     `;
-    openPrintWindow(getOfficialPrintHTML({ title: "DECLARAÇÃO DE SERVIÇO", content }));
+    void printOfficialDocument({ title: "DECLARAÇÃO DE SERVIÇO", content, recordId: professor.id, documentType: "declaracao_servico" });
   };
 
   // ===== TERMO DE INÍCIO DE FUNÇÕES =====
@@ -247,7 +247,7 @@ export function EmissaoDocumentosDialog({
         </div>
       </div>
     `;
-    openPrintWindow(getOfficialPrintHTML({ title: "TERMO DE INÍCIO DE FUNÇÕES", content }));
+    void printOfficialDocument({ title: "TERMO DE INÍCIO DE FUNÇÕES", content, recordId: professor.id, documentType: "termo_inicio" });
   };
 
   // ===== DECLARAÇÃO PARA CRÉDITO BANCÁRIO =====
@@ -298,7 +298,7 @@ export function EmissaoDocumentosDialog({
         row("Telefone", val(professor.telefone)),
       ].join("")}</table>
     `;
-    openPrintWindow(getOfficialPrintHTML({ title: "DECLARAÇÃO PARA FINS BANCÁRIOS", content }));
+    void printOfficialDocument({ title: "DECLARAÇÃO PARA FINS BANCÁRIOS", content, recordId: professor.id, documentType: "declaracao_bancaria" });
   };
 
   // ===== PASSE DE IDENTIFICAÇÃO =====

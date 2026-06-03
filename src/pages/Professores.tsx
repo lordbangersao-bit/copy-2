@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMunicipalities } from "@/hooks/useMunicipalities";
 import * as XLSX from "xlsx";
-import { getOfficialPrintHTML, openPrintWindow } from "@/lib/printTemplate";
+import { printOfficialDocument } from "@/lib/printTemplate";
 import { calcularIdade, calcularTempoServico, calcularTempoServicoAnos } from "@/lib/calcularAgente";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/ui/page-header";
@@ -295,11 +295,11 @@ export default function Professores() {
       `;
     }
 
-    const html = getOfficialPrintHTML({
+    void printOfficialDocument({
       title,
       content: tableContent,
+      documentType: "relatorio_professores",
     });
-    openPrintWindow(html);
   };
 
   const exportToExcel = () => {
