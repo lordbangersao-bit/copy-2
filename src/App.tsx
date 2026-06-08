@@ -35,6 +35,7 @@ const Aprovacoes = lazy(() => import("./pages/Aprovacoes"));
 const Transferencias = lazy(() => import("./pages/Transferencias"));
 const RelatoriosOficiais = lazy(() => import("./pages/RelatoriosOficiais"));
 const DeficitDocente = lazy(() => import("./pages/DeficitDocente"));
+const VerifyDocument = lazy(() => import("./pages/VerifyDocument"));
 
 const queryClient = new QueryClient();
 
@@ -55,6 +56,7 @@ const App = () => (
             <Routes>
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/verify/:code" element={<VerifyDocument />} />
               <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="/provincias" element={<ProtectedRoute><Provincias /></ProtectedRoute>} />
               <Route path="/municipios" element={<ProtectedRoute><Municipios /></ProtectedRoute>} />

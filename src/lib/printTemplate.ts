@@ -13,6 +13,7 @@
  */
 
 import QRCode from "qrcode";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PrintTemplateOptions {
   title: string;
@@ -56,6 +57,25 @@ export async function printOfficialDocument(
   options: PrintOfficialDocumentOptions
 ): Promise<void> {
   const verification = await buildVerification(options);
+  // Register issued document for public verification (non-blocking on error)
+  try {
+    const { data: u } = await supabase.auth.getUser();
+    await supabase.from("issued_documents").insert({
+      document_code: verification.documentCode,
+      document_number: verification.documentNumber,
+      document_type: options.documentType ?? "OFICIAL",
+      title: options.title,
+      document_hash: verification.documentHash,
+      signature_hash: verification.signatureHash,
+      municipality: verification.municipality,
+      issued_by: u.user?.id ?? null,
+      issued_by_name: options.userName ?? null,
+      professor_id: options.recordId ?? null,
+      payload: { issue_date: verification.issueDate },
+    });
+  } catch (e) {
+    console.warn("Falha ao registar documento para verificação pública:", e);
+  }
   const html = getOfficialPrintHTML({
     title: options.title,
     content: options.content,
