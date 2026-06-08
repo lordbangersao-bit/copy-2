@@ -105,7 +105,7 @@ export default function DocumentosEmitidos() {
         <PageHeader
           title="Documentos Emitidos"
           description="Registo oficial de todos os documentos emitidos com verificação pública."
-          icon={FileText}
+          icon={<FileText className="h-6 w-6" />}
         />
 
         <Card>
