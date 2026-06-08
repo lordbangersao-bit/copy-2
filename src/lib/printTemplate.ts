@@ -70,8 +70,7 @@ export async function printOfficialDocument(
       municipality: verification.municipality,
       issued_by: u.user?.id ?? null,
       issued_by_name: options.userName ?? null,
-      professor_id: options.recordId ?? null,
-      payload: { issue_date: verification.issueDate },
+      payload: { issue_date: verification.issueDate, record_id: options.recordId ?? null },
     });
   } catch (e) {
     console.warn("Falha ao registar documento para verificação pública:", e);
