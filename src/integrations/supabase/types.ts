@@ -556,6 +556,87 @@ export type Database = {
           },
         ]
       }
+      issued_documents: {
+        Row: {
+          created_at: string
+          document_code: string
+          document_hash: string
+          document_number: string
+          document_type: string
+          id: string
+          issued_at: string
+          issued_by: string | null
+          issued_by_name: string | null
+          municipality: string
+          payload: Json | null
+          professor_id: string | null
+          revoke_reason: string | null
+          revoked: boolean
+          revoked_at: string | null
+          revoked_by: string | null
+          school_id: string | null
+          signature_hash: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          document_code: string
+          document_hash: string
+          document_number: string
+          document_type: string
+          id?: string
+          issued_at?: string
+          issued_by?: string | null
+          issued_by_name?: string | null
+          municipality: string
+          payload?: Json | null
+          professor_id?: string | null
+          revoke_reason?: string | null
+          revoked?: boolean
+          revoked_at?: string | null
+          revoked_by?: string | null
+          school_id?: string | null
+          signature_hash: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          document_code?: string
+          document_hash?: string
+          document_number?: string
+          document_type?: string
+          id?: string
+          issued_at?: string
+          issued_by?: string | null
+          issued_by_name?: string | null
+          municipality?: string
+          payload?: Json | null
+          professor_id?: string | null
+          revoke_reason?: string | null
+          revoked?: boolean
+          revoked_at?: string | null
+          revoked_by?: string | null
+          school_id?: string | null
+          signature_hash?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "issued_documents_professor_id_fkey"
+            columns: ["professor_id"]
+            isOneToOne: false
+            referencedRelation: "professores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "issued_documents_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "escolas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       municipalities: {
         Row: {
           code: string | null
