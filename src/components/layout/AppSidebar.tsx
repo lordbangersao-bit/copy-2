@@ -11,7 +11,7 @@ import {
 import {
   LayoutDashboard, Building2, Users, Calendar, FileText, BarChart3, Settings, LogOut,
   Shield, ChevronLeft, ChevronRight, GraduationCap, ClipboardList, Bell, FolderOpen,
-  CheckSquare, MapPin, Map, History, GitCompare, ArrowLeftRight, FileBarChart, Users2,
+  CheckSquare, MapPin, Map, History, GitCompare, ArrowLeftRight, FileBarChart, Users2, ShieldCheck,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -59,6 +59,7 @@ const managementNavItems: NavItem[] = [
 const systemNavItems: NavItem[] = [
   { path: "/comunicados", label: "Comunicação", icon: Bell },
   { path: "/documentos", label: "Documentos", icon: FolderOpen },
+  { path: "/documentos-emitidos", label: "Docs. Emitidos", icon: ShieldCheck },
   { path: "/relatorios", label: "Relatórios & BI", icon: BarChart3 },
   { path: "/relatorios-oficiais", label: "Relatórios Oficiais", icon: FileBarChart, roles: ["ADMIN", "GESTOR_PROVINCIAL", "GESTOR_MUNICIPAL", "AUDITOR"] },
   { path: "/deficit", label: "Défice Docente", icon: Users2, roles: ["ADMIN", "GESTOR_PROVINCIAL", "GESTOR_MUNICIPAL"] },
