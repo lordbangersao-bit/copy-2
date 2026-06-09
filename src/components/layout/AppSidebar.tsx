@@ -153,9 +153,9 @@ export function AppSidebar({ collapsed, onToggle, mobile = false }: AppSidebarPr
               <GraduationCap className="h-5 w-5 text-sidebar-primary-foreground" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-sidebar-foreground">SGRH</span>
+              <span className="font-bold text-sidebar-foreground">SIGE+</span>
               <span className="text-[10px] text-sidebar-muted-foreground leading-tight">
-                Sistema de Gestão de Recursos Humanos
+                Sistema Integrado de Gestão da Educação
               </span>
             </div>
           </div>
