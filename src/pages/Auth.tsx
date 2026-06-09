@@ -159,7 +159,7 @@ export default function Auth() {
               onError={(e) => (e.currentTarget.style.display = "none")}
             />
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-white tracking-wide">SGRH</h1>
+              <h1 className="text-2xl font-bold text-white tracking-wide">SIGE+</h1>
               <p className="text-xs text-white/70 leading-tight max-w-[200px]">
                 Direcção Municipal da Educação de Namacunde
               </p>
@@ -174,7 +174,7 @@ export default function Auth() {
           <div className="flex items-center gap-2 mt-1">
             <Shield className="h-4 w-4 text-white/50" />
             <p className="text-[11px] text-white/50 uppercase tracking-widest">
-              Sistema de Gestão de Recursos Humanos
+              Sistema Integrado de Gestão da Educação
             </p>
           </div>
         </div>
@@ -410,7 +410,7 @@ export default function Auth() {
 
         {/* Footer */}
         <p className="text-[10px] text-center text-white/30">
-          © {new Date().getFullYear()} SGRH — Sistema de Gestão de Recursos Humanos
+          © {new Date().getFullYear()} SIGE+ — Sistema Integrado de Gestão da Educação
         </p>
       </div>
     </div>

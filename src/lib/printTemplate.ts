@@ -186,7 +186,7 @@ export function getOfficialPrintHTML({
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <title>${escapeHtml(title)} — DMEN Gestor</title>
+  <title>${escapeHtml(title)} — SIGE+</title>
   <style>
     /* ==========================================================
        A4 PAGE RULES — Government Grade
@@ -203,7 +203,7 @@ export function getOfficialPrintHTML({
         color: #555;
       }
       @bottom-left {
-        content: "DMEN — ${escapeHtml(muni)}";
+        content: "${escapeHtml(muni)} — SIGE+";
         font-family: 'Times New Roman', serif;
         font-size: 9pt;
         color: #555;
@@ -405,7 +405,7 @@ export function getOfficialPrintHTML({
   </style>
 </head>
 <body>
-  <div class="watermark">DMEN</div>
+  <div class="watermark">SIGE+</div>
 
   <header class="official-header">
     <img src="/images/brasao-angola.png" class="brasao" alt="" onerror="this.style.display='none'" />
@@ -466,11 +466,11 @@ function renderVerificationPage(v: VerificationData): string {
       1. Aceda ao endereço de verificação acima ou leia o QR Code.<br/>
       2. Confirme se o <strong>Código Oficial</strong> e o <strong>Hash SHA-256</strong> coincidem com os exibidos no sistema oficial.<br/>
       3. Qualquer alteração ao conteúdo deste documento invalida automaticamente o hash e a assinatura digital.<br/>
-      4. Em caso de divergência, contacte a Direcção Municipal da Educação (DMEN).
+      4. Em caso de divergência, contacte a Direcção Municipal da Educação (DME).
     </div>
 
     <div class="verify-footnote">
-      Documento emitido electronicamente pelo Sistema de Gestão da Educação (DMEN-SIGE).<br/>
+      Documento emitido electronicamente pelo SIGE+ — Sistema Integrado de Gestão da Educação.<br/>
       Sistema desenvolvido por Áureo Chissanhino Maria da Silva — Advogado e Codificador Informático.
     </div>
   </section>`;

@@ -155,7 +155,7 @@ export default function VerifyDocument() {
 
               <div className="mt-4 pt-4 border-t text-xs text-muted-foreground">
                 Esta verificação confirma que o documento foi emitido pelo sistema
-                oficial DMEN-SIGE. Para validar a integridade do conteúdo, compare
+                oficial DME-SIGE. Para validar a integridade do conteúdo, compare
                 o <strong>Hash SHA-256</strong> acima com o exibido no documento
                 impresso. Qualquer divergência indica que o documento foi alterado.
               </div>
@@ -172,7 +172,7 @@ export default function VerifyDocument() {
         </div>
 
         <footer className="text-center text-xs text-muted-foreground mt-8">
-          © {new Date().getFullYear()} DMEN — Sistema desenvolvido por Áureo
+          © {new Date().getFullYear()} DME — Sistema desenvolvido por Áureo
           Chissanhino Maria da Silva
         </footer>
       </div>
