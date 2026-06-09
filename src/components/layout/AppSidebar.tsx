@@ -25,49 +25,71 @@ interface NavItem {
   roles?: AppRole[];
 }
 
+// Display labels — mapped to both legacy DB roles and new SIGE+ standard roles
 const roleLabels: Record<string, string> = {
-  ADMIN: "Administrador",
-  GESTOR_PROVINCIAL: "Gestor Provincial",
-  VALIDADOR_PROVINCIAL: "Validador Provincial",
+  ADMIN: "Administrador Provincial",
+  PROVINCIAL_ADMIN: "Administrador Provincial",
+  GESTOR_PROVINCIAL: "Administrador Provincial",
+  VALIDADOR_PROVINCIAL: "Director Municipal",
+  MUNICIPAL_DIRECTOR: "Director Municipal",
   GESTOR_MUNICIPAL: "Gestor Municipal",
-  DIRECTOR_ESCOLA: "Director de Escola",
-  TECNICO: "Técnico",
-  VIEWER: "Visualizador",
-  AUDITOR: "Auditor",
+  MUNICIPAL_MANAGER: "Gestor Municipal",
+  DIRECTOR_ESCOLA: "Gestor da Unidade Orgânica",
+  UNIT_MANAGER: "Gestor da Unidade Orgânica",
+  TECNICO: "Operador",
+  OPERATOR: "Operador",
+  VIEWER: "Consulta",
+  AUDITOR: "Auditoria e Conformidade",
 };
 
-const mainNavItems: NavItem[] = [
-  { path: "/", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/provincias", label: "Províncias", icon: Map, roles: ["ADMIN"] },
-  { path: "/municipios", label: "Municípios (Direcções)", icon: MapPin, roles: ["ADMIN", "GESTOR_PROVINCIAL"] },
-  { path: "/escolas", label: "Unidades Orgânicas", icon: Building2 },
-  { path: "/professores", label: "Agentes", icon: Users },
-  // { path: "/alunos", label: "Alunos", icon: GraduationCap }, // Oculto por enquanto
+// === SIGE+ — Estrutura de Módulos Institucionais ===
+
+const dashboardNavItems: NavItem[] = [
+  { path: "/", label: "Painel Institucional", icon: LayoutDashboard },
 ];
 
-const managementNavItems: NavItem[] = [
-  { path: "/presencas", label: "Presenças", icon: CheckSquare },
-  { path: "/expedientes", label: "Expedientes", icon: FileText },
-  { path: "/aprovacoes", label: "Fila de Aprovações", icon: GitCompare, roles: ["ADMIN", "GESTOR_PROVINCIAL", "VALIDADOR_PROVINCIAL"] },
-  { path: "/transferencias", label: "Transferências", icon: ArrowLeftRight, roles: ["ADMIN", "GESTOR_PROVINCIAL", "GESTOR_MUNICIPAL", "DIRECTOR_ESCOLA"] },
+// 1. Administração Institucional
+const institucionalNavItems: NavItem[] = [
+  { path: "/provincias", label: "Direcção Provincial (DPE)", icon: Map, roles: ["ADMIN"] },
+  { path: "/municipios", label: "Direcção Municipal (DME)", icon: MapPin, roles: ["ADMIN", "GESTOR_PROVINCIAL"] },
+  { path: "/escolas", label: "Unidades Orgânicas (UO)", icon: Building2 },
+];
+
+// 2. Recursos Humanos  (Agentes = Quadro de Pessoal)
+const rhNavItems: NavItem[] = [
+  { path: "/professores", label: "Quadro de Pessoal", icon: Users },
   { path: "/assiduidade", label: "Assiduidade", icon: CheckSquare },
   { path: "/horarios", label: "Colocação e Horários", icon: Calendar },
-  { path: "/avaliacoes", label: "Avaliação Desempenho", icon: ClipboardList },
-  { path: "/processos", label: "Processos", icon: FileText },
+  { path: "/avaliacoes", label: "Avaliação de Desempenho", icon: ClipboardList },
+  { path: "/processos", label: "Processos do Agente", icon: FileText },
+  { path: "/presencas", label: "Presenças (Offline)", icon: CheckSquare },
 ];
 
-const systemNavItems: NavItem[] = [
-  { path: "/comunicados", label: "Comunicação", icon: Bell },
-  { path: "/documentos", label: "Documentos", icon: FolderOpen },
-  { path: "/documentos-emitidos", label: "Docs. Emitidos", icon: ShieldCheck },
-  { path: "/relatorios", label: "Relatórios & BI", icon: BarChart3 },
-  { path: "/relatorios-oficiais", label: "Relatórios Oficiais", icon: FileBarChart, roles: ["ADMIN", "GESTOR_PROVINCIAL", "GESTOR_MUNICIPAL", "AUDITOR"] },
-  { path: "/deficit", label: "Défice Docente", icon: Users2, roles: ["ADMIN", "GESTOR_PROVINCIAL", "GESTOR_MUNICIPAL"] },
+// 3. Mobilidade e Transferências
+const mobilidadeNavItems: NavItem[] = [
+  { path: "/transferencias", label: "Mobilidade & Transferências", icon: ArrowLeftRight, roles: ["ADMIN", "GESTOR_PROVINCIAL", "GESTOR_MUNICIPAL", "DIRECTOR_ESCOLA"] },
+  { path: "/aprovacoes", label: "Fila de Aprovações", icon: GitCompare, roles: ["ADMIN", "GESTOR_PROVINCIAL", "VALIDADOR_PROVINCIAL"] },
 ];
 
+// 4. Documentação Oficial / Verificação
+const documentacaoNavItems: NavItem[] = [
+  { path: "/documentos", label: "Documentação Oficial", icon: FolderOpen },
+  { path: "/expedientes", label: "Expedientes", icon: FileText },
+  { path: "/comunicados", label: "Comunicação Institucional", icon: Bell },
+  { path: "/documentos-emitidos", label: "Verificação Documental", icon: ShieldCheck },
+];
+
+// 5. Estatísticas e Relatórios
+const estatisticasNavItems: NavItem[] = [
+  { path: "/relatorios", label: "Estatísticas Educacionais", icon: BarChart3 },
+  { path: "/relatorios-oficiais", label: "Relatórios Institucionais", icon: FileBarChart, roles: ["ADMIN", "GESTOR_PROVINCIAL", "GESTOR_MUNICIPAL", "AUDITOR"] },
+  { path: "/deficit", label: "Déficit Docente", icon: Users2, roles: ["ADMIN", "GESTOR_PROVINCIAL", "GESTOR_MUNICIPAL"] },
+];
+
+// 6. Auditoria e Configurações
 const adminNavItems: NavItem[] = [
   { path: "/utilizadores", label: "Gestão de Utilizadores", icon: Shield, roles: ["ADMIN"] },
-  { path: "/auditoria", label: "Auditoria", icon: History, roles: ["ADMIN", "GESTOR_PROVINCIAL", "AUDITOR"] },
+  { path: "/auditoria", label: "Auditoria e Conformidade", icon: History, roles: ["ADMIN", "GESTOR_PROVINCIAL", "AUDITOR"] },
 ];
 
 interface AppSidebarProps {
@@ -169,10 +191,13 @@ export function AppSidebar({ collapsed, onToggle, mobile = false }: AppSidebarPr
       {/* Navigation */}
       <ScrollArea className="flex-1 px-3 py-4">
         <nav className="space-y-6">
-          <NavSection items={mainNavItems} />
-          <NavSection title="Gestão" items={managementNavItems} />
-          <NavSection title="Sistema" items={systemNavItems} />
-          <NavSection title="Administração" items={adminNavItems} />
+          <NavSection items={dashboardNavItems} />
+          <NavSection title="Administração Institucional" items={institucionalNavItems} />
+          <NavSection title="Recursos Humanos" items={rhNavItems} />
+          <NavSection title="Mobilidade" items={mobilidadeNavItems} />
+          <NavSection title="Documentação" items={documentacaoNavItems} />
+          <NavSection title="Estatísticas & Relatórios" items={estatisticasNavItems} />
+          <NavSection title="Auditoria & Configurações" items={adminNavItems} />
         </nav>
       </ScrollArea>
 
