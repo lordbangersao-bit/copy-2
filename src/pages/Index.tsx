@@ -168,15 +168,21 @@ const Index = () => {
   return (
     <AppLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-3">
           <RoleBanner role={role} roleInfo={roleInfo} municipalityName={municipalityName} />
-          <PrintableReport title="Relatório Geral — Dashboard">
-            <div className="stats-grid">
-              <div className="stat-box"><div className="value">{totalEscolas}</div><div className="label">Unidades Orgânicas</div></div>
-              <div className="stat-box"><div className="value">{totalProfessores}</div><div className="label">Total de Agentes</div></div>
-              <div className="stat-box"><div className="value">{totalMunicipios}</div><div className="label">Municípios</div></div>
-            </div>
-          </PrintableReport>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="gap-1.5 py-1.5">
+              <MapPin className="h-3.5 w-3.5 text-primary" />
+              Escopo: <span className="font-semibold">Namacunde · Cunene</span>
+            </Badge>
+            <PrintableReport title="Relatório Geral — Dashboard">
+              <div className="stats-grid">
+                <div className="stat-box"><div className="value">{totalEscolas}</div><div className="label">Unidades Orgânicas</div></div>
+                <div className="stat-box"><div className="value">{totalProfessores}</div><div className="label">Total de Agentes</div></div>
+                <div className="stat-box"><div className="value">{totalMunicipios}</div><div className="label">Municípios</div></div>
+              </div>
+            </PrintableReport>
+          </div>
         </div>
 
         {/* Provincial/Admin level KPIs */}
