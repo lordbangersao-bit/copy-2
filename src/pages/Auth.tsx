@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import insigniaAngola from "@/assets/insignia-angola.png.asset.json";
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido"),
@@ -151,29 +152,15 @@ export default function Auth() {
       <div className="w-full max-w-md space-y-6">
         {/* Logo & Branding */}
         <div className="flex flex-col items-center gap-3">
-          <div className="flex items-center gap-4">
-            <img
-              src="/images/brasao-angola.png"
-              alt="Brasão de Angola"
-              className="h-16 w-16 object-contain drop-shadow-lg"
-              onError={(e) => (e.currentTarget.style.display = "none")}
-            />
-            <div className="text-center">
-              <h1 className="text-2xl font-bold text-white tracking-wide">SIGE+</h1>
-              <p className="text-xs text-white/70 leading-tight max-w-[200px]">
-                Direcção Municipal da Educação de Namacunde
-              </p>
-            </div>
-            <img
-              src="/images/governo-angola-logo.png"
-              alt="Governo de Angola"
-              className="h-16 w-16 object-contain drop-shadow-lg"
-              onError={(e) => (e.currentTarget.style.display = "none")}
-            />
-          </div>
-          <div className="flex items-center gap-2 mt-1">
+          <img
+            src={insigniaAngola.url}
+            alt="Insígnia da República de Angola"
+            className="h-24 w-24 object-contain drop-shadow-lg"
+          />
+          <h1 className="text-3xl font-bold text-white tracking-wide">SIGE+</h1>
+          <div className="flex items-center gap-2">
             <Shield className="h-4 w-4 text-white/50" />
-            <p className="text-[11px] text-white/50 uppercase tracking-widest">
+            <p className="text-[11px] text-white/60 uppercase tracking-widest text-center">
               Sistema Integrado de Gestão da Educação
             </p>
           </div>
