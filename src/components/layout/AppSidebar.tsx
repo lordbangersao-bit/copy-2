@@ -234,8 +234,8 @@ export function AppSidebar({ collapsed, onToggle, mobile = false }: AppSidebarPr
         <div className={cn("flex gap-2", collapsed && "flex-col")}>
           {!collapsed ? (
             <>
-              <Button variant="ghost" size="sm" className="flex-1 justify-start text-sidebar-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50" disabled>
-                <Settings className="h-4 w-4 mr-2" />Configurações
+              <Button asChild variant="ghost" size="sm" className="flex-1 justify-start text-sidebar-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50">
+                <Link to="/configuracoes"><Settings className="h-4 w-4 mr-2" />Configurações</Link>
               </Button>
               <Button variant="ghost" size="icon" className="text-sidebar-muted-foreground hover:text-destructive hover:bg-destructive/10" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4" />
@@ -245,7 +245,9 @@ export function AppSidebar({ collapsed, onToggle, mobile = false }: AppSidebarPr
             <>
               <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-sidebar-muted-foreground w-10 h-10" disabled><Settings className="h-5 w-5" /></Button>
+                  <Button asChild variant="ghost" size="icon" className="text-sidebar-muted-foreground w-10 h-10">
+                    <Link to="/configuracoes"><Settings className="h-5 w-5" /></Link>
+                  </Button>
                 </TooltipTrigger>
                 <TooltipContent side="right">Configurações</TooltipContent>
               </Tooltip>

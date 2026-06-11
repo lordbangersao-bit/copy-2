@@ -37,6 +37,7 @@ const RelatoriosOficiais = lazy(() => import("./pages/RelatoriosOficiais"));
 const DeficitDocente = lazy(() => import("./pages/DeficitDocente"));
 const VerifyDocument = lazy(() => import("./pages/VerifyDocument"));
 const DocumentosEmitidos = lazy(() => import("./pages/DocumentosEmitidos"));
+const Configuracoes = lazy(() => import("./pages/Configuracoes"));
 
 const queryClient = new QueryClient();
 
@@ -81,6 +82,7 @@ const App = () => (
               <Route path="/relatorios-oficiais" element={<ProtectedRoute><RelatoriosOficiais /></ProtectedRoute>} />
               <Route path="/deficit" element={<ProtectedRoute><DeficitDocente /></ProtectedRoute>} />
               <Route path="/documentos-emitidos" element={<ProtectedRoute><DocumentosEmitidos /></ProtectedRoute>} />
+              <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
