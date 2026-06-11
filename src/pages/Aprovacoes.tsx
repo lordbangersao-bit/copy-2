@@ -119,7 +119,7 @@ export default function Aprovacoes() {
                           <div className="flex items-center gap-2">
                             <Badge variant="outline">{tableLabel[p.table_name] || p.table_name}</Badge>
                             <Badge variant="outline">{operationLabel[p.operation]}</Badge>
-                            <Badge className={statusColor[p.status]}>{p.status}</Badge>
+                            <Badge className={statusColor[p.status]}>{({SUBMITTED:"Pendente",APPROVED:"Aprovada",APPLIED:"Aplicada",REJECTED:"Rejeitada"} as Record<string,string>)[p.status] || p.status}</Badge>
                           </div>
                           <span className="text-xs text-muted-foreground">{new Date(p.submitted_at).toLocaleString("pt-PT")}</span>
                         </div>

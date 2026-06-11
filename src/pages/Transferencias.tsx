@@ -30,7 +30,7 @@ const statusColors: Record<TransferStatus, string> = {
 
 const statusLabel: Record<TransferStatus, string> = {
   REQUESTED: "Solicitada",
-  UNDER_REVIEW: "Em análise",
+  UNDER_REVIEW: "Em Aprovação",
   APPROVED: "Aprovada",
   EXECUTED: "Executada",
   REJECTED: "Rejeitada",
