@@ -18,9 +18,9 @@ export default defineConfig(({ mode }) => ({
       devOptions: { enabled: false },
       includeAssets: ["favicon.ico", "images/*.png"],
       manifest: {
-        name: "SGRH — Sistema de Gestão de Recursos Humanos",
-        short_name: "SGRH",
-        description: "Sistema de Gestão de Recursos Humanos",
+        name: "SIGE+ — Sistema Integrado de Gestão da Educação",
+        short_name: "SIGE+",
+        description: "Sistema Integrado de Gestão da Educação — Município de Namacunde",
         theme_color: "#1e3a8a",
         background_color: "#ffffff",
         display: "standalone",
