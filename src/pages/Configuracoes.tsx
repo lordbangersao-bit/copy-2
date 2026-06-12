@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-import { Settings, Moon, Sun, LogOut, Mail, Shield, Clock, KeyRound, Loader2 } from "lucide-react";
+import { Settings, Moon, Sun, LogOut, Mail, Shield, Clock, KeyRound, Loader2, Bell, Wifi, WifiOff } from "lucide-react";
 import { toast } from "sonner";
 
 const roleLabels: Record<string, string> = {
@@ -25,6 +25,36 @@ export default function Configuracoes() {
   const { user, role, signOut } = useAuth();
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
   const [sendingReset, setSendingReset] = useState(false);
+  const [notifPerm, setNotifPerm] = useState<NotificationPermission>(
+    typeof Notification !== "undefined" ? Notification.permission : "denied"
+  );
+  const [online, setOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const on = () => setOnline(true);
+    const off = () => setOnline(false);
+    window.addEventListener("online", on);
+    window.addEventListener("offline", off);
+    return () => {
+      window.removeEventListener("online", on);
+      window.removeEventListener("offline", off);
+    };
+  }, []);
+
+  const requestNotifications = async () => {
+    if (typeof Notification === "undefined") {
+      toast.error("Notificações não suportadas neste dispositivo");
+      return;
+    }
+    const perm = await Notification.requestPermission();
+    setNotifPerm(perm);
+    if (perm === "granted") {
+      new Notification("SIGE+", { body: "Notificações activadas com sucesso." });
+      toast.success("Notificações activadas");
+    } else {
+      toast.warning("Permissão de notificações negada");
+    }
+  };
 
   useEffect(() => {
     if (isDark) document.documentElement.classList.add("dark");
@@ -141,6 +171,52 @@ export default function Configuracoes() {
                 <LogOut className="h-4 w-4 mr-2" /> Terminar
               </Button>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Bell className="h-4 w-4 text-primary" /> Notificações
+            </CardTitle>
+            <CardDescription>Receber alertas do sistema (expedientes, aprovações, reformas)</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <p className="font-medium text-sm">Estado actual</p>
+                <p className="text-xs text-muted-foreground">
+                  {notifPerm === "granted" && "Activadas — receberá alertas do navegador"}
+                  {notifPerm === "denied" && "Bloqueadas — active nas definições do navegador"}
+                  {notifPerm === "default" && "Ainda não solicitada"}
+                </p>
+              </div>
+              <Button variant="outline" onClick={requestNotifications} disabled={notifPerm === "granted"}>
+                <Bell className="h-4 w-4 mr-2" />
+                {notifPerm === "granted" ? "Activadas" : "Activar"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              {online ? <Wifi className="h-4 w-4 text-green-600" /> : <WifiOff className="h-4 w-4 text-amber-600" />}
+              Modo Offline
+            </CardTitle>
+            <CardDescription>
+              O SIGE+ funciona como aplicação instalável (PWA) com suporte offline para os recursos já visitados.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="text-sm space-y-2">
+            <Badge variant={online ? "secondary" : "destructive"}>
+              {online ? "Conectado à internet" : "Sem conexão"}
+            </Badge>
+            <p className="text-xs text-muted-foreground">
+              Para instalar no telemóvel: abra o menu do navegador e seleccione <strong>"Adicionar ao ecrã principal"</strong>.
+              Para activar a sincronização offline completa, navegue pelas páginas que pretende consultar sem internet.
+            </p>
           </CardContent>
         </Card>
 

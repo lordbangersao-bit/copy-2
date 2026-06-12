@@ -14,6 +14,7 @@ import {
   CheckSquare, MapPin, Map, History, GitCompare, ArrowLeftRight, FileBarChart, Users2, ShieldCheck,
 } from "lucide-react";
 import { useState } from "react";
+import insigniaAngola from "@/assets/insignia-angola.png.asset.json";
 
 interface NavItem {
   path: string;
@@ -171,9 +172,7 @@ export function AppSidebar({ collapsed, onToggle, mobile = false }: AppSidebarPr
       <div className={cn("flex items-center h-16 px-4 border-b border-sidebar-border", collapsed && "justify-center")}>
         {!collapsed ? (
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-primary">
-              <GraduationCap className="h-5 w-5 text-sidebar-primary-foreground" />
-            </div>
+            <img src={insigniaAngola.url} alt="Insígnia da República de Angola" className="h-9 w-9 object-contain" />
             <div className="flex flex-col">
               <span className="font-bold text-sidebar-foreground">SIGE+</span>
               <span className="text-[10px] text-sidebar-muted-foreground leading-tight">
@@ -182,9 +181,7 @@ export function AppSidebar({ collapsed, onToggle, mobile = false }: AppSidebarPr
             </div>
           </div>
         ) : (
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-primary">
-            <GraduationCap className="h-5 w-5 text-sidebar-primary-foreground" />
-          </div>
+          <img src={insigniaAngola.url} alt="Insígnia" className="h-9 w-9 object-contain" />
         )}
       </div>
 
