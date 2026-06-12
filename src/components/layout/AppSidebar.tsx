@@ -14,6 +14,7 @@ import {
   CheckSquare, MapPin, Map, History, GitCompare, ArrowLeftRight, FileBarChart, Users2, ShieldCheck,
 } from "lucide-react";
 import { useState } from "react";
+import insigniaAngola from "@/assets/insignia-angola.png.asset.json";
 
 interface NavItem {
   path: string;
