@@ -25,6 +25,36 @@ export default function Configuracoes() {
   const { user, role, signOut } = useAuth();
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
   const [sendingReset, setSendingReset] = useState(false);
+  const [notifPerm, setNotifPerm] = useState<NotificationPermission>(
+    typeof Notification !== "undefined" ? Notification.permission : "denied"
+  );
+  const [online, setOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const on = () => setOnline(true);
+    const off = () => setOnline(false);
+    window.addEventListener("online", on);
+    window.addEventListener("offline", off);
+    return () => {
+      window.removeEventListener("online", on);
+      window.removeEventListener("offline", off);
+    };
+  }, []);
+
+  const requestNotifications = async () => {
+    if (typeof Notification === "undefined") {
+      toast.error("Notificações não suportadas neste dispositivo");
+      return;
+    }
+    const perm = await Notification.requestPermission();
+    setNotifPerm(perm);
+    if (perm === "granted") {
+      new Notification("SIGE+", { body: "Notificações activadas com sucesso." });
+      toast.success("Notificações activadas");
+    } else {
+      toast.warning("Permissão de notificações negada");
+    }
+  };
 
   useEffect(() => {
     if (isDark) document.documentElement.classList.add("dark");
