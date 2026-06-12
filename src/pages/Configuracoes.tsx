@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-import { Settings, Moon, Sun, LogOut, Mail, Shield, Clock, KeyRound, Loader2 } from "lucide-react";
+import { Settings, Moon, Sun, LogOut, Mail, Shield, Clock, KeyRound, Loader2, Bell, Wifi, WifiOff } from "lucide-react";
 import { toast } from "sonner";
 
 const roleLabels: Record<string, string> = {
