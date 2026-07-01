@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -80,6 +80,7 @@ interface EfectivosStats {
 export default function UnidadesOrganicas() {
   const { isAdmin, role, roleInfo } = useAuth();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const paramMunicipioId = searchParams.get("municipio") || undefined;
   
   // Auto-filter: municipal managers see only their municipality
@@ -447,7 +448,11 @@ export default function UnidadesOrganicas() {
               </TableHeader>
               <TableBody>
                 {filteredUnidades.map((unidade) => (
-                  <TableRow key={unidade.id} className="table-row-hover">
+                  <TableRow
+                    key={unidade.id}
+                    className="table-row-hover cursor-pointer"
+                    onClick={() => navigate(`/professores?escola=${unidade.id}`)}
+                  >
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
@@ -527,7 +532,7 @@ export default function UnidadesOrganicas() {
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
