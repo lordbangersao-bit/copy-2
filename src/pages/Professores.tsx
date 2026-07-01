@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useMunicipalities } from "@/hooks/useMunicipalities";
 import * as XLSX from "xlsx";
 import { printOfficialDocument } from "@/lib/printTemplate";
