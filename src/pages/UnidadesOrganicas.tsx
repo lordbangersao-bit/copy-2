@@ -448,7 +448,11 @@ export default function UnidadesOrganicas() {
               </TableHeader>
               <TableBody>
                 {filteredUnidades.map((unidade) => (
-                  <TableRow key={unidade.id} className="table-row-hover">
+                  <TableRow
+                    key={unidade.id}
+                    className="table-row-hover cursor-pointer"
+                    onClick={() => navigate(`/professores?escola=${unidade.id}`)}
+                  >
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
