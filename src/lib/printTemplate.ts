@@ -1,13 +1,13 @@
 /**
- * Template oficial de impressão A4 — Governo Provincial do Cunene
- * Direcção Municipal da Educação em Namacunde
+ * Template oficial de impressão A4 — SIGE+
+ * Governo Provincial do Cunene · Direcção Municipal da Educação
  *
- * Engine de renderização governamental:
- *  - Margens A4 fixas (Top 30mm / Bottom 40mm / Left/Right 20mm)
- *  - Footer institucional sem sobreposição
- *  - Numeração automática de páginas (Página X de Y)
- *  - Quebra de página inteligente (assinatura, tabelas e BIs nunca cortados)
- *  - Página final OBRIGATÓRIA de verificação (código, hash SHA-256, QR)
+ * Layout padrão institucional:
+ *  - Cabeçalho: insígnia + títulos centrados
+ *  - Bloco de contactos (canto sup. esquerdo)
+ *  - Marca d'água diagonal "DMEN"
+ *  - Rodapé em 3 colunas: Município · SIGE+ | Nº Doc / Data | Página x de y
+ *  - Bloco de validação COMPACTO (apenas QR + Nº de Série)
  *
  * Criado por: Áureo Chissanhino Maria da Silva
  */
@@ -19,10 +19,9 @@ interface PrintTemplateOptions {
   title: string;
   content: string;
   userName?: string;
-  /** Optional metadata for the mandatory verification page */
   verification?: VerificationData;
-  /** Municipality shown in footer/verification (default: Namacunde) */
   municipality?: string;
+  documentType?: string;
 }
 
 export interface VerificationData {
@@ -49,15 +48,10 @@ interface PrintOfficialDocumentOptions {
 // PUBLIC API
 // ============================================================
 
-/**
- * Generate and print an official government document.
- * Handles hashing, QR generation, pagination and the final verification page.
- */
 export async function printOfficialDocument(
   options: PrintOfficialDocumentOptions
 ): Promise<void> {
   const verification = await buildVerification(options);
-  // Register issued document for public verification (non-blocking on error)
   try {
     const { data: u } = await supabase.auth.getUser();
     await supabase.from("issued_documents").insert({
@@ -80,6 +74,7 @@ export async function printOfficialDocument(
     content: options.content,
     userName: options.userName,
     municipality: options.municipality,
+    documentType: options.documentType,
     verification,
   });
   openPrintWindow(html);
@@ -118,16 +113,8 @@ async function buildVerification(
   const issueDate = new Date().toISOString();
 
   const documentHash = await sha256(
-    [
-      documentCode,
-      documentNumber,
-      options.title,
-      options.content,
-      options.recordId ?? "",
-      issueDate,
-    ].join("|")
+    [documentCode, documentNumber, options.title, options.content, options.recordId ?? "", issueDate].join("|")
   );
-
   const signatureHash = await sha256(
     `${documentHash}|JORGE-M-DOS-SANTOS-KENGELE-DAVID|${municipality}`
   );
@@ -136,17 +123,11 @@ async function buildVerification(
     typeof window !== "undefined" ? window.location.origin : "https://sige.local";
   const verifyUrl = `${origin}/verify/${documentCode}`;
 
-  const qrPayload = JSON.stringify({
-    code: documentCode,
-    hash: documentHash,
-    url: verifyUrl,
-    municipality,
-  });
-
-  const qrDataUrl = await QRCode.toDataURL(qrPayload, {
+  // QR contém apenas a URL pública de verificação (leitura simples pela câmara)
+  const qrDataUrl = await QRCode.toDataURL(verifyUrl, {
     errorCorrectionLevel: "M",
     margin: 1,
-    width: 220,
+    width: 160,
     color: { dark: "#0b1a3a", light: "#ffffff" },
   });
 
@@ -172,15 +153,18 @@ export function getOfficialPrintHTML({
   userName,
   verification,
   municipality,
+  documentType,
 }: PrintTemplateOptions): string {
   const dataAtual = new Date().toLocaleDateString("pt-AO", {
     day: "2-digit",
     month: "long",
     year: "numeric",
   });
+  const dataCurta = new Date().toLocaleDateString("pt-AO");
 
   const muni = municipality ?? verification?.municipality ?? "Namacunde";
-  const verificationBlock = verification ? renderVerificationPage(verification) : "";
+  const docCode = verification?.documentCode ?? "—";
+  const docName = documentType ?? title;
 
   return `<!DOCTYPE html>
 <html lang="pt">
@@ -188,224 +172,207 @@ export function getOfficialPrintHTML({
   <meta charset="UTF-8">
   <title>${escapeHtml(title)} — SIGE+</title>
   <style>
-    /* ==========================================================
-       A4 PAGE RULES — Government Grade
-       Top: 30mm · Bottom: 40mm · Left/Right: 20mm
-       ========================================================== */
     @page {
       size: A4;
-      margin: 30mm 20mm 40mm 20mm;
+      margin: 28mm 18mm 26mm 18mm;
 
+      @bottom-left {
+        content: "${escapeHtml(muni)} ---- SIGE+";
+        font-family: 'Times New Roman', serif;
+        font-size: 9pt;
+        color: #333;
+      }
+      @bottom-center {
+        content: "Nº doc: ${escapeHtml(docCode)} — ${escapeHtml(docName)} · ${escapeHtml(dataCurta)}";
+        font-family: 'Times New Roman', serif;
+        font-size: 8.5pt;
+        color: #333;
+      }
       @bottom-right {
         content: "Página " counter(page) " de " counter(pages);
         font-family: 'Times New Roman', serif;
         font-size: 9pt;
-        color: #555;
-      }
-      @bottom-left {
-        content: "${escapeHtml(muni)} — SIGE+";
-        font-family: 'Times New Roman', serif;
-        font-size: 9pt;
-        color: #555;
-      }
-      @bottom-center {
-        content: "${verification ? `Doc: ${escapeHtml(verification.documentCode)}` : ""}";
-        font-family: 'Times New Roman', serif;
-        font-size: 9pt;
-        color: #555;
+        color: #333;
       }
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       font-family: 'Times New Roman', Times, serif;
-      color: #1a1a1a;
-      font-size: 12pt;
-      line-height: 1.6;
+      color: #111;
+      font-size: 11.5pt;
+      line-height: 1.55;
       background: #fff;
     }
 
-    /* ============ FIXED FOOTER (repeats every page, in @page margin) ============ */
-    .running-footer {
-      position: running(footer);
-      font-size: 9pt;
-      color: #555;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 4px;
-      border-top: 1px solid #ccc;
-    }
-
-    /* ============ WATERMARK ============ */
+    /* Watermark diagonal DMEN */
     .watermark {
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(-35deg);
-      font-size: 120pt;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) rotate(-38deg);
+      font-size: 150pt;
       font-weight: 700;
-      color: rgba(0,0,0,0.04);
-      letter-spacing: 20px;
+      color: rgba(0,0,0,0.06);
+      letter-spacing: 12px;
       white-space: nowrap;
       z-index: -1;
       pointer-events: none;
+      font-family: 'Times New Roman', serif;
     }
 
-    /* ============ HEADER ============ */
+    /* Contact block (top-left, small) */
+    .contact-block {
+      position: fixed;
+      top: 6mm;
+      left: 8mm;
+      font-size: 7.5pt;
+      line-height: 1.35;
+      color: #444;
+      max-width: 55mm;
+    }
+    .contact-block a { color: #1a56a0; text-decoration: none; }
+
+    /* Header centered */
     .official-header {
       text-align: center;
-      padding-bottom: 16px;
-      margin-bottom: 20px;
-      border-bottom: 2px solid #333;
+      padding-bottom: 8px;
+      margin-bottom: 14px;
       page-break-after: avoid;
       break-after: avoid;
     }
-    .official-header .brasao { width: 70px; height: auto; margin-bottom: 6px; }
-    .official-header .gov-title,
-    .official-header .admin-title {
-      font-size: 12pt; text-transform: uppercase; letter-spacing: 1px;
+    .official-header .brasao {
+      width: 58px; height: auto; margin-bottom: 4px;
     }
+    .official-header .gov-title,
+    .official-header .admin-title,
     .official-header .direcao-title {
-      font-size: 14pt; font-weight: 700; text-decoration: underline;
-      letter-spacing: 1px; margin-top: 6px;
+      font-size: 11pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      line-height: 1.35;
     }
 
-    /* ============ DOCUMENT TITLE ============ */
     .doc-title {
       text-align: center;
-      font-size: 14pt;
+      font-size: 13pt;
       font-weight: 700;
-      margin: 16px 0 22px;
+      margin: 14px 0 16px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.4px;
       page-break-after: avoid;
       break-after: avoid;
     }
 
-    /* ============ CONTENT ============ */
-    .content { font-size: 12pt; line-height: 1.8; text-align: justify; }
-    .content p { margin-bottom: 8px; orphans: 3; widows: 3; }
+    .content { font-size: 11.5pt; line-height: 1.7; text-align: justify; }
+    .content p { margin-bottom: 6px; orphans: 3; widows: 3; }
     .content h2 {
-      font-size: 13pt; margin: 18px 0 10px; font-weight: 700;
-      page-break-after: avoid; break-after: avoid;
-    }
-    .content h3 {
       font-size: 12pt; margin: 14px 0 8px; font-weight: 700;
       page-break-after: avoid; break-after: avoid;
     }
-    .content ul, .content ol { margin-left: 20px; margin-bottom: 10px; }
+    .content h3 {
+      font-size: 11pt; margin: 10px 0 6px; font-weight: 700;
+      page-break-after: avoid; break-after: avoid;
+    }
+    .content ul, .content ol { margin-left: 18px; margin-bottom: 8px; }
 
-    /* Tables NEVER split a row */
     .content table {
-      width: 100%; border-collapse: collapse; margin: 15px 0;
-      font-size: 10pt;
+      width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 9.5pt;
     }
-    .content table, .content tbody { break-inside: auto; }
-    .content tr {
-      page-break-inside: avoid; break-inside: avoid;
-      page-break-after: auto;
-    }
+    .content tr { page-break-inside: avoid; break-inside: avoid; }
     .content thead { display: table-header-group; }
-    .content tfoot { display: table-footer-group; }
     .content th, .content td {
-      border: 1px solid #333; padding: 6px 10px; text-align: left;
-      vertical-align: top;
+      border: 1px solid #333; padding: 5px 8px; text-align: left; vertical-align: top;
     }
     .content th {
-      background: #1a365d; color: #fff; font-weight: 600; font-size: 10pt;
+      background: #1a365d; color: #fff; font-weight: 600; font-size: 9.5pt;
     }
     .content tr:nth-child(even) td { background: #f5f5f5; }
 
-    /* BI / ID blocks must not be split */
     .id-block, [data-pdf-block="id"], [data-pdf-block="bi"] {
       page-break-inside: avoid; break-inside: avoid;
     }
 
-    /* ============ STATS / KPI ============ */
     .stats-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
-      margin: 15px 0; break-inside: avoid;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+      margin: 10px 0; break-inside: avoid;
     }
-    .stat-box { border: 1px solid #333; padding: 12px; text-align: center; }
-    .stat-box .value { font-size: 22pt; font-weight: 700; color: #1a365d; }
-    .stat-box .label { font-size: 9pt; color: #555; margin-top: 4px; }
+    .stat-box { border: 1px solid #333; padding: 8px; text-align: center; }
+    .stat-box .value { font-size: 18pt; font-weight: 700; color: #1a365d; }
+    .stat-box .label { font-size: 8.5pt; color: #555; margin-top: 2px; }
 
-    .section { margin-bottom: 18px; }
-    .section h2 {
-      border-left: 4px solid #1a365d; padding-left: 10px;
-    }
-
-    /* ============ SIGNATURE — never split, never overlap footer ============ */
+    /* Signature */
     .signature-block {
-      margin-top: 50px;
+      margin-top: 40px;
       text-align: center;
       page-break-inside: avoid;
       break-inside: avoid;
-      page-break-before: auto;
     }
     .signature-block .location-date {
       text-align: left; font-style: italic;
-      margin-bottom: 50px; font-size: 11pt;
+      margin-bottom: 36px; font-size: 10.5pt;
     }
-    .signature-block .signature-line {
-      width: 60%; margin: 0 auto 6px;
-      border-top: 1px solid #1a1a1a;
+    .signature-block .director-role {
+      font-weight: 700; font-style: italic; font-size: 10.5pt; margin-bottom: 4px;
     }
-    .signature-block .director-title,
     .signature-block .director-name {
-      font-weight: 700; font-size: 12pt; text-transform: uppercase;
+      font-weight: 700; font-size: 11pt; text-transform: uppercase; letter-spacing: 0.4px;
     }
-    .signature-block .director-title { margin-bottom: 4px; }
-    .user-info { text-align: left; margin-top: 24px; font-size: 10pt; color: #555; }
+    .user-info { text-align: left; margin-top: 18px; font-size: 9pt; color: #666; }
 
-    /* ============ VERIFICATION PAGE ============ */
-    .verification-page {
-      page-break-before: always;
-      break-before: page;
-      padding-top: 10mm;
+    /* Compact validation block (QR + Serial only) */
+    .validation-strip {
+      margin-top: 24px;
+      padding-top: 8px;
+      border-top: 1px solid #999;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
-    .verification-page h1 {
-      text-align: center; font-size: 16pt; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 2px;
-      border-bottom: 2px solid #1a365d; padding-bottom: 10px; margin-bottom: 24px;
+    .validation-strip .qr {
+      width: 78px; height: 78px; flex: 0 0 78px;
     }
-    .verify-grid {
-      display: grid; grid-template-columns: 1fr 240px; gap: 24px; align-items: start;
+    .validation-strip .qr img { width: 100%; height: 100%; display: block; }
+    .validation-strip .meta {
+      font-size: 8.5pt; line-height: 1.45; color: #333;
     }
-    .verify-fields { font-size: 11pt; line-height: 1.9; }
-    .verify-fields .field { margin-bottom: 8px; }
-    .verify-fields .label {
-      display: inline-block; min-width: 170px;
-      font-weight: 700; color: #1a365d; text-transform: uppercase; font-size: 9pt;
+    .validation-strip .meta .serial {
+      font-family: 'Courier New', monospace;
+      font-size: 10pt; font-weight: 700; color: #0b1a3a; letter-spacing: 0.5px;
     }
-    .verify-fields .value {
-      font-family: 'Courier New', monospace; font-size: 10pt;
-      word-break: break-all;
-    }
-    .verify-qr { text-align: center; }
-    .verify-qr img {
-      width: 220px; height: 220px; border: 1px solid #333; padding: 6px; background: #fff;
-    }
-    .verify-qr .qr-caption {
-      margin-top: 8px; font-size: 9pt; color: #555;
-    }
-    .verify-instructions {
-      margin-top: 30px; padding: 14px; border: 1px dashed #1a365d;
-      background: #f8fafc; font-size: 10pt; line-height: 1.6;
-    }
-    .verify-instructions strong { color: #1a365d; }
-    .verify-footnote {
-      margin-top: 24px; text-align: center; font-size: 8pt; color: #888; font-style: italic;
+    .validation-strip .meta .label {
+      text-transform: uppercase; font-size: 7.5pt; color: #666; letter-spacing: 0.6px;
     }
 
-    @media print {
-      .no-print { display: none !important; }
+    /* Rodapé institucional (aparece no fim da última página) */
+    .institutional-footer {
+      margin-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      font-size: 7.5pt;
+      color: #444;
+      page-break-inside: avoid;
     }
+    .institutional-footer .addr { line-height: 1.4; max-width: 65%; }
+    .institutional-footer .addr a { color: #1a56a0; text-decoration: none; }
+    .institutional-footer .gov-logo { height: 26px; }
+
+    @media print { .no-print { display: none !important; } }
   </style>
 </head>
 <body>
-  <div class="watermark">SIGE+</div>
+  <div class="watermark">DMEN</div>
+
+  <aside class="contact-block">
+    Governo Provincial do Cunene<br/>
+    Direcção Municipal da Educação<br/>
+    Tel: 924 688 671<br/>
+    Email: <a href="mailto:rmectnamacunde@gmail.com">rmectnamacunde@gmail.com</a><br/>
+    ANGOLA
+  </aside>
 
   <header class="official-header">
     <img src="/images/brasao-angola.png" class="brasao" alt="" onerror="this.style.display='none'" />
@@ -424,54 +391,40 @@ export function getOfficialPrintHTML({
     <div class="location-date">
       Direcção Municipal da Educação em ${escapeHtml(muni)}, ${dataAtual}.
     </div>
-    <div class="signature-line"></div>
-    <div class="director-title">O DIRECTOR MUNICIPAL</div>
-    <div class="director-name">JORGE M. DOS SANTOS KENGELE DAVID</div>
+    <div class="director-role">O Director Municipal</div>
+    <div class="director-name">JORGE MANUEL DOS SANTOS KENGELE DAVID</div>
     ${userName ? `<div class="user-info">Emitido por: ${escapeHtml(userName)}</div>` : ""}
   </section>
 
-  ${verificationBlock}
+  ${verification ? renderValidationStrip(verification) : ""}
+
+  <footer class="institutional-footer">
+    <div class="addr">
+      Governo Provincial do Cunene · Direcção Municipal da Educação<br/>
+      Tel: 924 688 671 · <a href="mailto:rmectnamacunde@gmail.com">rmectnamacunde@gmail.com</a> · ANGOLA
+    </div>
+    <img src="/images/governo-angola-logo.png" class="gov-logo" alt="" onerror="this.style.display='none'" />
+  </footer>
 </body>
 </html>`;
 }
 
 // ============================================================
-// VERIFICATION PAGE
+// COMPACT VALIDATION STRIP (QR + Serial only)
 // ============================================================
 
-function renderVerificationPage(v: VerificationData): string {
-  const issued = new Date(v.issueDate).toLocaleString("pt-AO");
+function renderValidationStrip(v: VerificationData): string {
   return `
-  <section class="verification-page">
-    <h1>Página de Verificação Documental</h1>
-
-    <div class="verify-grid">
-      <div class="verify-fields">
-        <div class="field"><span class="label">Código Oficial:</span> <span class="value">${escapeHtml(v.documentCode)}</span></div>
-        <div class="field"><span class="label">Nº Documento:</span> <span class="value">${escapeHtml(v.documentNumber)}</span></div>
-        <div class="field"><span class="label">Município:</span> <span class="value">${escapeHtml(v.municipality)}</span></div>
-        <div class="field"><span class="label">Data de Emissão:</span> <span class="value">${escapeHtml(issued)}</span></div>
-        <div class="field"><span class="label">Hash SHA-256:</span><br/><span class="value">${escapeHtml(v.documentHash)}</span></div>
-        <div class="field"><span class="label">Assinatura Digital:</span><br/><span class="value">${escapeHtml(v.signatureHash)}</span></div>
-        <div class="field"><span class="label">URL Verificação:</span><br/><span class="value">${escapeHtml(v.verifyUrl)}</span></div>
-      </div>
-      <div class="verify-qr">
-        <img src="${v.qrDataUrl}" alt="QR Code de Verificação" />
-        <div class="qr-caption">Leitura via app/câmara</div>
-      </div>
+  <section class="validation-strip" aria-label="Validação">
+    <div class="qr">
+      <img src="${v.qrDataUrl}" alt="QR de validação" />
     </div>
-
-    <div class="verify-instructions">
-      <strong>Como verificar a autenticidade deste documento:</strong><br/>
-      1. Aceda ao endereço de verificação acima ou leia o QR Code.<br/>
-      2. Confirme se o <strong>Código Oficial</strong> e o <strong>Hash SHA-256</strong> coincidem com os exibidos no sistema oficial.<br/>
-      3. Qualquer alteração ao conteúdo deste documento invalida automaticamente o hash e a assinatura digital.<br/>
-      4. Em caso de divergência, contacte a Direcção Municipal da Educação (DME).
-    </div>
-
-    <div class="verify-footnote">
-      Documento emitido electronicamente pelo SIGE+ — Sistema Integrado de Gestão da Educação.<br/>
-      Sistema desenvolvido por Áureo Chissanhino Maria da Silva — Advogado e Codificador Informático.
+    <div class="meta">
+      <div class="label">Nº de Série (Validação)</div>
+      <div class="serial">${escapeHtml(v.documentCode)}</div>
+      <div style="margin-top:4px;">
+        Verifique em: <span style="font-family:'Courier New',monospace;">${escapeHtml(v.verifyUrl)}</span>
+      </div>
     </div>
   </section>`;
 }
@@ -495,13 +448,8 @@ export function openPrintWindow(html: string) {
   printWindow.document.write(html);
   printWindow.document.close();
   printWindow.focus();
-  // Wait for QR images to load before triggering print
   const trigger = () => {
-    try {
-      printWindow.print();
-    } catch {
-      /* noop */
-    }
+    try { printWindow.print(); } catch { /* noop */ }
   };
   setTimeout(trigger, 700);
 }
