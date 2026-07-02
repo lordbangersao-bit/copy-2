@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Search, ShieldCheck, AlertCircle, ArrowLeft } from "lucide-react";
-import insignia from "@/assets/insignia-angola.png";
+import insignia from "@/assets/insignia-angola.png.asset.json";
 
 type Resultado = {
   numero_agente: string | null;
@@ -78,7 +78,7 @@ export default function ConsultaAgente() {
         </div>
 
         <div className="mb-6 flex flex-col items-center text-center">
-          <img src={insignia} alt="Insígnia de Angola" className="h-20 w-20 object-contain" />
+          <img src={insignia.url} alt="Insígnia de Angola" className="h-20 w-20 object-contain" />
           <h1 className="mt-3 text-2xl font-bold">SIGE+ · Consulta Pública de Agente</h1>
           <p className="text-sm text-muted-foreground">
             Direcção Municipal da Educação de Namacunde
