@@ -258,6 +258,21 @@ export default function Auth() {
                       Recuperar por Telefone
                     </Button>
                   </div>
+
+                  <div className="mt-3 rounded-md border bg-muted/40 p-3 text-center">
+                    <p className="text-[11px] text-muted-foreground mb-2">
+                      É agente e quer apenas consultar os seus dados?
+                    </p>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="w-full text-xs h-9"
+                      onClick={() => navigate("/consulta")}
+                      type="button"
+                    >
+                      Consulta pública de agente
+                    </Button>
+                  </div>
                 </div>
 
                 <p className="text-[11px] text-center text-muted-foreground mt-4">
