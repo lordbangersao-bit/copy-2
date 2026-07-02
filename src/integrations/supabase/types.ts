@@ -739,6 +739,7 @@ export type Database = {
           arquivo_pessoal: string | null
           bairro_localidade: string | null
           categoria: string | null
+          chave_unica: string | null
           comuna: string | null
           condicao_fisica: string | null
           cpf: string | null
@@ -782,6 +783,7 @@ export type Database = {
           arquivo_pessoal?: string | null
           bairro_localidade?: string | null
           categoria?: string | null
+          chave_unica?: string | null
           comuna?: string | null
           condicao_fisica?: string | null
           cpf?: string | null
@@ -825,6 +827,7 @@ export type Database = {
           arquivo_pessoal?: string | null
           bairro_localidade?: string | null
           categoria?: string | null
+          chave_unica?: string | null
           comuna?: string | null
           condicao_fisica?: string | null
           cpf?: string | null
@@ -1245,6 +1248,23 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      consulta_publica_agente: {
+        Args: { _bi: string; _chave: string; _numero_agente: string }
+        Returns: {
+          categoria: string
+          data_admissao: string
+          disciplina: string
+          funcao: string
+          municipio: string
+          nivel_academico: string
+          nome: string
+          numero_agente: string
+          provincia: string
+          regime_contrato: string
+          status: string
+          unidade_organica: string
+        }[]
       }
       execute_transfer: { Args: { _request_id: string }; Returns: Json }
       generate_snapshot: {
