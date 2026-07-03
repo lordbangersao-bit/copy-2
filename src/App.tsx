@@ -70,7 +70,10 @@ const PageFallback = () => (
 );
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
+  <PersistQueryClientProvider
+    client={queryClient}
+    persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24 * 60, buster: "v1" }}
+  >
     <AuthProvider>
       <TooltipProvider>
         <Toaster />
