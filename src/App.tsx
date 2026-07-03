@@ -42,7 +42,26 @@ const DocumentosEmitidos = lazy(() => import("./pages/DocumentosEmitidos"));
 const Configuracoes = lazy(() => import("./pages/Configuracoes"));
 const ConsultaAgente = lazy(() => import("./pages/ConsultaAgente"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      gcTime: 1000 * 60 * 60 * 24 * 60, // 60 days
+      staleTime: 1000 * 60 * 5, // 5 min
+      retry: 2,
+      networkMode: "offlineFirst",
+    },
+    mutations: {
+      networkMode: "offlineFirst",
+      retry: 3,
+    },
+  },
+});
+
+const persister = createSyncStoragePersister({
+  storage: typeof window !== "undefined" ? window.localStorage : undefined,
+  key: "sige-query-cache",
+  throttleTime: 1000,
+});
 
 const PageFallback = () => (
   <div className="min-h-screen flex items-center justify-center bg-background">
