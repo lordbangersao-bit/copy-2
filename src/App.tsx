@@ -3,8 +3,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
-import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
+import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
+import { get, set, del } from "idb-keyval";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { OnlineStatusIndicator } from "@/components/OnlineStatusIndicator";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Suspense, lazy } from "react";
@@ -57,8 +59,12 @@ const queryClient = new QueryClient({
   },
 });
 
-const persister = createSyncStoragePersister({
-  storage: typeof window !== "undefined" ? window.localStorage : undefined,
+const persister = createAsyncStoragePersister({
+  storage: {
+    getItem: (key) => get(key).then((v) => v ?? null),
+    setItem: (key, value) => set(key, value),
+    removeItem: (key) => del(key),
+  },
   key: "sige-query-cache",
   throttleTime: 1000,
 });
@@ -114,6 +120,7 @@ const App = () => (
           </Suspense>
           <AIAssistant />
           <CommandPalette />
+          <OnlineStatusIndicator />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
