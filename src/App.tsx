@@ -59,8 +59,12 @@ const queryClient = new QueryClient({
   },
 });
 
-const persister = createSyncStoragePersister({
-  storage: typeof window !== "undefined" ? window.localStorage : undefined,
+const persister = createAsyncStoragePersister({
+  storage: {
+    getItem: (key) => get(key).then((v) => v ?? null),
+    setItem: (key, value) => set(key, value),
+    removeItem: (key) => del(key),
+  },
   key: "sige-query-cache",
   throttleTime: 1000,
 });
