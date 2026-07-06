@@ -174,25 +174,19 @@ export function getOfficialPrintHTML({
   <style>
     @page {
       size: A4;
-      margin: 28mm 18mm 26mm 18mm;
+      margin: 20mm 18mm 22mm 18mm;
 
-      @bottom-left {
-        content: "${escapeHtml(muni)} ---- SIGE+";
-        font-family: 'Times New Roman', serif;
-        font-size: 9pt;
-        color: #333;
-      }
-      @bottom-center {
-        content: "Nº doc: ${escapeHtml(docCode)} — ${escapeHtml(docName)} · ${escapeHtml(dataCurta)}";
-        font-family: 'Times New Roman', serif;
-        font-size: 8.5pt;
-        color: #333;
-      }
       @bottom-right {
         content: "Página " counter(page) " de " counter(pages);
         font-family: 'Times New Roman', serif;
         font-size: 9pt;
-        color: #333;
+        color: #444;
+      }
+      @bottom-left {
+        content: "Nº ${escapeHtml(docCode)} · ${escapeHtml(dataCurta)}";
+        font-family: 'Times New Roman', serif;
+        font-size: 8.5pt;
+        color: #666;
       }
     }
 
@@ -204,85 +198,127 @@ export function getOfficialPrintHTML({
       line-height: 1.55;
       background: #fff;
     }
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
 
-    /* Watermark diagonal DMEN */
+    /* ============ WATERMARK (fixed, decorativa, todas as páginas) ============ */
     .watermark {
       position: fixed;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%) rotate(-38deg);
       font-size: 150pt;
       font-weight: 700;
-      color: rgba(0,0,0,0.06);
+      color: rgba(0,0,0,0.05);
       letter-spacing: 12px;
       white-space: nowrap;
-      z-index: -1;
+      z-index: 0;
       pointer-events: none;
       font-family: 'Times New Roman', serif;
     }
 
-    /* Contact block (top-left, small) */
-    .contact-block {
-      position: fixed;
-      top: 6mm;
-      left: 8mm;
-      font-size: 7.5pt;
-      line-height: 1.35;
-      color: #444;
-      max-width: 55mm;
-    }
-    .contact-block a { color: #1a56a0; text-decoration: none; }
-
-    /* Header centered */
+    /* ============ HEADER (só na primeira página, layout em grid) ============ */
     .official-header {
-      text-align: center;
-      padding-bottom: 8px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 10px;
       margin-bottom: 14px;
+      border-bottom: 1.5px solid #0b1a3a;
       page-break-after: avoid;
       break-after: avoid;
+      position: relative;
+      z-index: 1;
+    }
+    .official-header .contact {
+      font-size: 7.5pt;
+      line-height: 1.4;
+      color: #444;
+      text-align: left;
+    }
+    .official-header .contact a { color: #1a56a0; text-decoration: none; }
+    .official-header .center {
+      text-align: center;
     }
     .official-header .brasao {
-      width: 58px; height: auto; margin-bottom: 4px;
+      width: 56px;
+      height: auto;
+      display: block;
+      margin: 0 auto 4px;
     }
-    .official-header .gov-title,
-    .official-header .admin-title,
-    .official-header .direcao-title {
-      font-size: 11pt;
+    .official-header .center .gov-title,
+    .official-header .center .admin-title,
+    .official-header .center .direcao-title {
+      font-size: 10.5pt;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.4px;
       line-height: 1.35;
     }
+    .official-header .doc-meta {
+      font-size: 7.5pt;
+      color: #444;
+      text-align: right;
+      line-height: 1.4;
+    }
+    .official-header .doc-meta .label {
+      text-transform: uppercase;
+      font-size: 6.5pt;
+      color: #888;
+      letter-spacing: 0.5px;
+    }
 
+    /* ============ DOC TITLE ============ */
     .doc-title {
       text-align: center;
       font-size: 13pt;
       font-weight: 700;
-      margin: 14px 0 16px;
+      margin: 10px 0 16px;
       text-transform: uppercase;
-      letter-spacing: 0.4px;
+      letter-spacing: 0.6px;
       page-break-after: avoid;
       break-after: avoid;
     }
 
-    .content { font-size: 11.5pt; line-height: 1.7; text-align: justify; }
-    .content p { margin-bottom: 6px; orphans: 3; widows: 3; }
+    /* ============ BODY ============ */
+    .content {
+      flex: 1;
+      font-size: 11.5pt;
+      line-height: 1.7;
+      text-align: justify;
+      position: relative;
+      z-index: 1;
+    }
+    .content p { margin-bottom: 8px; orphans: 3; widows: 3; }
     .content h2 {
-      font-size: 12pt; margin: 14px 0 8px; font-weight: 700;
+      font-size: 12pt; margin: 16px 0 8px; font-weight: 700;
       page-break-after: avoid; break-after: avoid;
     }
     .content h3 {
-      font-size: 11pt; margin: 10px 0 6px; font-weight: 700;
+      font-size: 11pt; margin: 12px 0 6px; font-weight: 700;
       page-break-after: avoid; break-after: avoid;
     }
-    .content ul, .content ol { margin-left: 18px; margin-bottom: 8px; }
+    .content ul, .content ol { margin: 0 0 10px 20px; }
+    .content li { margin-bottom: 3px; }
 
     .content table {
-      width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 9.5pt;
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 9.5pt;
+      page-break-inside: auto;
     }
     .content tr { page-break-inside: avoid; break-inside: avoid; }
     .content thead { display: table-header-group; }
+    .content tfoot { display: table-footer-group; }
     .content th, .content td {
-      border: 1px solid #333; padding: 5px 8px; text-align: left; vertical-align: top;
+      border: 1px solid #333;
+      padding: 5px 8px;
+      text-align: left;
+      vertical-align: top;
     }
     .content th {
       background: #1a365d; color: #fff; font-weight: 600; font-size: 9.5pt;
@@ -294,49 +330,79 @@ export function getOfficialPrintHTML({
     }
 
     .stats-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-      margin: 10px 0; break-inside: avoid;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 12px 0;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
-    .stat-box { border: 1px solid #333; padding: 8px; text-align: center; }
+    .stat-box {
+      border: 1px solid #333;
+      padding: 8px;
+      text-align: center;
+    }
     .stat-box .value { font-size: 18pt; font-weight: 700; color: #1a365d; }
     .stat-box .label { font-size: 8.5pt; color: #555; margin-top: 2px; }
 
-    /* Signature */
+    /* ============ SIGNATURE ============ */
     .signature-block {
-      margin-top: 40px;
-      text-align: center;
+      margin-top: 32px;
       page-break-inside: avoid;
       break-inside: avoid;
+      position: relative;
+      z-index: 1;
     }
     .signature-block .location-date {
-      text-align: left; font-style: italic;
-      margin-bottom: 36px; font-size: 10.5pt;
+      text-align: right;
+      font-style: italic;
+      margin-bottom: 40px;
+      font-size: 10.5pt;
+    }
+    .signature-block .signature-line {
+      width: 60%;
+      margin: 0 auto;
+      border-top: 1px solid #111;
+      padding-top: 4px;
+      text-align: center;
     }
     .signature-block .director-role {
-      font-weight: 700; font-style: italic; font-size: 10.5pt; margin-bottom: 4px;
+      font-style: italic;
+      font-size: 10pt;
+      margin-bottom: 2px;
     }
     .signature-block .director-name {
-      font-weight: 700; font-size: 11pt; text-transform: uppercase; letter-spacing: 0.4px;
+      font-weight: 700;
+      font-size: 10.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
     }
-    .user-info { text-align: left; margin-top: 18px; font-size: 9pt; color: #666; }
+    .user-info {
+      margin-top: 16px;
+      font-size: 8.5pt;
+      color: #666;
+      text-align: left;
+    }
 
-    /* Compact validation block (QR + Serial only) */
+    /* ============ VALIDATION STRIP ============ */
     .validation-strip {
-      margin-top: 24px;
-      padding-top: 8px;
+      margin-top: 22px;
+      padding-top: 10px;
       border-top: 1px solid #999;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       page-break-inside: avoid;
       break-inside: avoid;
+      position: relative;
+      z-index: 1;
     }
     .validation-strip .qr {
       width: 78px; height: 78px; flex: 0 0 78px;
     }
     .validation-strip .qr img { width: 100%; height: 100%; display: block; }
     .validation-strip .meta {
-      font-size: 8.5pt; line-height: 1.45; color: #333;
+      font-size: 8.5pt; line-height: 1.5; color: #333; flex: 1;
     }
     .validation-strip .meta .serial {
       font-family: 'Courier New', monospace;
@@ -346,9 +412,11 @@ export function getOfficialPrintHTML({
       text-transform: uppercase; font-size: 7.5pt; color: #666; letter-spacing: 0.6px;
     }
 
-    /* Rodapé institucional (aparece no fim da última página) */
+    /* ============ INSTITUTIONAL FOOTER (fim do documento, não em toda página) ============ */
     .institutional-footer {
-      margin-top: 16px;
+      margin-top: 20px;
+      padding-top: 8px;
+      border-top: 1px solid #ccc;
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
@@ -356,32 +424,48 @@ export function getOfficialPrintHTML({
       color: #444;
       page-break-inside: avoid;
     }
-    .institutional-footer .addr { line-height: 1.4; max-width: 65%; }
+    .institutional-footer .addr { line-height: 1.4; max-width: 70%; }
     .institutional-footer .addr a { color: #1a56a0; text-decoration: none; }
     .institutional-footer .gov-logo { height: 26px; }
 
-    @media print { .no-print { display: none !important; } }
+    /* ============ PRINT-ONLY ============ */
+    @media print {
+      .no-print { display: none !important; }
+      body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      a { color: inherit; text-decoration: none; }
+    }
+
+    @media screen {
+      body { max-width: 210mm; margin: 0 auto; padding: 20mm 18mm; }
+    }
   </style>
 </head>
 <body>
   <div class="watermark">DMEN</div>
 
-  <aside class="contact-block">
-    Governo Provincial do Cunene<br/>
-    Direcção Municipal da Educação<br/>
-    Tel: 924 688 671<br/>
-    Email: <a href="mailto:rmectnamacunde@gmail.com">rmectnamacunde@gmail.com</a><br/>
-    ANGOLA
-  </aside>
-
   <header class="official-header">
-    <img src="/images/brasao-angola.png" class="brasao" alt="" onerror="this.style.display='none'" />
-    <div class="gov-title">GOVERNO PROVINCIAL DO CUNENE</div>
-    <div class="admin-title">ADMINISTRAÇÃO MUNICIPAL DE ${escapeHtml(muni).toUpperCase()}</div>
-    <div class="direcao-title">DIRECÇÃO DA EDUCAÇÃO</div>
+    <div class="contact">
+      Governo Provincial do Cunene<br/>
+      Direcção Municipal da Educação<br/>
+      Tel: 924 688 671<br/>
+      <a href="mailto:rmectnamacunde@gmail.com">rmectnamacunde@gmail.com</a><br/>
+      ANGOLA
+    </div>
+    <div class="center">
+      <img src="/images/brasao-angola.png" class="brasao" alt="" onerror="this.style.display='none'" />
+      <div class="gov-title">República de Angola</div>
+      <div class="admin-title">Administração Municipal de ${escapeHtml(muni).toUpperCase()}</div>
+      <div class="direcao-title">Direcção Municipal da Educação</div>
+    </div>
+    <div class="doc-meta">
+      <div class="label">Documento Nº</div>
+      <div>${escapeHtml(docCode)}</div>
+      <div class="label" style="margin-top:4px;">Data de emissão</div>
+      <div>${escapeHtml(dataCurta)}</div>
+    </div>
   </header>
 
-  <div class="doc-title">${escapeHtml(title)}</div>
+  <h1 class="doc-title">${escapeHtml(title)}</h1>
 
   <main class="content">
     ${content}
@@ -389,10 +473,12 @@ export function getOfficialPrintHTML({
 
   <section class="signature-block">
     <div class="location-date">
-      Direcção Municipal da Educação em ${escapeHtml(muni)}, ${dataAtual}.
+      ${escapeHtml(muni)}, ${dataAtual}.
     </div>
-    <div class="director-role">O Director Municipal</div>
-    <div class="director-name">JORGE MANUEL DOS SANTOS KENGELE DAVID</div>
+    <div class="signature-line">
+      <div class="director-role">O Director Municipal</div>
+      <div class="director-name">Jorge Manuel dos Santos Kengele David</div>
+    </div>
     ${userName ? `<div class="user-info">Emitido por: ${escapeHtml(userName)}</div>` : ""}
   </section>
 
