@@ -51,7 +51,7 @@ export default function Auth() {
     try {
       loginSchema.parse({ email, password });
     } catch (err) {
-      if (err instanceof z.ZodError) setError(err.errors[0].message);
+      if (err instanceof z.ZodError) setError(err.issues[0].message);
       return;
     }
 

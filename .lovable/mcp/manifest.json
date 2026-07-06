@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "dmen-gestor-mcp",
+      "version": "0.1.0",
+      "title": "DMEN Gestor MCP"
+    },
+    "tools": [
+      {
+        "name": "consulta_agente",
+        "title": "Consultar agente",
+        "description": "Consulta pública de dados de um agente do DMEN Gestor. Requer número de agente, número do BI e a chave única fornecida pelo sistema.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "numero_agente": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Número de agente"
+            },
+            "bi": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Número do Bilhete de Identidade"
+            },
+            "chave_unica": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Chave única de 12 caracteres fornecida pelo sistema"
+            }
+          },
+          "required": [
+            "numero_agente",
+            "bi",
+            "chave_unica"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
