@@ -120,6 +120,7 @@ const App = () => (
           </Suspense>
           <AIAssistant />
           <CommandPalette />
+          <OnlineStatusIndicator />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
