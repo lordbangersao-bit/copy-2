@@ -14,6 +14,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === "development" && componentTagger(),
+    mcpPlugin(),
     VitePWA({
       registerType: "autoUpdate",
       devOptions: { enabled: false },
