@@ -556,6 +556,145 @@ export type Database = {
           },
         ]
       }
+      inss_config: {
+        Row: {
+          auto_backup: boolean
+          currency: string
+          decimal_format: string
+          default_tipo: string
+          employer_name: string
+          employer_nif: string
+          employer_niss: string
+          id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          auto_backup?: boolean
+          currency?: string
+          decimal_format?: string
+          default_tipo?: string
+          employer_name?: string
+          employer_nif?: string
+          employer_niss?: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          auto_backup?: boolean
+          currency?: string
+          decimal_format?: string
+          default_tipo?: string
+          employer_name?: string
+          employer_nif?: string
+          employer_niss?: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      inss_generations: {
+        Row: {
+          checksum: string | null
+          duplicates: number
+          employees_matched: number
+          employees_missing_niss: number
+          employer_name: string | null
+          employer_nif: string | null
+          employer_niss: string | null
+          export_format: string
+          generated_at: string
+          generated_by: string
+          id: string
+          ignored_rows: number
+          municipality_id: string | null
+          payload: Json | null
+          province_id: string | null
+          reference_month: string
+          source_filename: string | null
+          tipo: string
+          total_adicionais: number
+          total_base: number
+          total_bruto: number
+          total_employees: number
+          version: string
+        }
+        Insert: {
+          checksum?: string | null
+          duplicates?: number
+          employees_matched?: number
+          employees_missing_niss?: number
+          employer_name?: string | null
+          employer_nif?: string | null
+          employer_niss?: string | null
+          export_format?: string
+          generated_at?: string
+          generated_by: string
+          id?: string
+          ignored_rows?: number
+          municipality_id?: string | null
+          payload?: Json | null
+          province_id?: string | null
+          reference_month: string
+          source_filename?: string | null
+          tipo?: string
+          total_adicionais?: number
+          total_base?: number
+          total_bruto?: number
+          total_employees?: number
+          version?: string
+        }
+        Update: {
+          checksum?: string | null
+          duplicates?: number
+          employees_matched?: number
+          employees_missing_niss?: number
+          employer_name?: string | null
+          employer_nif?: string | null
+          employer_niss?: string | null
+          export_format?: string
+          generated_at?: string
+          generated_by?: string
+          id?: string
+          ignored_rows?: number
+          municipality_id?: string | null
+          payload?: Json | null
+          province_id?: string | null
+          reference_month?: string
+          source_filename?: string | null
+          tipo?: string
+          total_adicionais?: number
+          total_base?: number
+          total_bruto?: number
+          total_employees?: number
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inss_generations_municipality_id_fkey"
+            columns: ["municipality_id"]
+            isOneToOne: false
+            referencedRelation: "deficit_by_municipality"
+            referencedColumns: ["municipality_id"]
+          },
+          {
+            foreignKeyName: "inss_generations_municipality_id_fkey"
+            columns: ["municipality_id"]
+            isOneToOne: false
+            referencedRelation: "municipalities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inss_generations_province_id_fkey"
+            columns: ["province_id"]
+            isOneToOne: false
+            referencedRelation: "provinces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       issued_documents: {
         Row: {
           created_at: string
@@ -760,6 +899,7 @@ export type Database = {
           id: string
           idade: number | null
           inicio_funcao: string | null
+          niss: string | null
           nivel_academico: string | null
           nome: string
           nome_parceira: string | null
@@ -804,6 +944,7 @@ export type Database = {
           id?: string
           idade?: number | null
           inicio_funcao?: string | null
+          niss?: string | null
           nivel_academico?: string | null
           nome: string
           nome_parceira?: string | null
@@ -848,6 +989,7 @@ export type Database = {
           id?: string
           idade?: number | null
           inicio_funcao?: string | null
+          niss?: string | null
           nivel_academico?: string | null
           nome?: string
           nome_parceira?: string | null
