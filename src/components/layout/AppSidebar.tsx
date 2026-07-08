@@ -11,7 +11,7 @@ import {
 import {
   LayoutDashboard, Building2, Users, Calendar, FileText, BarChart3, Settings, LogOut,
   Shield, ChevronLeft, ChevronRight, GraduationCap, ClipboardList, Bell, FolderOpen,
-  CheckSquare, MapPin, Map, History, GitCompare, ArrowLeftRight, FileBarChart, Users2, ShieldCheck,
+  CheckSquare, MapPin, Map, History, GitCompare, ArrowLeftRight, FileBarChart, Users2, ShieldCheck, FileSpreadsheet,
 } from "lucide-react";
 import { useState } from "react";
 import insigniaAngola from "@/assets/insignia-angola.png.asset.json";
@@ -59,6 +59,7 @@ const institucionalNavItems: NavItem[] = [
 // 2. Recursos Humanos  (Agentes = Quadro de Pessoal)
 const rhNavItems: NavItem[] = [
   { path: "/professores", label: "Quadro de Pessoal", icon: Users },
+  { path: "/inss", label: "Gerador INSS", icon: FileSpreadsheet, roles: ["ADMIN", "GESTOR_PROVINCIAL", "GESTOR_MUNICIPAL"] },
   { path: "/assiduidade", label: "Assiduidade", icon: CheckSquare },
   { path: "/horarios", label: "Colocação e Horários", icon: Calendar },
   { path: "/avaliacoes", label: "Avaliação de Desempenho", icon: ClipboardList },
