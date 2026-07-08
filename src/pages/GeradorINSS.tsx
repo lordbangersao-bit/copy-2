@@ -289,7 +289,7 @@ export default function GeradorINSS() {
         <PageHeader
           title="Gerador INSS — Folha de Remuneração"
           description="Converte automaticamente a Folha de Pagamento por Unidade Pagadora no ficheiro oficial INSS."
-          icon={FileSpreadsheet}
+          icon={<FileSpreadsheet className="h-6 w-6" />}
         />
 
         {/* Configuration + Upload */}
