@@ -43,6 +43,7 @@ const VerifyDocument = lazy(() => import("./pages/VerifyDocument"));
 const DocumentosEmitidos = lazy(() => import("./pages/DocumentosEmitidos"));
 const Configuracoes = lazy(() => import("./pages/Configuracoes"));
 const ConsultaAgente = lazy(() => import("./pages/ConsultaAgente"));
+const GeradorINSS = lazy(() => import("./pages/GeradorINSS"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -115,6 +116,7 @@ const App = () => (
               <Route path="/deficit" element={<ProtectedRoute><DeficitDocente /></ProtectedRoute>} />
               <Route path="/documentos-emitidos" element={<ProtectedRoute><DocumentosEmitidos /></ProtectedRoute>} />
               <Route path="/configuracoes" element={<ProtectedRoute><Configuracoes /></ProtectedRoute>} />
+              <Route path="/inss" element={<ProtectedRoute><GeradorINSS /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
