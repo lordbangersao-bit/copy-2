@@ -59,6 +59,7 @@ const institucionalNavItems: NavItem[] = [
 // 2. Recursos Humanos  (Agentes = Quadro de Pessoal)
 const rhNavItems: NavItem[] = [
   { path: "/professores", label: "Quadro de Pessoal", icon: Users },
+  { path: "/inss", label: "Gerador INSS", icon: FileSpreadsheet, roles: ["ADMIN", "GESTOR_PROVINCIAL", "GESTOR_MUNICIPAL"] },
   { path: "/assiduidade", label: "Assiduidade", icon: CheckSquare },
   { path: "/horarios", label: "Colocação e Horários", icon: Calendar },
   { path: "/avaliacoes", label: "Avaliação de Desempenho", icon: ClipboardList },
