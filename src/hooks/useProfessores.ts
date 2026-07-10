@@ -43,6 +43,7 @@ export interface Professor {
   telefone_parceira: string | null;
   outro_familiar: string | null;
   foto_url: string | null;
+  niss: string | null;
 }
 
 export interface ProfessorWithEscola extends Professor {

@@ -4,11 +4,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-import { Settings, Moon, Sun, LogOut, Mail, Shield, Clock, KeyRound, Loader2, Bell, Wifi, WifiOff } from "lucide-react";
+import { Settings, Moon, Sun, LogOut, Mail, Shield, Clock, KeyRound, Loader2, Bell, Wifi, WifiOff, Building2, Save } from "lucide-react";
 import { toast } from "sonner";
+import { useInssConfig, useUpdateInssConfig } from "@/hooks/useInssConfig";
 
 const roleLabels: Record<string, string> = {
   ADMIN: "Administrador Provincial",
@@ -22,13 +25,41 @@ const roleLabels: Record<string, string> = {
 };
 
 export default function Configuracoes() {
-  const { user, role, signOut } = useAuth();
+  const { user, role, signOut, isManager } = useAuth();
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
   const [sendingReset, setSendingReset] = useState(false);
   const [notifPerm, setNotifPerm] = useState<NotificationPermission>(
     typeof Notification !== "undefined" ? Notification.permission : "denied"
   );
   const [online, setOnline] = useState(navigator.onLine);
+  const { data: inssConfig } = useInssConfig();
+  const updateInss = useUpdateInssConfig();
+  const [empName, setEmpName] = useState("");
+  const [empNiss, setEmpNiss] = useState("");
+  const [empNif, setEmpNif] = useState("");
+
+  useEffect(() => {
+    if (inssConfig) {
+      setEmpName(inssConfig.employer_name || "");
+      setEmpNiss(inssConfig.employer_niss || "");
+      setEmpNif(inssConfig.employer_nif || "");
+    }
+  }, [inssConfig]);
+
+  const saveInss = async () => {
+    if (!inssConfig?.id) return;
+    try {
+      await updateInss.mutateAsync({
+        id: inssConfig.id,
+        employer_name: empName.trim(),
+        employer_niss: empNiss.trim(),
+        employer_nif: empNif.trim(),
+      });
+      toast.success("Configuração do empregador actualizada");
+    } catch {
+      toast.error("Não foi possível guardar a configuração");
+    }
+  };
 
   useEffect(() => {
     const on = () => setOnline(true);
@@ -224,6 +255,61 @@ export default function Configuracoes() {
             </p>
           </CardContent>
         </Card>
+
+        {isManager && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-primary" /> Dados do Empregador (INSS)
+              </CardTitle>
+              <CardDescription>
+                Usados na geração automática da Folha de Remuneração INSS
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="emp-name">Designação da Entidade Empregadora</Label>
+                <Input
+                  id="emp-name"
+                  value={empName}
+                  onChange={(e) => setEmpName(e.target.value)}
+                  placeholder="Ex: Direcção Municipal da Educação do Namacunde"
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="emp-niss">Inscrição INSS (NISS)</Label>
+                  <Input
+                    id="emp-niss"
+                    value={empNiss}
+                    onChange={(e) => setEmpNiss(e.target.value)}
+                    placeholder="Ex: 5973657"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="emp-nif">Número de Identificação Fiscal (NIF)</Label>
+                  <Input
+                    id="emp-nif"
+                    value={empNif}
+                    onChange={(e) => setEmpNif(e.target.value)}
+                    placeholder="Ex: 5000505188"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <Button onClick={saveInss} disabled={updateInss.isPending || !inssConfig?.id}>
+                  {updateInss.isPending ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-2" />
+                  )}
+                  Guardar alterações
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
 
         <Card>
           <CardHeader>

@@ -68,6 +68,7 @@ const professorSchema = z.object({
   nome_parceira: z.string().nullable(),
   telefone_parceira: z.string().nullable(),
   outro_familiar: z.string().nullable(),
+  niss: z.string().nullable(),
 });
 
 interface ProfessorFormProps {
@@ -170,6 +171,7 @@ export function ProfessorForm({
       nome_parceira: "",
       telefone_parceira: "",
       outro_familiar: "",
+      niss: "",
     },
   });
 
@@ -211,6 +213,7 @@ export function ProfessorForm({
         nome_parceira: professor.nome_parceira || "",
         telefone_parceira: professor.telefone_parceira || "",
         outro_familiar: professor.outro_familiar || "",
+        niss: professor.niss || "",
       });
     } else {
       form.reset({
@@ -249,6 +252,7 @@ export function ProfessorForm({
         nome_parceira: "",
         telefone_parceira: "",
         outro_familiar: "",
+        niss: "",
       });
     }
   }, [professor, form]);
@@ -293,6 +297,7 @@ export function ProfessorForm({
       nome_parceira: data.nome_parceira || null,
       telefone_parceira: data.telefone_parceira || null,
       outro_familiar: data.outro_familiar || null,
+      niss: data.niss || null,
     };
     onSubmit(cleanData);
     form.reset();
@@ -435,6 +440,22 @@ export function ProfessorForm({
                       )}
                     />
                     {renderSelectField("estado_civil", "Estado Civil", ESTADO_CIVIL_OPTIONS, "Selecione")}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="niss"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>NISS (Inscrição INSS)</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Número de inscrição no INSS" {...field} value={field.value || ""} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
