@@ -4,11 +4,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-import { Settings, Moon, Sun, LogOut, Mail, Shield, Clock, KeyRound, Loader2, Bell, Wifi, WifiOff } from "lucide-react";
+import { Settings, Moon, Sun, LogOut, Mail, Shield, Clock, KeyRound, Loader2, Bell, Wifi, WifiOff, Building2, Save } from "lucide-react";
 import { toast } from "sonner";
+import { useInssConfig, useUpdateInssConfig } from "@/hooks/useInssConfig";
 
 const roleLabels: Record<string, string> = {
   ADMIN: "Administrador Provincial",
