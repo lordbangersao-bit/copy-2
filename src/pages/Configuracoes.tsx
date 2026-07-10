@@ -25,13 +25,41 @@ const roleLabels: Record<string, string> = {
 };
 
 export default function Configuracoes() {
-  const { user, role, signOut } = useAuth();
+  const { user, role, signOut, isManager } = useAuth();
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
   const [sendingReset, setSendingReset] = useState(false);
   const [notifPerm, setNotifPerm] = useState<NotificationPermission>(
     typeof Notification !== "undefined" ? Notification.permission : "denied"
   );
   const [online, setOnline] = useState(navigator.onLine);
+  const { data: inssConfig } = useInssConfig();
+  const updateInss = useUpdateInssConfig();
+  const [empName, setEmpName] = useState("");
+  const [empNiss, setEmpNiss] = useState("");
+  const [empNif, setEmpNif] = useState("");
+
+  useEffect(() => {
+    if (inssConfig) {
+      setEmpName(inssConfig.employer_name || "");
+      setEmpNiss(inssConfig.employer_niss || "");
+      setEmpNif(inssConfig.employer_nif || "");
+    }
+  }, [inssConfig]);
+
+  const saveInss = async () => {
+    if (!inssConfig?.id) return;
+    try {
+      await updateInss.mutateAsync({
+        id: inssConfig.id,
+        employer_name: empName.trim(),
+        employer_niss: empNiss.trim(),
+        employer_nif: empNif.trim(),
+      });
+      toast.success("Configuração do empregador actualizada");
+    } catch {
+      toast.error("Não foi possível guardar a configuração");
+    }
+  };
 
   useEffect(() => {
     const on = () => setOnline(true);
