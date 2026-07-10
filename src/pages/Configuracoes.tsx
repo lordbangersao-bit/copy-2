@@ -256,6 +256,61 @@ export default function Configuracoes() {
           </CardContent>
         </Card>
 
+        {isManager && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-primary" /> Dados do Empregador (INSS)
+              </CardTitle>
+              <CardDescription>
+                Usados na geração automática da Folha de Remuneração INSS
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="emp-name">Designação da Entidade Empregadora</Label>
+                <Input
+                  id="emp-name"
+                  value={empName}
+                  onChange={(e) => setEmpName(e.target.value)}
+                  placeholder="Ex: Direcção Municipal da Educação do Namacunde"
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="emp-niss">Inscrição INSS (NISS)</Label>
+                  <Input
+                    id="emp-niss"
+                    value={empNiss}
+                    onChange={(e) => setEmpNiss(e.target.value)}
+                    placeholder="Ex: 5973657"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="emp-nif">Número de Identificação Fiscal (NIF)</Label>
+                  <Input
+                    id="emp-nif"
+                    value={empNif}
+                    onChange={(e) => setEmpNif(e.target.value)}
+                    placeholder="Ex: 5000505188"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <Button onClick={saveInss} disabled={updateInss.isPending || !inssConfig?.id}>
+                  {updateInss.isPending ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-2" />
+                  )}
+                  Guardar alterações
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Sobre o SIGE+</CardTitle>
