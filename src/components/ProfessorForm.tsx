@@ -445,6 +445,22 @@ export function ProfessorForm({
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
+                      name="niss"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>NISS (Inscrição INSS)</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Número de inscrição no INSS" {...field} value={field.value || ""} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
                       name="telefone"
                       render={({ field }) => (
                         <FormItem>
