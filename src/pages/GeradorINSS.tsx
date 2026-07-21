@@ -413,10 +413,17 @@ export default function GeradorINSS() {
             <Tabs defaultValue="preview">
               <TabsList>
                 <TabsTrigger value="preview">Pré-visualização Editável</TabsTrigger>
+                <TabsTrigger value="anomalies">
+                  <Activity className="h-4 w-4 mr-1" /> Anomalias
+                </TabsTrigger>
                 <TabsTrigger value="missing">Sem INSS ({stats.missingNiss})</TabsTrigger>
                 <TabsTrigger value="invalid">Linhas Inválidas ({stats.invalidRows})</TabsTrigger>
                 <TabsTrigger value="history"><History className="h-4 w-4 mr-1" /> Histórico</TabsTrigger>
               </TabsList>
+
+              <TabsContent value="anomalies">
+                <AnomalyPanel rows={enriched} />
+              </TabsContent>
 
               <TabsContent value="preview">
                 <Card>
