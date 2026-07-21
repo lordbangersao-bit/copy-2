@@ -69,6 +69,7 @@ export default function GeradorINSS() {
   );
   const [smartUpdate, setSmartUpdate] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
+  const [importNissOpen, setImportNissOpen] = useState(false);
 
   const [empName, setEmpName] = useState("");
   const [empNiss, setEmpNiss] = useState("");
