@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   FileSpreadsheet, Upload, Download, AlertTriangle, CheckCircle2, Loader2,
-  Settings, History, Users, Wallet, FileText, ShieldAlert, Sparkles, FileDown,
+  Settings, History, Users, Wallet, FileText, ShieldAlert, Sparkles, FileDown, Activity,
 } from "lucide-react";
 import { Navigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -33,6 +33,7 @@ import {
 } from "@/lib/inss/generator";
 import { generateSummaryPdf } from "@/lib/inss/summaryPdf";
 import { ImportNissDialog } from "@/components/ImportNissDialog";
+import { AnomalyPanel } from "@/components/inss/AnomalyPanel";
 
 interface EnrichedRow extends RawPayrollRow {
   niss: string;
@@ -412,10 +413,17 @@ export default function GeradorINSS() {
             <Tabs defaultValue="preview">
               <TabsList>
                 <TabsTrigger value="preview">Pré-visualização Editável</TabsTrigger>
+                <TabsTrigger value="anomalies">
+                  <Activity className="h-4 w-4 mr-1" /> Anomalias
+                </TabsTrigger>
                 <TabsTrigger value="missing">Sem INSS ({stats.missingNiss})</TabsTrigger>
                 <TabsTrigger value="invalid">Linhas Inválidas ({stats.invalidRows})</TabsTrigger>
                 <TabsTrigger value="history"><History className="h-4 w-4 mr-1" /> Histórico</TabsTrigger>
               </TabsList>
+
+              <TabsContent value="anomalies">
+                <AnomalyPanel rows={enriched} />
+              </TabsContent>
 
               <TabsContent value="preview">
                 <Card>
