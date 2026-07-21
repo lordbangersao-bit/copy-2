@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   FileSpreadsheet, Upload, Download, AlertTriangle, CheckCircle2, Loader2,
-  Settings, History, Users, Wallet, FileText, ShieldAlert, Sparkles, FileDown,
+  Settings, History, Users, Wallet, FileText, ShieldAlert, Sparkles, FileDown, Activity,
 } from "lucide-react";
 import { Navigate } from "react-router-dom";
 import { toast } from "sonner";
