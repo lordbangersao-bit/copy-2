@@ -32,6 +32,7 @@ import {
   type InssEmployeeRow, type InssExportInput,
 } from "@/lib/inss/generator";
 import { generateSummaryPdf } from "@/lib/inss/summaryPdf";
+import { ImportNissDialog } from "@/components/ImportNissDialog";
 
 interface EnrichedRow extends RawPayrollRow {
   niss: string;
