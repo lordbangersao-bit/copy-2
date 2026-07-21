@@ -33,6 +33,7 @@ import {
 } from "@/lib/inss/generator";
 import { generateSummaryPdf } from "@/lib/inss/summaryPdf";
 import { ImportNissDialog } from "@/components/ImportNissDialog";
+import { AnomalyPanel } from "@/components/inss/AnomalyPanel";
 
 interface EnrichedRow extends RawPayrollRow {
   niss: string;
