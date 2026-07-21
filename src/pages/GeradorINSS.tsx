@@ -286,11 +286,17 @@ export default function GeradorINSS() {
   return (
     <AppLayout>
       <div className="p-4 md:p-6 space-y-6">
-        <PageHeader
-          title="Gerador INSS — Folha de Remuneração"
-          description="Converte automaticamente a Folha de Pagamento por Unidade Pagadora no ficheiro oficial INSS."
-          icon={<FileSpreadsheet className="h-6 w-6" />}
-        />
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <PageHeader
+            title="Gerador INSS — Folha de Remuneração"
+            description="Converte automaticamente a Folha de Pagamento por Unidade Pagadora no ficheiro oficial INSS."
+            icon={<FileSpreadsheet className="h-6 w-6" />}
+          />
+          <Button variant="outline" onClick={() => setImportNissOpen(true)}>
+            <Upload className="mr-2 h-4 w-4" /> Importar NISS em massa
+          </Button>
+        </div>
+        <ImportNissDialog open={importNissOpen} onOpenChange={setImportNissOpen} />
 
         {/* Configuration + Upload */}
         <div className="grid gap-4 lg:grid-cols-3">
