@@ -1,3 +1,4 @@
+import { platform, documentVerifyUrl } from "@/lib/platform";
 /**
  * Template oficial de impressão A4 — SIGE+
  * Governo Provincial do Cunene · Direcção Municipal da Educação
@@ -119,9 +120,7 @@ async function buildVerification(
     `${documentHash}|JORGE-M-DOS-SANTOS-KENGELE-DAVID|${municipality}`
   );
 
-  const origin =
-    typeof window !== "undefined" ? window.location.origin : "https://sige.local";
-  const verifyUrl = `${origin}/verify/${documentCode}`;
+  const verifyUrl = documentVerifyUrl(documentCode);
 
   // QR contém apenas a URL pública de verificação (leitura simples pela câmara)
   const qrDataUrl = await QRCode.toDataURL(verifyUrl, {
@@ -529,13 +528,5 @@ function escapeHtml(s: string): string {
 }
 
 export function openPrintWindow(html: string) {
-  const printWindow = window.open("", "_blank");
-  if (!printWindow) return;
-  printWindow.document.write(html);
-  printWindow.document.close();
-  printWindow.focus();
-  const trigger = () => {
-    try { printWindow.print(); } catch { /* noop */ }
-  };
-  setTimeout(trigger, 700);
+  platform.print({ html, delay: 700 });
 }
