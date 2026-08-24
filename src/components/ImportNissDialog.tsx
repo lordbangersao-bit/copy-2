@@ -1,3 +1,4 @@
+import { platform } from "@/lib/platform";
 import { useState, useRef, useMemo } from "react";
 import * as XLSX from "xlsx";
 import { supabase } from "@/integrations/supabase/client";
@@ -96,13 +97,11 @@ export function ImportNissDialog({ open, onOpenChange }: ImportNissDialogProps) 
     ws["!cols"] = [{ wch: 18 }, { wch: 22 }, { wch: 30 }];
     XLSX.utils.book_append_sheet(wb, ws, "NISS");
     const buf = XLSX.write(wb, { type: "array", bookType: "xlsx" });
-    const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "template-niss.xlsx";
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    void platform.saveFile({
+      data: buf,
+      filename: "template-niss.xlsx",
+      mime: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
   };
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {

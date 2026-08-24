@@ -1,3 +1,4 @@
+import { platform } from "@/lib/platform";
 import { useRef, useState } from "react";
 import {
   Dialog,
@@ -51,23 +52,16 @@ export function EmitirIDDialog({
     if (!cardRef.current) return;
 
     const printContent = cardRef.current.outerHTML;
-    const printWindow = window.open("", "_blank");
-    
-    if (!printWindow) {
-      toast.error("Não foi possível abrir a janela de impressão");
-      return;
-    }
-
-    printWindow.document.write(`
+    platform.print({
+      title: `Cartão de Identificação - ${displayProfessor?.nome}`,
+      delay: 500,
+      html: `
       <!DOCTYPE html>
       <html>
         <head>
           <title>Cartão de Identificação - ${displayProfessor?.nome}</title>
           <style>
-            @page {
-              size: 86mm 54mm;
-              margin: 0;
-            }
+            @page { size: 86mm 54mm; margin: 0; }
             body {
               margin: 0;
               padding: 10mm;
@@ -78,28 +72,16 @@ export function EmitirIDDialog({
               background: #f5f5f5;
               font-family: 'Segoe UI', system-ui, sans-serif;
             }
-            @media print {
-              body {
-                background: white;
-                padding: 0;
-              }
-            }
+            @media print { body { background: white; padding: 0; } }
           </style>
           <script src="https://cdn.tailwindcss.com"></script>
         </head>
         <body>
           ${printContent}
-          <script>
-            setTimeout(() => {
-              window.print();
-              window.close();
-            }, 500);
-          </script>
         </body>
       </html>
-    `);
-    
-    printWindow.document.close();
+    `,
+    });
   };
 
   const handleDownload = async () => {

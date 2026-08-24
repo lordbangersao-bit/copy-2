@@ -1,3 +1,4 @@
+import { platform } from "@/lib/platform";
 import { useState, useRef } from "react";
 import { printOfficialDocument } from "@/lib/printTemplate";
 import { calcularIdade, calcularTempoServico } from "@/lib/calcularAgente";
@@ -311,12 +312,10 @@ export function EmissaoDocumentosDialog({
   const handlePrintID = () => {
     if (!cardRef.current) return;
     const printContent = cardRef.current.outerHTML;
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) {
-      toast.error("Não foi possível abrir a janela de impressão");
-      return;
-    }
-    printWindow.document.write(`
+    platform.print({
+      title: `Cartão de Identificação - ${displayProfessor?.nome}`,
+      delay: 500,
+      html: `
       <!DOCTYPE html>
       <html>
         <head>
@@ -330,11 +329,10 @@ export function EmissaoDocumentosDialog({
         </head>
         <body>
           ${printContent}
-          <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
         </body>
       </html>
-    `);
-    printWindow.document.close();
+    `,
+    });
   };
 
   const handleDownloadID = async () => {

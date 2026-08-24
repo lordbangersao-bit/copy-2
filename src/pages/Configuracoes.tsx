@@ -1,3 +1,4 @@
+import { platform } from "@/lib/platform";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,7 +30,7 @@ export default function Configuracoes() {
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
   const [sendingReset, setSendingReset] = useState(false);
   const [notifPerm, setNotifPerm] = useState<NotificationPermission>(
-    typeof Notification !== "undefined" ? Notification.permission : "denied"
+    platform.notificationPermission()
   );
   const [online, setOnline] = useState(navigator.onLine);
   const { data: inssConfig } = useInssConfig();
@@ -73,14 +74,10 @@ export default function Configuracoes() {
   }, []);
 
   const requestNotifications = async () => {
-    if (typeof Notification === "undefined") {
-      toast.error("Notificações não suportadas neste dispositivo");
-      return;
-    }
-    const perm = await Notification.requestPermission();
+    const perm = await platform.requestNotificationPermission();
     setNotifPerm(perm);
     if (perm === "granted") {
-      new Notification("SIGE+", { body: "Notificações activadas com sucesso." });
+      await platform.notify({ title: "SIGE+", body: "Notificações activadas com sucesso." });
       toast.success("Notificações activadas");
     } else {
       toast.warning("Permissão de notificações negada");

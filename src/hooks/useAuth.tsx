@@ -67,9 +67,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (session?.user) {
           setTimeout(() => {
-            fetchUserRole(session.user.id).then((info) =>
-              setRoleInfo(info.role ? info : { ...defaultRoleInfo, role: "ADMIN" })
-            );
+            // Sem registo em user_roles → nenhum privilégio (nunca ADMIN).
+            // A RLS permanece a autoridade final de segurança.
+            fetchUserRole(session.user.id).then((info) => setRoleInfo(info));
           }, 0);
         }
         if (event === "SIGNED_OUT") {
@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (session?.user) {
         fetchUserRole(session.user.id).then((info) => {
-          setRoleInfo(info.role ? info : { ...defaultRoleInfo, role: "ADMIN" });
+          setRoleInfo(info);
           setIsLoading(false);
         });
       } else {
