@@ -1,3 +1,4 @@
+import { platform } from "@/lib/platform";
 import { useState, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { PageHeader } from "@/components/ui/page-header";
@@ -47,13 +48,11 @@ const RelatoriosOficiais = () => {
   };
 
   const exportJson = (snap: any) => {
-    const blob = new Blob([JSON.stringify(snap, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `snapshot-${snap.scope_type}-${snap.period_key}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    void platform.saveFile({
+      data: JSON.stringify(snap, null, 2),
+      filename: `snapshot-${snap.scope_type}-${snap.period_key}.json`,
+      mime: "application/json",
+    });
   };
 
   return (

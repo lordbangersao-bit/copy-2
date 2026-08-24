@@ -1,3 +1,4 @@
+import { platform } from "@/lib/platform";
 import { useState, useEffect } from "react";
 import { useAuth, AppRole } from "@/hooks/useAuth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -259,9 +260,10 @@ export default function GestaoUtilizadores() {
     );
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success("Copiado para a área de transferência");
+  const copyToClipboard = async (text: string) => {
+    const ok = await platform.copyToClipboard(text);
+    if (ok) toast.success("Copiado para a área de transferência");
+    else toast.error("Não foi possível copiar");
   };
 
   if (!isAdmin) return <Navigate to="/" replace />;
