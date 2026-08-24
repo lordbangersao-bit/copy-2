@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (session?.user) {
         fetchUserRole(session.user.id).then((info) => {
-          setRoleInfo(info.role ? info : { ...defaultRoleInfo, role: "ADMIN" });
+          setRoleInfo(info);
           setIsLoading(false);
         });
       } else {
