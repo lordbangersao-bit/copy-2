@@ -57,6 +57,10 @@ export default defineConfig(({ mode }) => ({
         navigateFallback: "/index.html",
         navigateFallbackDenylist: [/^\/~oauth/, /^\/api/],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,woff,woff2}"],
+        // Bibliotecas pesadas (exceljs, xlsx, jspdf, html2canvas, recharts) ficam
+        // fora do precache — são carregadas lazy e depois cacheadas em runtime
+        // pela estratégia CacheFirst de "assets".
+        globIgnores: ["**/vendor-{sheets,pdf,charts}-*.js"],
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
         cleanupOutdatedCaches: true,
         runtimeCaching: [
@@ -109,6 +113,18 @@ export default defineConfig(({ mode }) => ({
       },
     }),
   ].filter(Boolean),
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (!id.includes("node_modules")) return;
+          if (/exceljs|[\\/]xlsx[\\/]/.test(id)) return "vendor-sheets";
+          if (/jspdf|html2canvas/.test(id)) return "vendor-pdf";
+          if (/recharts|d3-/.test(id)) return "vendor-charts";
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
